@@ -186,6 +186,8 @@ class CaseSummary(ORM):
     proposed_intervention: str | None
     disposition: str | None
     assignee_id: uuid.UUID | None
+    assignee_name: str | None = None
+    sla_breached: bool = False
     created_at: datetime
 
 
@@ -366,6 +368,8 @@ class AlertOut(ORM):
     reason_codes: list[str] = []
     triage_reason: str | None
     triaged_at: datetime | None
+    case_id: uuid.UUID | None = None
+    case_reference: str | None = None
     created_at: datetime
 
 
@@ -415,7 +419,6 @@ class CaseDetail(CaseSummary):
     outcome: str | None
     amount_collected: Decimal | None
     closed_at: datetime | None
-    sla_breached: bool
     available_actions: list[str]
     actions: list[CaseActionOut]
     interventions: list[InterventionOut]

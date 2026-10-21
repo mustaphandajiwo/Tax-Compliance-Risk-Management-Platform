@@ -77,8 +77,22 @@ TRANSITIONS: dict[str, Transition] = {
 }
 
 
-def available_actions(case: Case, perms: frozenset[P]) -> list[str]:
-    return [name for name, t in TRANSITIONS.items() if case.status in t.sources and t.permission in perms]
+def available_actions(db: Session, case: Case, perms: frozenset[P], user_id: uuid.UUID) -> list[str]:
+    """Actions this actor can actually take now, including four-eyes and assignee rules."""
+    iv = _latest_intervention(db, case)
+    out = []
+    for name, t in TRANSITIONS.items():
+        if case.status not in t.sources or t.permission not in perms:
+            continue
+        if name in ("approve_proposal", "return_for_revision", "approve_audit", "reject_audit") and iv is not None \
+                and iv.proposed_by == user_id:
+            continue
+        if name == "start_work" and case.assignee_id not in (None, user_id):
+            continue
+        if name == "record_contact" and case.assignee_id != user_id:
+            continue
+        out.append(name)
+    return out
 
 
 def sla_days(tenant: Tenant, intervention: str | None) -> int:

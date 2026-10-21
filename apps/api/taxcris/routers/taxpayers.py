@@ -129,7 +129,9 @@ def taxpayer_360(taxpayer_id: uuid.UUID, db: DB, principal: Annotated[Principal,
         returns=[ReturnOut.model_validate(r) for r in returns],
         payments=[PaymentOut.model_validate(p) for p in payments],
         assessments=[AssessmentSummary.model_validate(a).model_copy(update={"taxpayer_name": tp.name}) for a in assessments],
-        cases=[CaseSummary.model_validate(c).model_copy(update={"taxpayer_name": tp.name}) for c in cases],
+        cases=[CaseSummary.model_validate(c).model_copy(update={
+            "taxpayer_name": tp.name, "sla_breached": (c.closed_at.date() if c.closed_at else today()) > c.sla_due})
+            for c in cases],
     )
 
 
@@ -204,7 +206,7 @@ def scan_candidates(db: DB, principal: Annotated[Principal, Depends(require(P.ME
 
 @router.post("/merge-candidates/{candidate_id}/decision", response_model=MergeCandidateOut)
 def merge_decision(candidate_id: uuid.UUID, body: MergeDecisionIn, db: DB,
-                   principal: Annotated[Principal, Depends(require(P.MERGES_PROPOSE))]) -> MergeCandidate:
+                   principal: Annotated[Principal, Depends(require(P.MERGES_PROPOSE))]) -> MergeCandidateOut:
     cand = get_scoped(db, MergeCandidate, candidate_id, principal)
     try:
         if body.decision == "propose":
@@ -223,4 +225,6 @@ def merge_decision(candidate_id: uuid.UUID, body: MergeDecisionIn, db: DB,
         db.rollback()
         raise HTTPException(409, str(exc))
     db.commit()
-    return cand
+    names = dict(db.execute(select(Taxpayer.id, Taxpayer.name).where(Taxpayer.id.in_([cand.survivor_id, cand.duplicate_id]))).all())
+    return MergeCandidateOut.model_validate(cand).model_copy(
+        update={"survivor_name": names.get(cand.survivor_id), "duplicate_name": names.get(cand.duplicate_id)})

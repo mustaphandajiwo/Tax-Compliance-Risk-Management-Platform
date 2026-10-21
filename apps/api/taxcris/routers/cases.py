@@ -26,11 +26,24 @@ from .risk import assessment_detail
 router = APIRouter(prefix="/v1", tags=["alerts & cases"])
 
 
-def _alert_out(a: Alert, t: Taxpayer, ra: RiskAssessment) -> AlertOut:
+def _alert_out(a: Alert, t: Taxpayer, ra: RiskAssessment, case: tuple | None = None) -> AlertOut:
     return AlertOut.model_validate(a).model_copy(update={
         "taxpayer_name": t.name, "lga": t.lga, "sector": t.sector, "confidence": ra.confidence,
         "exposure_estimate": ra.exposure_estimate, "reason_codes": ra.reason_codes,
+        "case_id": case[0] if case else None, "case_reference": case[1] if case else None,
     })
+
+
+def _cases_for(db, alert_ids) -> dict:
+    if not alert_ids:
+        return {}
+    return {aid: (cid, ref) for cid, ref, aid in
+            db.execute(select(Case.id, Case.reference, Case.alert_id).where(Case.alert_id.in_(alert_ids))).all()}
+
+
+def _alert_single(db, a: Alert) -> AlertOut:
+    return _alert_out(a, db.get(Taxpayer, a.taxpayer_id), db.get(RiskAssessment, a.assessment_id),
+                      _cases_for(db, [a.id]).get(a.id))
 
 
 @router.get("/alerts", response_model=Page[AlertOut])
@@ -56,13 +69,13 @@ def list_alerts(
         rows = rows[offset: offset + limit]
     else:
         rows, total = paginate(db, q, limit, offset)
-    return Page(items=[_alert_out(a, t, ra) for a, t, ra in rows], total=total, limit=limit, offset=offset)
+    cases = _cases_for(db, [a.id for a, _, _ in rows])
+    return Page(items=[_alert_out(a, t, ra, cases.get(a.id)) for a, t, ra in rows], total=total, limit=limit, offset=offset)
 
 
 @router.get("/alerts/{alert_id}", response_model=AlertOut)
 def get_alert(alert_id: uuid.UUID, db: DB, principal: Annotated[Principal, Depends(require(P.RISK_READ))]) -> AlertOut:
-    a = get_scoped(db, Alert, alert_id, principal)
-    return _alert_out(a, db.get(Taxpayer, a.taxpayer_id), db.get(RiskAssessment, a.assessment_id))
+    return _alert_single(db, get_scoped(db, Alert, alert_id, principal))
 
 
 @router.post("/alerts/{alert_id}/triage", response_model=AlertOut, summary="Confirm, dismiss or escalate with reason")
@@ -75,27 +88,32 @@ def triage_alert(alert_id: uuid.UUID, body: TriageIn, db: DB,
         db.rollback()
         raise HTTPException(409, str(exc))
     db.commit()
-    return _alert_out(a, db.get(Taxpayer, a.taxpayer_id), db.get(RiskAssessment, a.assessment_id))
+    return _alert_single(db, a)
 
 
 # --- cases ------------------------------------------------------------------------------------------
 
 
-def _summary(c: Case, name: str | None) -> CaseSummary:
-    return CaseSummary.model_validate(c).model_copy(update={"taxpayer_name": name})
+def _summary(c: Case, name: str | None, names: dict) -> CaseSummary:
+    end = c.closed_at.date() if c.closed_at else today()
+    return CaseSummary.model_validate(c).model_copy(update={
+        "taxpayer_name": name, "assignee_name": names.get(c.assignee_id), "sla_breached": end > c.sla_due})
+
+
+def _user_names(db, tenant_id) -> dict:
+    return dict(db.execute(select(User.id, User.full_name).where(User.tenant_id == tenant_id)).all())
 
 
 def _detail(db, c: Case, principal: Principal) -> CaseDetail:
     tp = db.get(Taxpayer, c.taxpayer_id)
     alert = db.get(Alert, c.alert_id)
-    names = dict(db.execute(select(User.id, User.full_name).where(User.tenant_id == c.tenant_id)).all())
+    names = _user_names(db, c.tenant_id)
     actions = db.execute(select(CaseAction).where(CaseAction.case_id == c.id).order_by(CaseAction.created_at)).scalars()
     ivs = db.execute(select(Intervention).where(Intervention.case_id == c.id).order_by(Intervention.created_at)).scalars()
     return CaseDetail(
-        **_summary(c, tp.name).model_dump(), alert_id=c.alert_id, owner_id=c.owner_id, outcome=c.outcome,
+        **_summary(c, tp.name, names).model_dump(), alert_id=c.alert_id, owner_id=c.owner_id, outcome=c.outcome,
         amount_collected=c.amount_collected, closed_at=c.closed_at,
-        sla_breached=(c.closed_at.date() if c.closed_at else today()) > c.sla_due,
-        available_actions=workflow.available_actions(c, principal.permissions),
+        available_actions=workflow.available_actions(db, c, principal.permissions, principal.user_id),
         actions=[CaseActionOut.model_validate(a).model_copy(update={"actor_name": names.get(a.actor_id)}) for a in actions],
         interventions=[InterventionOut.model_validate(i) for i in ivs],
         assessment=assessment_detail(db, db.get(RiskAssessment, alert.assessment_id)),
@@ -109,7 +127,8 @@ def create_case(body: CaseCreate, db: DB, principal: Annotated[Principal, Depend
         case = workflow.create_case(db, alert, principal.user_id, principal.role, body.justification)
     except workflow.DuplicateCase as exc:
         db.rollback()
-        raise HTTPException(409, f"An open case already exists for this taxpayer or alert: {exc.case.reference}")
+        what = "This alert already has a case" if exc.case.alert_id == alert.id else "This taxpayer already has an open case"
+        raise HTTPException(409, f"{what}: {exc.case.reference} ({exc.case.status})")
     except workflow.WorkflowError as exc:
         db.rollback()
         raise HTTPException(409, str(exc))
@@ -133,7 +152,8 @@ def list_cases(db: DB, principal: Annotated[Principal, Depends(require(P.CASES_R
         q = q.where(Case.status != "closed")
         q = q.where(Case.sla_due < today()) if sla_breached else q.where(Case.sla_due >= today())
     rows, total = paginate(db, q, limit, offset)
-    return Page(items=[_summary(c, n) for c, n in rows], total=total, limit=limit, offset=offset)
+    names = _user_names(db, principal.tenant_id)
+    return Page(items=[_summary(c, n, names) for c, n in rows], total=total, limit=limit, offset=offset)
 
 
 @router.get("/cases/{case_id}", response_model=CaseDetail)

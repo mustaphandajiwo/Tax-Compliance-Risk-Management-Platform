@@ -121,6 +121,9 @@ def test_manager_cannot_approve_own_proposal(loaded):
     url = f"/v1/cases/{case['id']}/actions"
     c.post(url, json={"action": "submit_proposal", "justification": "Reminder", "payload": {"intervention_type": "filing_reminder"}},
            headers=env.h("manager"))
+    detail = c.get(f"/v1/cases/{case['id']}", headers=env.h("manager")).json()
+    assert "approve_proposal" not in detail["available_actions"]
+    assert "approve_proposal" in c.get(f"/v1/cases/{case['id']}", headers=env.h("manager2")).json()["available_actions"]
     r = c.post(url, json={"action": "approve_proposal", "justification": "Self approve"}, headers=env.h("manager"))
     assert r.status_code == 403
     assert c.post(url, json={"action": "approve_proposal", "justification": "Second pair of eyes"},

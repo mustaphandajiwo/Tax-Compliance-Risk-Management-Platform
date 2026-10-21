@@ -3341,6 +3341,29 @@
       ],
       "title": "Triaged At"
      },
+     "case_id": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "uuid"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Case Id"
+     },
+     "case_reference": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Case Reference"
+     },
      "created_at": {
       "type": "string",
       "format": "date-time",
@@ -3947,6 +3970,22 @@
       ],
       "title": "Assignee Id"
      },
+     "assignee_name": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Assignee Name"
+     },
+     "sla_breached": {
+      "type": "boolean",
+      "title": "Sla Breached",
+      "default": false
+     },
      "created_at": {
       "type": "string",
       "format": "date-time",
@@ -4003,10 +4042,6 @@
       ],
       "title": "Closed At"
      },
-     "sla_breached": {
-      "type": "boolean",
-      "title": "Sla Breached"
-     },
      "available_actions": {
       "items": {
        "type": "string"
@@ -4048,7 +4083,6 @@
      "outcome",
      "amount_collected",
      "closed_at",
-     "sla_breached",
      "available_actions",
      "actions",
      "interventions",
@@ -4125,6 +4159,22 @@
        }
       ],
       "title": "Assignee Id"
+     },
+     "assignee_name": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Assignee Name"
+     },
+     "sla_breached": {
+      "type": "boolean",
+      "title": "Sla Breached",
+      "default": false
      },
      "created_at": {
       "type": "string",
