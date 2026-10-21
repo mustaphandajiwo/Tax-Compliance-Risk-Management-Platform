@@ -1,0 +1,45 @@
+name: CI
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+jobs:
+  api:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env: { POSTGRES_USER: taxcris, POSTGRES_PASSWORD: taxcris, POSTGRES_DB: taxcris_test }
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U taxcris" --health-interval 5s --health-retries 10
+    defaults: { run: { working-directory: apps/api } }
+    env:
+      TAXCRIS_TEST_DATABASE_URL: postgresql+psycopg://taxcris:taxcris@localhost:5432/taxcris_test
+      TAXCRIS_DATABASE_URL: postgresql+psycopg://taxcris:taxcris@localhost:5432/taxcris_test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.13" }
+      - run: pip install -e ".[dev]" ruff
+      - run: ruff check taxcris tests ../../tests ../../fixtures
+      - name: Fixture is reproducible
+        run: python -I ../../fixtures/synthetic/generate.py --out /tmp/fx && diff -r /tmp/fx ../../fixtures/synthetic/niger-pilot
+      - name: Migrations apply and match models
+        run: alembic upgrade head && alembic check
+      - name: Unit + acceptance tests (PostgreSQL)
+        run: pytest -q
+      - name: OpenAPI contract is up to date
+        run: python -c "import json;from taxcris.main import app;print(json.dumps(app.openapi(),indent=1))" > /tmp/openapi.json && diff /tmp/openapi.json ../../packages/contracts/openapi.json
+
+  web:
+    runs-on: ubuntu-latest
+    defaults: { run: { working-directory: apps/web } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: "22" }
+      - run: npm ci
+      - run: npx tsc --noEmit
+      - run: npm run build
