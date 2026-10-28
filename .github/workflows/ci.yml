@@ -1,0 +1,119 @@
+name: ci
+
+on:
+  push:
+    branches: [main, "claude/**"]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  UV_VERSION: "0.5.11"
+
+jobs:
+  backend:
+    name: Backend (lint, types, unit, integration, golden fixture)
+    runs-on: ubuntu-24.04
+    services:
+      postgres:
+        image: postgres:16.4
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres" --health-interval 5s --health-timeout 5s --health-retries 20
+    env:
+      NGSIRS_TEST_ADMIN_URL: postgresql://postgres:postgres@127.0.0.1:5432/postgres
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v3
+        with:
+          version: ${{ env.UV_VERSION }}
+      - run: uv sync --frozen
+      - name: Lint
+        run: uv run ruff check . && uv run ruff format --check .
+      - name: Type check
+        run: uv run mypy
+      - name: Fixture is reproducible
+        run: |
+          uv run python fixtures/ngsirs/generate.py
+          git diff --exit-code fixtures/ngsirs
+      - name: Tests (unit, integration, golden fixture, acceptance, security)
+        run: uv run pytest tests/unit tests/integration -q --cov=risk_engine --cov=importer --cov=ngsirs_api --cov-report=term
+      - name: OpenAPI contract is up to date
+        run: |
+          uv run ngsirs export-openapi
+          git diff --exit-code packages/contracts/openapi.json
+
+  web:
+    name: Web (contracts, lint, types, build)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Generated TypeScript client matches OpenAPI
+        run: pnpm gen:api && git diff --exit-code packages/contracts/ts
+      - run: pnpm --filter ./apps/web lint
+      - run: pnpm --filter ./apps/web typecheck
+      - run: pnpm --filter ./apps/web build
+
+  e2e:
+    name: End-to-end (Playwright + axe) and local deployment smoke test
+    runs-on: ubuntu-24.04
+    needs: [backend, web]
+    services:
+      postgres:
+        image: postgres:16.4
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres" --health-interval 5s --health-timeout 5s --health-retries 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v3
+        with:
+          version: ${{ env.UV_VERSION }}
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - name: Database roles and demo data
+        env:
+          PGPASSWORD: postgres
+        run: |
+          psql -h 127.0.0.1 -U postgres -f infra/db/init.sql
+          psql -h 127.0.0.1 -U postgres -c "CREATE DATABASE ngsirs OWNER ngsirs_owner"
+          uv sync --frozen
+          uv run ngsirs demo
+      - name: Start API
+        run: |
+          nohup uv run uvicorn ngsirs_api.main:app --port 8000 > api.log 2>&1 &
+          for i in $(seq 1 30); do curl -sf localhost:8000/readyz && break; sleep 1; done
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright install --with-deps chromium
+      - name: Build and start web
+        run: |
+          pnpm --filter ./apps/web build
+          nohup pnpm --filter ./apps/web start --port 3000 > web.log 2>&1 &
+          for i in $(seq 1 60); do curl -sf localhost:3000/login > /dev/null && break; sleep 1; done
+      - run: pnpm --filter ./apps/web test:e2e
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: e2e-logs
+          path: |
+            api.log
+            web.log
+            apps/web/playwright-report

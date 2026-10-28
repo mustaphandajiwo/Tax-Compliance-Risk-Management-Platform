@@ -68,7 +68,9 @@ ignore = ["S101", "B008", "S311"]
 python_version = "3.12"
 ignore_missing_imports = true
 check_untyped_defs = true
-packages = ["risk_engine", "importer", "ngsirs_api"]
+files = ["services/risk_engine/risk_engine", "services/importer/importer", "apps/api/ngsirs_api"]
+mypy_path = ["services/risk_engine", "services/importer", "apps/api"]
+explicit_package_bases = true
 
 [tool.hatch.build]
 dev-mode-dirs = ["apps/api", "services/risk_engine", "services/importer"]

@@ -232,7 +232,7 @@ def quarantine(
     if not include_resolved:
         q = q.where(SourceRecord.resolution.is_(None) | (SourceRecord.resolution == "escalated"))
     if reason:
-        q = q.where(SourceRecord.reason_codes.any(reason))
+        q = q.where(SourceRecord.reason_codes.contains([reason]))
     batches = {b.id: b for b in db.execute(select(IngestBatch)).scalars()}
     out = []
     for r in db.execute(q.order_by(SourceRecord.feed_type, SourceRecord.row_number).limit(500)).scalars():
@@ -284,7 +284,7 @@ def identity_matches(
     latest = identity.latest_matches(db)
     out = []
     for m in db.execute(q.limit(500)).scalars():
-        ref = (m.method_detail or {}).get("employer_ref")
+        ref = str((m.method_detail or {}).get("employer_ref") or "")
         if latest.get(ref) is not m:
             continue
         emp = employers.get(m.employer_id) if m.employer_id else None

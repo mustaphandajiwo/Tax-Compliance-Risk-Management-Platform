@@ -1,0 +1,70 @@
+{
+  "realm": "ngsirs",
+  "displayName": "NGSIRS Compliance Risk Management (DEMO REALM)",
+  "enabled": true,
+  "sslRequired": "external",
+  "registrationAllowed": false,
+  "loginWithEmailAllowed": false,
+  "bruteForceProtected": true,
+  "accessTokenLifespan": 900,
+  "ssoSessionIdleTimeout": 1800,
+  "passwordPolicy": "length(14) and notUsername and passwordHistory(5)",
+  "otpPolicyType": "totp",
+  "requiredActions": [
+    {"alias": "CONFIGURE_TOTP", "name": "Configure OTP", "providerId": "CONFIGURE_TOTP", "enabled": true, "defaultAction": true, "priority": 10}
+  ],
+  "roles": {
+    "realm": [
+      {"name": "platform_admin"}, {"name": "legal_approver"}, {"name": "risk_analyst"},
+      {"name": "compliance_manager"}, {"name": "compliance_officer"}, {"name": "audit_officer"},
+      {"name": "data_steward"}, {"name": "executive_viewer"}
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "ngsirs-crm-web",
+      "name": "NGSIRS CRM web console",
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": false,
+      "redirectUris": ["http://localhost:3000/*"],
+      "webOrigins": ["http://localhost:3000"],
+      "attributes": {"pkce.code.challenge.method": "S256"},
+      "protocolMappers": [
+        {"name": "audience", "protocol": "openid-connect", "protocolMapper": "oidc-audience-mapper",
+         "config": {"included.custom.audience": "ngsirs-crm-api", "access.token.claim": "true"}},
+        {"name": "tenant", "protocol": "openid-connect", "protocolMapper": "oidc-hardcoded-claim-mapper",
+         "config": {"claim.name": "tenant", "claim.value": "NGSIRS", "jsonType.label": "String", "access.token.claim": "true"}},
+        {"name": "roles", "protocol": "openid-connect", "protocolMapper": "oidc-usermodel-realm-role-mapper",
+         "config": {"claim.name": "roles", "multivalued": "true", "jsonType.label": "String", "access.token.claim": "true"}},
+        {"name": "purposes", "protocol": "openid-connect", "protocolMapper": "oidc-usermodel-attribute-mapper",
+         "config": {"user.attribute": "purposes", "claim.name": "purposes", "multivalued": "true", "jsonType.label": "String", "access.token.claim": "true"}},
+        {"name": "lga_scope", "protocol": "openid-connect", "protocolMapper": "oidc-usermodel-attribute-mapper",
+         "config": {"user.attribute": "lga_scope", "claim.name": "lga_scope", "multivalued": "true", "jsonType.label": "String", "access.token.claim": "true"}},
+        {"name": "amr", "protocol": "openid-connect", "protocolMapper": "oidc-amr-mapper",
+         "config": {"access.token.claim": "true"}}
+      ]
+    }
+  ],
+  "users": [
+    {
+      "username": "compliance.manager", "enabled": true, "firstName": "Demo", "lastName": "Head of Compliance",
+      "realmRoles": ["compliance_manager"],
+      "attributes": {"purposes": ["case_review", "desk_review", "management_reporting", "audit"]},
+      "credentials": [{"type": "password", "value": "demo-only-change-me-now", "temporary": true}],
+      "requiredActions": ["CONFIGURE_TOTP"]
+    },
+    {
+      "username": "compliance.officer", "enabled": true, "firstName": "Demo", "lastName": "PAYE Compliance Officer",
+      "realmRoles": ["compliance_officer"], "attributes": {"purposes": ["case_review"]},
+      "credentials": [{"type": "password", "value": "demo-only-change-me-now", "temporary": true}],
+      "requiredActions": ["CONFIGURE_TOTP"]
+    },
+    {
+      "username": "data.steward", "enabled": true, "firstName": "Demo", "lastName": "Data Steward",
+      "realmRoles": ["data_steward"], "attributes": {"purposes": ["data_quality"]},
+      "credentials": [{"type": "password", "value": "demo-only-change-me-now", "temporary": true}],
+      "requiredActions": ["CONFIGURE_TOTP"]
+    }
+  ]
+}

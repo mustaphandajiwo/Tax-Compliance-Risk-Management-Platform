@@ -237,7 +237,7 @@ def evaluate(rule: RuleDefinition, record: dict[str, Any], confidence_floor: flo
 
     holds: list[str] = []
     out.confidence = evidence_confidence(
-        quality, rule.quality.max_staleness_days, rule.quality.require_coverage
+        quality, rule.quality.max_staleness_days, list(rule.quality.require_coverage)
     )
     # Data-quality rules are already review signals about records, not taxpayers,
     # so the taxpayer hard-stop gates do not apply to them.

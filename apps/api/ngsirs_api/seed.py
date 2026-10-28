@@ -294,9 +294,11 @@ def seed_reference(db: Session, tid: uuid.UUID) -> None:
         db.flush()
         instruments[code] = inst
     now = datetime.now(UTC)
-    for code, version, inst, eff_from, eff_to, params in LEGAL_VERSIONS:
+    for code, version, inst_code, eff_from, eff_to, params in LEGAL_VERSIONS:
         spec = legal.OBLIGATION_CODES[code]
-        provision = f"SYNTHETIC placeholder provision under {inst} - replace with authenticated reference"
+        provision = (
+            f"SYNTHETIC placeholder provision under {inst_code} - replace with authenticated reference"
+        )
         row = {
             "code": code,
             "version": version,
@@ -313,7 +315,7 @@ def seed_reference(db: Session, tid: uuid.UUID) -> None:
                 version=version,
                 tax_type=spec["tax_type"],
                 obligation_type=spec["obligation_type"],
-                instrument_id=instruments[inst].id,
+                instrument_id=instruments[inst_code].id,
                 provision_ref=provision,
                 jurisdiction="NG-NI",
                 effective_from=eff_from,

@@ -135,7 +135,7 @@ def _evaluate_all(
     for rv, rule in rules:
         for rec in by_kind.get(rule.scope.fact_kind, []):
             o = evaluate(rule, rec, confidence_floor)
-            leg = (rec.get("legal_versions") or {}).get((rule.obligation_ref or "").split("@")[0])  # type: ignore[attr-defined]
+            leg = (rec.get("legal_versions") or {}).get((rule.obligation_ref or "").split("@")[0])
             o.legal_version = leg["label"] if leg else None
             out.append((rv, rule, rec, o))
     return out
@@ -315,7 +315,7 @@ def _persist(
         )
         o_hash = outcome_hash(o)
         same_version = next((f for f in existing[key] if f.rule_version_id == rv.id), None)
-        employer_ref = o.subject_id if o.subject_type == "employer" else rec.get("employer_ref")  # type: ignore[attr-defined]
+        employer_ref = o.subject_id if o.subject_type == "employer" else rec.get("employer_ref")
         emp = employers.get(employer_ref or "")
         if same_version is not None and same_version.superseded_by_id is not None:
             _revive_after_rollback(db, tenant, same_version, active_case_findings, o)
@@ -360,7 +360,7 @@ def _persist(
             subject_id=o.subject_id,
             employer_id=emp.id if emp else None,
             employer_ref=employer_ref,
-            lga_code=rec.get("lga_code"),  # type: ignore[arg-type]
+            lga_code=rec.get("lga_code"),
             period_code=o.period,
             status="review_required",
             effort=rule.signal.effort,
@@ -613,7 +613,7 @@ def backtest(
     def summarise(outs: list[tuple[Any, Any, Any, Outcome]]) -> dict[str, Any]:
         found = [o for *_, o in outs if o.is_finding]
         by_lga: Counter[str] = Counter()
-        lga_of = {(r["subject_id"], r.get("period")): r.get("lga_code") for _, _, r, _ in outs}  # type: ignore[misc]
+        lga_of = {(r["subject_id"], r.get("period")): r.get("lga_code") for _, _, r, _ in outs}
         for o in found:
             by_lga[str(lga_of.get((o.subject_id, o.period)) or "unknown")] += 1
         return {
@@ -627,7 +627,7 @@ def backtest(
 
     cand_keys = {finding_key(o) for *_, o in cand_out if o.is_finding}
     base_keys = {finding_key(o) for *_, o in base_out if o.is_finding}
-    report = {
+    report: dict[str, Any] = {
         "rule": f"{rv.rule_code}@{rv.version}",
         "compared_with": f"{active.rule_code}@{active.version}" if active and active.id != rv.id else None,
         "as_of": as_of.isoformat(),

@@ -226,7 +226,7 @@ def summary(db: Session, period: str | None, lga: str | None) -> dict[str, Any]:
                 }
             )
         lga_names = {lg.code: lg.name for lg in db.execute(select(Lga)).scalars()}
-        for code in sorted({r.get("lga_code") for r in records if r.get("lga_code")}):
+        for code in sorted({str(r["lga_code"]) for r in records if r.get("lga_code")}):
             f3 = filing_rates(records, period, code)
             if not f3["obligated"]:
                 continue
@@ -383,13 +383,13 @@ def source_freshness(db: Session) -> list[dict[str, Any]]:
             latest[k] = b
     for s in db.execute(select(DataSource).order_by(DataSource.source_name)).scalars():
         for feed in s.feed_types:
-            b = latest.get((s.id, feed))
-            age = (now - b.extracted_at).days if b else None
+            last = latest.get((s.id, feed))
+            age = (now - last.extracted_at).days if last else None
             out.append(
                 {
                     "source": s.source_name,
                     "feed_type": feed,
-                    "last_extracted_at": b.extracted_at.isoformat() if b else None,
+                    "last_extracted_at": last.extracted_at.isoformat() if last else None,
                     "age_days": age,
                     "sla_days": s.freshness_sla_days,
                     "stale": age is None or age > s.freshness_sla_days,

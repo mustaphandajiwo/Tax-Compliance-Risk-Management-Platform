@@ -163,7 +163,9 @@ def _validate_leaf(node: dict[str, Any], fields: dict[str, Any], where: str, err
     ftype = spec["type"] if isinstance(spec, dict) else spec
     if op in ("is_null",) and isinstance(spec, dict) and not spec.get("nullable"):
         errors.append(f"{where}: '{field}' is never null")
-    _check_value_type(ftype, spec if isinstance(spec, dict) else {}, op, node.get("value"), where, errors)
+    _check_value_type(
+        str(ftype), spec if isinstance(spec, dict) else {}, str(op), node.get("value"), where, errors
+    )
 
 
 def _validate_node(

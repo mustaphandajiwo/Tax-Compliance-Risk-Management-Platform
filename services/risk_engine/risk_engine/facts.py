@@ -24,24 +24,12 @@ class FieldSpec(TypedDict, total=False):
     description: str
 
 
-class HistoryEntry(TypedDict, total=False):
-    period: str
-    eligible: bool
-    missing: bool
-    late: bool
+HistoryEntry = dict[str, Any]
+"""One period of a history series: {"period", "eligible", "missing", "late"}."""
 
-
-class FactRecord(TypedDict, total=False):
-    kind: str
-    subject_type: str
-    subject_id: str
-    period: str | None
-    tax_type: str
-    facts: dict[str, Any]
-    history: dict[str, list[HistoryEntry]]
-    quality: dict[str, Any]
-    evidence: dict[str, list[str]]
-    legal_version: str | None
+FactRecord = dict[str, Any]
+"""A JSON fact record: kind, subject_type, subject_id, period, tax_type, facts, history, quality, evidence,
+legal_versions, lga_code and (optionally) employer_ref. Plain JSON so it can be frozen into a snapshot."""
 
 
 def _f(t: FieldType, desc: str, nullable: bool = False, values: list[str] | None = None) -> FieldSpec:

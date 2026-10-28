@@ -155,16 +155,18 @@ class FactsContext:
                 self.quarantine_periods[r.employer_ref].update(window)
         self.disputed: set[tuple[str, str | None]] = set()
         self.legal_holds: set[tuple[str, str | None]] = set()
-        for f in db.execute(select(RiskFinding).where(RiskFinding.status.in_(OPEN_FINDING_STATES))).scalars():
-            if f.disputed:
-                self.disputed.add((f.subject_id, f.period_code))
-            if "officer_legal_hold" in f.holds:  # set by a legal approver, not derived from source data
-                self.legal_holds.add((f.subject_id, f.period_code))
+        for rf in db.execute(
+            select(RiskFinding).where(RiskFinding.status.in_(OPEN_FINDING_STATES))
+        ).scalars():
+            if rf.disputed:
+                self.disputed.add((rf.subject_id, rf.period_code))
+            if "officer_legal_hold" in rf.holds:  # set by a legal approver, not derived from source data
+                self.legal_holds.add((rf.subject_id, rf.period_code))
         anchor = None
-        for p in periods:
-            s = self.schedules.get((RETURN_CODE, p))
-            if s is not None and s.due_at < as_of:
-                anchor = p
+        for period in periods:
+            sched = self.schedules.get((RETURN_CODE, period))
+            if sched is not None and sched.due_at < as_of:
+                anchor = period
         self.anchor = anchor
 
     def staleness(self, feeds: list[str]) -> int | None:
@@ -377,7 +379,7 @@ def _employer_period(ctx: FactsContext, emp: Employer, period: str) -> FactRecor
         "evidence": ev,
         "legal_versions": legal_versions,
         "lga_code": lga,
-    }  # type: ignore[typeddict-unknown-key]
+    }
 
 
 def _history(records: list[FactRecord]) -> None:
@@ -426,7 +428,7 @@ def _history(records: list[FactRecord]) -> None:
                 ),
             }
         )
-        r["history"] = {"filing": list(hist_f), "payment": list(hist_p)}  # type: ignore[typeddict-item]
+        r["history"] = {"filing": list(hist_f), "payment": list(hist_p)}
 
 
 def _assessment_records(ctx: FactsContext) -> list[FactRecord]:
@@ -485,7 +487,7 @@ def _assessment_records(ctx: FactsContext) -> list[FactRecord]:
                 "lga_code": lga,
                 "employer_ref": a.employer_ref,
             }
-        )  # type: ignore[typeddict-unknown-key]
+        )
     return out
 
 
@@ -500,19 +502,19 @@ def _taxpayer_pairs(ctx: FactsContext) -> list[FactRecord]:
             by_token[tok].append(t)
     pairs: dict[tuple[str, str], tuple[Taxpayer, Taxpayer]] = {}
     for group in by_token.values():
-        for i, a in enumerate(group):
-            for b in group[i + 1 :]:
-                key = tuple(sorted((a.source_taxpayer_id, b.source_taxpayer_id)))
-                pairs[key] = (a, b)  # type: ignore[index]
+        for n, a in enumerate(group):
+            for b in group[n + 1 :]:
+                ra, rb = sorted((a.source_taxpayer_id, b.source_taxpayer_id))
+                pairs[(ra, rb)] = (a, b)
     by_lga: dict[str | None, list[Taxpayer]] = defaultdict(list)
     for t in taxpayers:
         by_lga[t.lga_code].append(t)
     for group in by_lga.values():
-        for i, a in enumerate(group):
-            for b in group[i + 1 :]:
+        for n, a in enumerate(group):
+            for b in group[n + 1 :]:
                 if identity.similarity(a.display_name, b.display_name) >= 0.85:
-                    key = tuple(sorted((a.source_taxpayer_id, b.source_taxpayer_id)))
-                    pairs[key] = (a, b)  # type: ignore[index]
+                    ra, rb = sorted((a.source_taxpayer_id, b.source_taxpayer_id))
+                    pairs[(ra, rb)] = (a, b)
     out: list[FactRecord] = []
     for (ra, rb), (a, b) in sorted(pairs.items()):
         out.append(
@@ -541,7 +543,7 @@ def _taxpayer_pairs(ctx: FactsContext) -> list[FactRecord]:
                 "legal_versions": {},
                 "lga_code": a.lga_code,
             }
-        )  # type: ignore[typeddict-unknown-key]
+        )
     return out
 
 
@@ -581,7 +583,7 @@ def _quarantine_records(ctx: FactsContext) -> list[FactRecord]:
                 "lga_code": emp.lga_code if emp else None,
                 "employer_ref": r.employer_ref,
             }
-        )  # type: ignore[typeddict-unknown-key]
+        )
     return out
 
 
@@ -619,7 +621,7 @@ def _receipts(ctx: FactsContext) -> list[FactRecord]:
                 "lga_code": emp.lga_code if emp else None,
                 "employer_ref": p.employer_ref,
             }
-        )  # type: ignore[typeddict-unknown-key]
+        )
     return out
 
 

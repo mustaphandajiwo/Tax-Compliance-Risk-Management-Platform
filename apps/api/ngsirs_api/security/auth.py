@@ -112,11 +112,24 @@ def decode_token(token: str) -> dict[str, Any]:
     return claims
 
 
+@lru_cache(maxsize=16)
+def _tenant_id_for(code: str) -> uuid.UUID:
+    from ..db import resolve_tenant_id
+
+    tid = resolve_tenant_id(code)
+    if tid is None:
+        raise ValueError(code)
+    return tid
+
+
 def principal_from_claims(claims: dict[str, Any]) -> Principal:
     s = get_settings()
     try:
-        tenant_id = uuid.UUID(str(claims["tenant_id"]))
         tenant_code = str(claims["tenant"])
+        # The IdP may carry only the organisation code; the id is then resolved (and cached) from it.
+        tenant_id = (
+            uuid.UUID(str(claims["tenant_id"])) if claims.get("tenant_id") else _tenant_id_for(tenant_code)
+        )
     except (KeyError, ValueError):
         raise ApiError(401, "unauthorized", "Token lacks organisation scope") from None
     roles = tuple(r for r in claims.get("roles", []) if r in ROLES)

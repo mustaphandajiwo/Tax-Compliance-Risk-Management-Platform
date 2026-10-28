@@ -330,7 +330,7 @@ def commit_batch(db: Session, actor: Principal, batch_id: uuid.UUID) -> IngestBa
             by_lga[t.lga_code].append(t)
         prior = identity.latest_matches(db)
         for rec, v in rows:
-            emp = Employer(
+            new_emp = Employer(
                 **common,
                 source_record_id=rec.id,
                 source_employer_id=v["source_employer_id"],
@@ -344,9 +344,9 @@ def commit_batch(db: Session, actor: Principal, batch_id: uuid.UUID) -> IngestBa
                 segment=v.get("segment"),
                 status=v["status"],
             )
-            db.add(emp)
+            db.add(new_emp)
             db.flush()
-            identity.resolve_employer(db, tenant, emp, by_ref, by_lga, rec.id, prior)
+            identity.resolve_employer(db, tenant, new_emp, by_ref, by_lga, rec.id, prior)
     elif feed == "ngsirs_obligation":
         keys = [
             f"{v['taxpayer_id']}|{v['tax_type']}|{v['obligation_type']}|{v['effective_from']}"
