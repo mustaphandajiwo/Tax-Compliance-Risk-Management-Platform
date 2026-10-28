@@ -10,7 +10,7 @@ api:
 	uv run uvicorn ngsirs_api.main:app --port 8000 --reload
 
 web:
-	pnpm --filter ./apps/web dev
+	pnpm dev
 
 lint:
 	uv run ruff check . && uv run ruff format --check . && uv run mypy
@@ -19,7 +19,7 @@ test:
 	uv run pytest
 
 e2e:
-	pnpm --filter ./apps/web test:e2e
+	pnpm test:e2e
 
 openapi:
 	uv run ngsirs export-openapi && pnpm gen:api

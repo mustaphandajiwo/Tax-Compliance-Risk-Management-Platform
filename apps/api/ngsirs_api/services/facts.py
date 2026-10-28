@@ -21,6 +21,7 @@ from typing import Any
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from importer.validation import WAT
 from risk_engine.facts import FactRecord
 from risk_engine.states import OPEN_FINDING_STATES
 
@@ -60,7 +61,12 @@ def _days_late(event: datetime | None, due: datetime | None) -> int | None:
 
 
 def _iso(d: datetime | date | None) -> str | None:
-    return d.isoformat() if d is not None else None
+    """ISO 8601; timestamps are expressed in West Africa Time, the time zone deadlines are set in."""
+    if d is None:
+        return None
+    if isinstance(d, datetime):
+        return d.astimezone(WAT).isoformat()
+    return d.isoformat()
 
 
 def _money(v: Decimal | None) -> float | None:

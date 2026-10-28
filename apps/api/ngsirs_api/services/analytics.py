@@ -17,6 +17,7 @@ from typing import Any
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
+from importer.validation import WAT
 from risk_engine.states import OPEN_FINDING_STATES
 
 from ..models import (
@@ -179,7 +180,7 @@ def summary(db: Session, period: str | None, lga: str | None) -> dict[str, Any]:
         }
         fr = filing_rates(records, period, lga)
         rr = remittance_rates(records, period, lga)
-        window = f"Tax period {period}; evaluated as at {run.as_of:%Y-%m-%d}"
+        window = f"Tax period {period}; evaluated as at {run.as_of.astimezone(WAT):%Y-%m-%d %H:%M} WAT"
         out["metrics"] += [
             metric(
                 "paye_on_time_filing",

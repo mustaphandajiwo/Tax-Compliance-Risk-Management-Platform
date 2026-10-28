@@ -42,7 +42,7 @@ uv run uvicorn ngsirs_api.main:app --port 8000      # API docs at http://localho
 
 # 3. Web console
 pnpm install
-pnpm --filter ./apps/web dev                        # http://localhost:3000 -> pick a demo user
+pnpm dev                                            # http://localhost:3000 -> pick a demo user
 ```
 
 Or the whole stack in containers: `docker compose -f infra/docker-compose.yml up --build`, then
@@ -69,8 +69,8 @@ uv run ruff check . && uv run ruff format --check .   # lint + format
 uv run mypy                                            # types
 uv run pytest                                          # unit + integration (needs local Postgres superuser)
 uv run python -m scripts.benchmark_engine              # NFR-03 engine throughput
-pnpm --filter ./apps/web lint && pnpm --filter ./apps/web typecheck && pnpm --filter ./apps/web build
-pnpm --filter ./apps/web test:e2e                      # needs API on :8000 (after `ngsirs demo`) and web on :3000
+pnpm lint && pnpm typecheck && pnpm build             # web console + contracts + design packages
+pnpm test:e2e                                          # Playwright + axe; needs API on :8000 (after `ngsirs demo`) and a prior build
 ```
 
 The golden-file test loads the fixture through the real import pipeline, evaluates as at 2026-10-01 and

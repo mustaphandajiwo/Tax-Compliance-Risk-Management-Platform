@@ -29,6 +29,7 @@ from ..models import (
     RiskFinding,
     SourceRecord,
     TaxOffice,
+    Tenant,
 )
 from ..schemas import ProgrammeCreate
 from ..security.auth import Principal, declared_purpose, get_db, require
@@ -322,7 +323,11 @@ def verify_audit(
 
 
 @router.get("/reference")
-def reference(_: Principal = Depends(require("reference:read")), db: Session = Depends(get_db)) -> dict:
+def reference(
+    principal: Principal = Depends(require("reference:read")), db: Session = Depends(get_db)
+) -> dict:
+    tenant = db.get(Tenant, principal.tenant_id)
+    templates = ((tenant.settings if tenant else {}) or {}).get("approved_templates", {})
     return {
         "lgas": [
             {"code": lg.code, "name": lg.name, "verified": lg.verified, "pilot": lg.pilot}
@@ -343,6 +348,7 @@ def reference(_: Principal = Depends(require("reference:read")), db: Session = D
             }
             for k, t in TREATMENTS.items()
         },
+        "approved_templates": [{"code": k, "text": v} for k, v in sorted(templates.items())],
         "users": [
             {"username": u.username, "display_name": u.display_name, "roles": u.roles, "unit": u.unit}
             for u in db.execute(select(AppUser).where(AppUser.active).order_by(AppUser.username)).scalars()

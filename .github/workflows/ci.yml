@@ -63,9 +63,9 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - name: Generated TypeScript client matches OpenAPI
         run: pnpm gen:api && git diff --exit-code packages/contracts/ts
-      - run: pnpm --filter ./apps/web lint
-      - run: pnpm --filter ./apps/web typecheck
-      - run: pnpm --filter ./apps/web build
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm build
 
   e2e:
     name: End-to-end (Playwright + axe) and local deployment smoke test
@@ -102,13 +102,13 @@ jobs:
           nohup uv run uvicorn ngsirs_api.main:app --port 8000 > api.log 2>&1 &
           for i in $(seq 1 30); do curl -sf localhost:8000/readyz && break; sleep 1; done
       - run: pnpm install --frozen-lockfile
-      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm --filter @ngsirs/e2e exec playwright install --with-deps chromium
       - name: Build and start web
         run: |
-          pnpm --filter ./apps/web build
-          nohup pnpm --filter ./apps/web start --port 3000 > web.log 2>&1 &
+          pnpm build
+          nohup pnpm start > web.log 2>&1 &
           for i in $(seq 1 60); do curl -sf localhost:3000/login > /dev/null && break; sleep 1; done
-      - run: pnpm --filter ./apps/web test:e2e
+      - run: pnpm test:e2e
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
@@ -117,3 +117,4 @@ jobs:
             api.log
             web.log
             apps/web/playwright-report
+            apps/web/test-results

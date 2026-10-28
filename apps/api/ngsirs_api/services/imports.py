@@ -153,6 +153,8 @@ def create_batch(
     get_store().put(object_key, content)
 
     summary = report.summary()
+    if report.rejected_file:  # header-level rejection: every row is unusable
+        summary.update(rows=len(rows), rejected=len(rows))
     staleness = (datetime.now(UTC) - extracted_at).days
     summary["freshness"] = {
         "extracted_at": extracted_at.isoformat(),

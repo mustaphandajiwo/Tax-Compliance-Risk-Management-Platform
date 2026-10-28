@@ -93,6 +93,8 @@ def approve(db: Session, actor: Principal, p: Programme) -> Programme:
 
 
 def evaluate(db: Session, actor: Principal, p: Programme) -> dict[str, Any]:
+    if p.status not in ("approved", "evaluated"):
+        raise conflict(f"Programme is {p.status}; it must be approved before it is evaluated")
     run = analytics.latest_run(db)
     if run is None:
         raise conflict("No evaluation run available")

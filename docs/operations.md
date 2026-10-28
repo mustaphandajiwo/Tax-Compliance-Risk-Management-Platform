@@ -7,7 +7,7 @@
 | API | `uvicorn ngsirs_api.main:app` | Stateless; scale horizontally. `/healthz`, `/readyz`. |
 | Worker | `celery -A ngsirs_api.worker worker --beat` | Nightly evaluation (02:17 WAT) of the trailing 12 periods. |
 | Migrations | `ngsirs migrate` | Runs as `ngsirs_owner`; the API runs as `ngsirs_app`. |
-| Web | `pnpm --filter ./apps/web start` | Needs `NEXT_PUBLIC_API_URL`. |
+| Web | `pnpm build && pnpm start` | Needs `NEXT_PUBLIC_API_URL` at build time. |
 
 Configuration is environment-based (`NGSIRS_*`, see `apps/api/ngsirs_api/config.py`). Logs are JSON with a
 `trace_id` that is also returned in `X-Trace-Id` and in every error body. Set

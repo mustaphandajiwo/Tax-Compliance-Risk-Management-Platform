@@ -31,6 +31,7 @@ from .scoring import (
 from .treatment import TREATMENTS, allowed_next_action
 
 TEMPLATE_RE = re.compile(r"\{([a-z_][a-z0-9_]*)\}")
+ISO_TS_RE = re.compile(r"^(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2}):\d{2}(?:\.\d+)?([+-]\d{2}:\d{2})$")
 
 
 @dataclass
@@ -154,6 +155,9 @@ def _render(template: str, record: dict[str, Any]) -> str:
             return "unknown"
         if isinstance(v, float):
             return f"{v:,.2f}"
+        ts = ISO_TS_RE.match(str(v))
+        if ts:  # 2026-05-10T23:59:59+01:00 -> 2026-05-10 23:59 (UTC+01:00)
+            return f"{ts.group(1)} {ts.group(2)} (UTC{ts.group(3)})"
         return str(v)
 
     return TEMPLATE_RE.sub(sub, template)

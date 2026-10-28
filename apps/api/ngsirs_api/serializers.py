@@ -52,7 +52,9 @@ def active_cases(db: Session, finding_ids: list[Any]) -> dict[Any, CaseRecord]:
         return {}
     out: dict[Any, CaseRecord] = {}
     for c in db.execute(
-        select(CaseRecord).where(CaseRecord.finding_id.in_(finding_ids)).order_by(CaseRecord.created_at)
+        select(CaseRecord)
+        .where(CaseRecord.finding_id.in_(finding_ids), CaseRecord.stage.notin_(["closed", "rejected"]))
+        .order_by(CaseRecord.created_at)
     ).scalars():
         out[c.finding_id] = c
     return out
