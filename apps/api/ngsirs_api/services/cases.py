@@ -12,7 +12,7 @@ import uuid
 from datetime import UTC, datetime, timedelta
 from typing import Any
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from risk_engine.hashing import canonical_json, sha256_hex
@@ -52,7 +52,8 @@ FINAL_FINDING_OUTCOMES = {"closed_confirmed", "closed_not_substantiated", "corre
 
 
 def _case_ref(db: Session) -> str:
-    n = len(list(db.execute(select(CaseRecord.id)).scalars())) + 1
+    # Sequence for readability; the random suffix keeps refs unique under concurrent creation.
+    n = db.execute(select(func.count()).select_from(CaseRecord)).scalar_one() + 1
     return f"CASE-{datetime.now(UTC):%Y}-{n:05d}-{uuid.uuid4().hex[:4].upper()}"
 
 
