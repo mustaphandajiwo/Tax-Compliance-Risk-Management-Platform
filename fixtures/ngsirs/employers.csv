@@ -1,0 +1,146 @@
+source_employer_id,linked_taxpayer_id,employer_name,activity_from,activity_to,office_id,lga_code,sector,segment,status
+NGS-DEMO-EMP-0001,NGS-DEMO-TP-0001,Paiko Ceramics Demo Ltd,2019-01-01,,OFF-MUN,MUN,retail,small,active
+NGS-DEMO-EMP-0002,NGS-DEMO-TP-0002,Lambata Hotels Demo Ltd,2019-01-01,,OFF-CHA,CHA,retail,medium,active
+NGS-DEMO-EMP-0003,NGS-DEMO-TP-0003,Garatu Supermarket Demo Ltd,2019-01-01,,OFF-EDA,EDA,retail,small,active
+NGS-DEMO-EMP-0004,NGS-DEMO-TP-0004,Gidan Kwano Supermarket Demo Ltd,2019-01-01,,OFF-BOS,BOS,agriculture,large,active
+NGS-DEMO-EMP-0005,NGS-DEMO-TP-0005,Lambata Hardware Demo Ltd,2019-01-01,,OFF-CHA,CHA,manufacturing,large,active
+NGS-DEMO-EMP-0006,NGS-DEMO-TP-0006,Chanchaga Microfinance Demo Ltd,2019-01-01,,OFF-BOS,BOS,services,small,active
+NGS-DEMO-EMP-0007,NGS-DEMO-TP-0007,Tudun Fulani Clinic Demo Ltd,2019-01-01,,OFF-GBA,GBA,agriculture,medium,active
+NGS-DEMO-EMP-0008,NGS-DEMO-TP-0008,Paiko Foods Demo Ltd,2019-01-01,,OFF-KAT,KAT,services,large,active
+NGS-DEMO-EMP-0009,NGS-DEMO-TP-0009,Kuta Construction Demo Ltd,2019-01-01,,OFF-BOS,BOS,manufacturing,large,active
+NGS-DEMO-EMP-0010,NGS-DEMO-TP-0010,Limawa Engineering Demo Ltd,2019-01-01,,OFF-MOK,MOK,services,large,active
+NGS-DEMO-EMP-0011,NGS-DEMO-TP-0011,Kure Foods Demo Ltd,2019-01-01,,OFF-CHA,CHA,services,medium,active
+NGS-DEMO-EMP-0012,NGS-DEMO-TP-0012,Maikunkele Ceramics Demo Ltd,2019-01-01,,OFF-GUR,GUR,education,medium,active
+NGS-DEMO-EMP-0013,NGS-DEMO-TP-0013,Kodo Water Demo Ltd,2019-01-01,,OFF-TAF,TAF,construction,small,active
+NGS-DEMO-EMP-0014,NGS-DEMO-TP-0014,Tunga Foods Demo Ltd,2019-01-01,,OFF-CHA,CHA,services,medium,active
+NGS-DEMO-EMP-0015,NGS-DEMO-TP-0015,Zungeru Hardware Demo Ltd,2019-01-01,,OFF-CHA,CHA,manufacturing,small,active
+NGS-DEMO-EMP-0016,NGS-DEMO-TP-0016,Barkin Sale Foods Demo Ltd,2019-01-01,,OFF-BOS,BOS,construction,medium,active
+NGS-DEMO-EMP-0017,NGS-DEMO-TP-0017,Sauka Kahuta Microfinance Demo Ltd,2019-01-01,,OFF-PAI,PAI,education,large,active
+NGS-DEMO-EMP-0018,NGS-DEMO-TP-0018,Jikpan Logistics Demo Ltd,2019-01-01,,OFF-GBA,GBA,retail,small,active
+NGS-DEMO-EMP-0019,NGS-DEMO-TP-0019,Barkin Sale Pharmacy Demo Ltd,2019-01-01,,OFF-CHA,CHA,construction,medium,active
+NGS-DEMO-EMP-0020,NGS-DEMO-TP-0020,Kure Solar Demo Ltd,2019-01-01,,OFF-TAF,TAF,retail,large,active
+NGS-DEMO-EMP-0021,NGS-DEMO-TP-0021,Garatu Poultry Demo Ltd,2019-01-01,,OFF-CHA,CHA,health,small,active
+NGS-DEMO-EMP-0022,NGS-DEMO-TP-0022,Kodo Schools Demo Ltd,2019-01-01,,OFF-EDA,EDA,manufacturing,large,active
+NGS-DEMO-EMP-0023,NGS-DEMO-TP-0023,Beji Furniture Demo Ltd,2019-01-01,,OFF-SHI,SHI,health,medium,active
+NGS-DEMO-EMP-0024,NGS-DEMO-TP-0024,Tudun Fulani Fisheries Demo Ltd,2019-01-01,,OFF-CHA,CHA,health,large,active
+NGS-DEMO-EMP-0025,NGS-DEMO-TP-0025,Lemu Hardware Demo Ltd,2019-01-01,,OFF-BOS,BOS,health,small,active
+NGS-DEMO-EMP-0026,NGS-DEMO-TP-0026,Kpakungu Motors Demo Ltd,2019-01-01,,OFF-MOK,MOK,education,medium,active
+NGS-DEMO-EMP-0027,NGS-DEMO-TP-0027,Kure Motors Demo Ltd,2019-01-01,,OFF-BOS,BOS,construction,medium,active
+NGS-DEMO-EMP-0028,NGS-DEMO-TP-0028,Limawa Fisheries Demo Ltd,2019-01-01,,OFF-BOR,BOR,manufacturing,large,active
+NGS-DEMO-EMP-0029,NGS-DEMO-TP-0029,Maikunkele Water Demo Ltd,2019-01-01,,OFF-BOS,BOS,construction,medium,active
+NGS-DEMO-EMP-0030,NGS-DEMO-TP-0030,Kure Microfinance Demo Ltd,2019-01-01,,OFF-BOS,BOS,agriculture,small,active
+NGS-DEMO-EMP-0031,NGS-DEMO-TP-0031,Beji Transport Demo Ltd,2019-01-01,,OFF-BOS,BOS,manufacturing,medium,active
+NGS-DEMO-EMP-0032,NGS-DEMO-TP-0032,Kodo Hotels Demo Ltd,2019-01-01,,OFF-MUN,MUN,retail,small,active
+NGS-DEMO-EMP-0033,NGS-DEMO-TP-0033,Fadikpe Furniture Demo Ltd,2019-01-01,,OFF-KON,KON,finance,medium,active
+NGS-DEMO-EMP-0034,NGS-DEMO-TP-0034,Chanchaga Fisheries Demo Ltd,2019-01-01,,OFF-KAT,KAT,services,small,active
+NGS-DEMO-EMP-0035,NGS-DEMO-TP-0035,Sauka Kahuta Hotels Demo Ltd,2019-01-01,,OFF-BOS,BOS,agriculture,large,active
+NGS-DEMO-EMP-0036,NGS-DEMO-TP-0036,Lemu Bakery Demo Ltd,2019-01-01,,OFF-MUN,MUN,finance,large,active
+NGS-DEMO-EMP-0037,NGS-DEMO-TP-0037,Lambata Water Demo Ltd,2019-01-01,,OFF-KAT,KAT,retail,small,active
+NGS-DEMO-EMP-0038,NGS-DEMO-TP-0038,Zungeru Motors Demo Ltd,2019-01-01,,OFF-PAI,PAI,agriculture,small,active
+NGS-DEMO-EMP-0039,NGS-DEMO-TP-0039,Sabon Gari Rice Mills Demo Ltd,2019-01-01,,OFF-BOS,BOS,retail,medium,active
+NGS-DEMO-EMP-0040,NGS-DEMO-TP-0040,Sauka Kahuta Transport Demo Ltd,2019-01-01,,OFF-BOS,BOS,health,large,active
+NGS-DEMO-EMP-0041,NGS-DEMO-TP-0041,Tunga Hotels Demo Ltd,2019-01-01,,OFF-TAF,TAF,construction,large,active
+NGS-DEMO-EMP-0042,NGS-DEMO-TP-0042,Lemu Hotels Demo Ltd,2019-01-01,,OFF-PAI,PAI,retail,medium,active
+NGS-DEMO-EMP-0043,NGS-DEMO-TP-0043,Jikpan Schools Demo Ltd,2019-01-01,,OFF-CHA,CHA,services,medium,active
+NGS-DEMO-EMP-0044,NGS-DEMO-TP-0044,Shango Pharmacy Demo Ltd,2019-01-01,,OFF-BOS,BOS,retail,medium,active
+NGS-DEMO-EMP-0045,NGS-DEMO-TP-0045,Kure Fisheries Demo Ltd,2019-01-01,,OFF-BOS,BOS,services,large,active
+NGS-DEMO-EMP-0046,NGS-DEMO-TP-0046,Kuta Poultry Demo Ltd,2019-01-01,,OFF-CHA,CHA,services,small,active
+NGS-DEMO-EMP-0047,NGS-DEMO-TP-0047,Lambata Transport Demo Ltd,2019-01-01,,OFF-CHA,CHA,services,large,active
+NGS-DEMO-EMP-0048,NGS-DEMO-TP-0048,Fadikpe Foods Demo Ltd,2019-01-01,,OFF-MAS,MAS,finance,medium,active
+NGS-DEMO-EMP-0049,NGS-DEMO-TP-0049,Paiko Clinic Demo Ltd,2019-01-01,,OFF-RAF,RAF,manufacturing,large,active
+NGS-DEMO-EMP-0050,NGS-DEMO-TP-0050,Kodo Microfinance Demo Ltd,2019-01-01,,OFF-SUL,SUL,services,large,active
+NGS-DEMO-EMP-0051,NGS-DEMO-TP-0051,Tunga Microfinance Demo Ltd,2019-01-01,,OFF-AGW,AGW,agriculture,small,active
+NGS-DEMO-EMP-0052,NGS-DEMO-TP-0052,Barkin Sale Poultry Demo Ltd,2019-01-01,,OFF-GBA,GBA,finance,small,active
+NGS-DEMO-EMP-0053,NGS-DEMO-TP-0053,Tudun Fulani Rice Mills Demo Ltd,2019-01-01,,OFF-BOS,BOS,education,medium,active
+NGS-DEMO-EMP-0054,NGS-DEMO-TP-0054,Dama Logistics Demo Ltd,2019-01-01,,OFF-GUR,GUR,health,small,active
+NGS-DEMO-EMP-0055,NGS-DEMO-TP-0055,Sabon Gari Bakery Demo Ltd,2019-01-01,,OFF-BOS,BOS,services,small,active
+NGS-DEMO-EMP-0056,NGS-DEMO-TP-0056,Limawa Rice Mills Demo Ltd,2019-01-01,,OFF-GBA,GBA,education,small,active
+NGS-DEMO-EMP-0057,NGS-DEMO-TP-0057,Kuta Foods Demo Ltd,2019-01-01,,OFF-MUN,MUN,finance,large,active
+NGS-DEMO-EMP-0058,NGS-DEMO-TP-0058,Kuta Motors Demo Ltd,2019-01-01,,OFF-MAG,MAG,retail,large,active
+NGS-DEMO-EMP-0059,NGS-DEMO-TP-0059,Mokwa Road Printing Demo Ltd,2019-01-01,,OFF-BOS,BOS,health,medium,active
+NGS-DEMO-EMP-0060,NGS-DEMO-TP-0060,Zungeru Poultry Demo Ltd,2019-01-01,,OFF-CHA,CHA,retail,large,active
+NGS-DEMO-EMP-0061,NGS-DEMO-TP-0061,Limawa Logistics Demo Ltd,2019-01-01,,OFF-BOS,BOS,education,small,active
+NGS-DEMO-EMP-0062,NGS-DEMO-TP-0062,Jikpan Ceramics Demo Ltd,2019-01-01,,OFF-CHA,CHA,services,large,active
+NGS-DEMO-EMP-0063,NGS-DEMO-TP-0063,Bahago Motors Demo Ltd,2019-01-01,,OFF-GBA,GBA,agriculture,small,active
+NGS-DEMO-EMP-0064,NGS-DEMO-TP-0064,Shango Transport Demo Ltd,2019-01-01,,OFF-RIJ,RIJ,construction,medium,active
+NGS-DEMO-EMP-0065,NGS-DEMO-TP-0065,Nasarawa Water Demo Ltd,2019-01-01,,OFF-BOS,BOS,services,small,active
+NGS-DEMO-EMP-0066,NGS-DEMO-TP-0066,Gidan Kwano Schools Demo Ltd,2019-01-01,,OFF-BOS,BOS,services,large,active
+NGS-DEMO-EMP-0067,NGS-DEMO-TP-0067,Shango Motors Demo Ltd,2019-01-01,,OFF-MAR,MAR,retail,large,active
+NGS-DEMO-EMP-0068,NGS-DEMO-TP-0068,Tunga Printing Demo Ltd,2019-01-01,,OFF-BOS,BOS,construction,large,active
+NGS-DEMO-EMP-0069,NGS-DEMO-TP-0069,Zungeru Ceramics Demo Ltd,2019-01-01,,OFF-SUL,SUL,construction,large,active
+NGS-DEMO-EMP-0070,NGS-DEMO-TP-0070,Kpakungu Poultry Demo Ltd,2019-01-01,,OFF-CHA,CHA,retail,large,active
+NGS-DEMO-EMP-0071,NGS-DEMO-TP-0071,Tunga Pharmacy Demo Ltd,2019-01-01,,OFF-CHA,CHA,construction,medium,active
+NGS-DEMO-EMP-0072,NGS-DEMO-TP-0072,Bahago Poultry Demo Ltd,2019-01-01,,OFF-WUS,WUS,services,large,active
+NGS-DEMO-EMP-0073,NGS-DEMO-TP-0073,Dama Rice Mills Demo Ltd,2019-01-01,,OFF-LAP,LAP,services,small,active
+NGS-DEMO-EMP-0074,NGS-DEMO-TP-0074,Paiko Pharmacy Demo Ltd,2019-01-01,,OFF-CHA,CHA,finance,small,active
+NGS-DEMO-EMP-0075,NGS-DEMO-TP-0075,Mokwa Road Poultry Demo Ltd,2019-01-01,,OFF-RIJ,RIJ,finance,large,active
+NGS-DEMO-EMP-0076,NGS-DEMO-TP-0076,Kodo Furniture Demo Ltd,2019-01-01,,OFF-CHA,CHA,construction,large,active
+NGS-DEMO-EMP-0077,NGS-DEMO-TP-0077,Lemu Pharmacy Demo Ltd,2019-01-01,,OFF-PAI,PAI,health,small,active
+NGS-DEMO-EMP-0078,NGS-DEMO-TP-0078,Kpakungu Clinic Demo Ltd,2019-01-01,,OFF-SHI,SHI,finance,large,active
+NGS-DEMO-EMP-0079,NGS-DEMO-TP-0079,Fadikpe Motors Demo Ltd,2019-01-01,,OFF-CHA,CHA,retail,large,active
+NGS-DEMO-EMP-0080,NGS-DEMO-TP-0080,Maitumbi Bakery Demo Ltd,2019-01-01,,OFF-GBA,GBA,education,medium,active
+NGS-DEMO-EMP-0081,NGS-DEMO-TP-0081,Lambata Motors Demo Ltd,2019-01-01,,OFF-CHA,CHA,agriculture,large,active
+NGS-DEMO-EMP-0082,NGS-DEMO-TP-0082,Dama Hotels Demo Ltd,2019-01-01,,OFF-LAV,LAV,services,small,active
+NGS-DEMO-EMP-0083,NGS-DEMO-TP-0083,Kure Transport Demo Ltd,2019-01-01,,OFF-BOS,BOS,education,large,active
+NGS-DEMO-EMP-0084,NGS-DEMO-TP-0084,Fadikpe Ceramics Demo Ltd,2019-01-01,,OFF-CHA,CHA,retail,large,active
+NGS-DEMO-EMP-0085,NGS-DEMO-TP-0085,Lambata Pharmacy Demo Ltd,2019-01-01,,OFF-TAF,TAF,health,small,active
+NGS-DEMO-EMP-0086,NGS-DEMO-TP-0086,Dama Fisheries Demo Ltd,2019-01-01,,OFF-BOS,BOS,services,large,active
+NGS-DEMO-EMP-0087,NGS-DEMO-TP-0087,Maikunkele Hotels Demo Ltd,2019-01-01,,OFF-BID,BID,services,large,active
+NGS-DEMO-EMP-0088,NGS-DEMO-TP-0088,Lemu Engineering Demo Ltd,2019-01-01,,OFF-SUL,SUL,finance,small,active
+NGS-DEMO-EMP-0089,NGS-DEMO-TP-0089,Sabon Gari Engineering Demo Ltd,2019-01-01,,OFF-BOS,BOS,health,medium,active
+NGS-DEMO-EMP-0090,NGS-DEMO-TP-0090,Fadikpe Pharmacy Demo Ltd,2019-01-01,,OFF-BOS,BOS,manufacturing,medium,active
+NGS-DEMO-EMP-0091,NGS-DEMO-TP-0091,Gbaiko Construction Demo Ltd,2019-01-01,,OFF-CHA,CHA,education,large,active
+NGS-DEMO-EMP-0092,NGS-DEMO-TP-0092,Kure Engineering Demo Ltd,2019-01-01,,OFF-MAG,MAG,education,large,active
+NGS-DEMO-EMP-0093,NGS-DEMO-TP-0093,Nasarawa Pharmacy Demo Ltd,2019-01-01,,OFF-AGA,AGA,construction,medium,active
+NGS-DEMO-EMP-0094,NGS-DEMO-TP-0094,Gbaiko Foods Demo Ltd,2019-01-01,,OFF-CHA,CHA,construction,small,active
+NGS-DEMO-EMP-0095,NGS-DEMO-TP-0095,Tudun Fulani Poultry Demo Ltd,2019-01-01,,OFF-LAV,LAV,manufacturing,medium,active
+NGS-DEMO-EMP-0096,NGS-DEMO-TP-0096,Fadikpe Schools Demo Ltd,2019-01-01,,OFF-CHA,CHA,education,small,active
+NGS-DEMO-EMP-0097,NGS-DEMO-TP-0097,Sauka Kahuta Bakery Demo Ltd,2019-01-01,,OFF-CHA,CHA,manufacturing,small,active
+NGS-DEMO-EMP-0098,NGS-DEMO-TP-0098,Barkin Sale Furniture Demo Ltd,2019-01-01,,OFF-CHA,CHA,agriculture,small,active
+NGS-DEMO-EMP-0099,NGS-DEMO-TP-0099,Paiko Rice Mills Demo Ltd,2019-01-01,,OFF-BOS,BOS,education,small,active
+NGS-DEMO-EMP-0100,NGS-DEMO-TP-0100,Bahago Solar Demo Ltd,2019-01-01,,OFF-BOS,BOS,services,small,active
+NGS-DEMO-EMP-0101,NGS-DEMO-TP-0101,Zungeru Agro Processing Demo Ltd,2019-01-01,,OFF-BOS,BOS,finance,medium,active
+NGS-DEMO-EMP-0102,NGS-DEMO-TP-0102,Chanchaga Bakery Demo Ltd,2019-01-01,,OFF-EDA,EDA,agriculture,small,active
+NGS-DEMO-EMP-0103,NGS-DEMO-TP-0103,Bosso Estate Hardware Demo Ltd,2019-01-01,,OFF-GUR,GUR,health,small,active
+NGS-DEMO-EMP-0104,NGS-DEMO-TP-0104,Gbaiko Microfinance Demo Ltd,2019-01-01,,OFF-BOS,BOS,agriculture,small,active
+NGS-DEMO-EMP-0105,NGS-DEMO-TP-0105,Bahago Supermarket Demo Ltd,2019-01-01,,OFF-MAR,MAR,services,medium,active
+NGS-DEMO-EMP-0106,NGS-DEMO-TP-0106,Shango Bakery Demo Ltd,2019-01-01,,OFF-CHA,CHA,finance,small,active
+NGS-DEMO-EMP-0107,NGS-DEMO-TP-0107,Barkin Sale Printing Demo Ltd,2019-01-01,,OFF-BOS,BOS,agriculture,small,active
+NGS-DEMO-EMP-0108,NGS-DEMO-TP-0108,Limawa Pharmacy Demo Ltd,2019-01-01,,OFF-BOS,BOS,health,large,active
+NGS-DEMO-EMP-0109,NGS-DEMO-TP-0109,Dama Supermarket Demo Ltd,2019-01-01,,OFF-RIJ,RIJ,health,small,active
+NGS-DEMO-EMP-0110,NGS-DEMO-TP-0110,Paiko Supermarket Demo Ltd,2019-01-01,,OFF-AGA,AGA,manufacturing,medium,active
+NGS-DEMO-EMP-0111,NGS-DEMO-TP-0111,Beji Foods Demo Ltd,2019-01-01,,OFF-LAP,LAP,education,small,active
+NGS-DEMO-EMP-0112,NGS-DEMO-TP-0112,Bahago Clinic Demo Ltd,2019-01-01,,OFF-CHA,CHA,retail,large,active
+NGS-DEMO-EMP-0113,NGS-DEMO-TP-0113,Gidan Kwano Transport Demo Ltd,2019-01-01,,OFF-BOS,BOS,education,medium,active
+NGS-DEMO-EMP-0114,NGS-DEMO-TP-0114,Kure Textiles Demo Ltd,2019-01-01,,OFF-EDA,EDA,retail,large,active
+NGS-DEMO-EMP-0115,NGS-DEMO-TP-0115,Mokwa Road Agro Processing Demo Ltd,2019-01-01,,OFF-RIJ,RIJ,health,large,active
+NGS-DEMO-EMP-0116,NGS-DEMO-TP-0116,Shango Hotels Demo Ltd,2019-01-01,,OFF-GUR,GUR,health,small,active
+NGS-DEMO-EMP-0117,NGS-DEMO-TP-0117,Nasarawa Construction Demo Ltd,2019-01-01,,OFF-CHA,CHA,agriculture,medium,active
+NGS-DEMO-EMP-0118,NGS-DEMO-TP-0118,Beji Water Demo Ltd,2019-01-01,,OFF-CHA,CHA,education,medium,active
+NGS-DEMO-EMP-0119,NGS-DEMO-TP-0119,Gidan Kwano Logistics Demo Ltd,2019-01-01,,OFF-LAV,LAV,agriculture,small,active
+NGS-DEMO-EMP-0120,NGS-DEMO-TP-0120,Maikunkele Printing Demo Ltd,2019-01-01,,OFF-CHA,CHA,education,medium,active
+NGS-DEMO-EMP-0121,NGS-DEMO-TP-0121,Maikunkele Engineering Demo Ltd,2019-01-01,,OFF-BOS,BOS,education,small,active
+NGS-DEMO-EMP-0122,NGS-DEMO-TP-0122,Kodo Fisheries Demo Ltd,2019-01-01,,OFF-CHA,CHA,retail,large,active
+NGS-DEMO-EMP-0123,NGS-DEMO-TP-0123,Maitumbi Textiles Demo Ltd,2019-01-01,,OFF-LAV,LAV,retail,small,active
+NGS-DEMO-EMP-0124,NGS-DEMO-TP-0124,Kpakungu Hardware Demo Ltd,2019-01-01,,OFF-LAV,LAV,retail,small,active
+NGS-DEMO-EMP-0125,NGS-DEMO-TP-0125,Garatu Textiles Demo Ltd,2019-01-01,,OFF-CHA,CHA,retail,large,active
+NGS-DEMO-EMP-0126,,Chanchaga Ceramics Demo Ltd,2019-01-01,,OFF-CHA,CHA,services,large,active
+NGS-DEMO-EMP-0127,,Bosso Estate Printing Demo Ltd,2019-01-01,,OFF-PAI,PAI,health,small,active
+NGS-DEMO-EMP-0128,NGS-DEMO-TP-0128,Dama Schools Demo Ltd,2019-01-01,2026-03-31,OFF-CHA,CHA,construction,small,ceased
+NGS-DEMO-EMP-0129,NGS-DEMO-TP-0129,Fadikpe Hardware Demo Ltd,2019-01-01,2026-03-31,OFF-AGW,AGW,construction,medium,ceased
+NGS-DEMO-EMP-0130,NGS-DEMO-TP-0130,Paiko Printing Demo Ltd,2019-01-01,2026-03-31,OFF-MAS,MAS,agriculture,small,ceased
+NGS-DEMO-EMP-0131,NGS-DEMO-TP-0131,Kuta Bakery Demo Ltd,2019-01-01,,OFF-BOS,BOS,retail,small,active
+NGS-DEMO-EMP-0132,NGS-DEMO-TP-0132,Tunga Ceramics Demo Ltd,2019-01-01,,OFF-BOS,BOS,agriculture,large,active
+NGS-DEMO-EMP-0133,NGS-DEMO-TP-0133,Mokwa Road Water Demo Ltd,2019-01-01,,OFF-GUR,GUR,finance,small,active
+NGS-DEMO-EMP-0134,NGS-DEMO-TP-0134,Kpakungu Textiles Demo Ltd,2019-01-01,,OFF-LAP,LAP,finance,large,active
+NGS-DEMO-EMP-0135,NGS-DEMO-TP-0135,Bosso Estate Logistics Demo Ltd,2019-01-01,,OFF-AGA,AGA,manufacturing,medium,active
+NGS-DEMO-EMP-0136,NGS-DEMO-TP-0136,Kure Printing Demo Ltd,2019-01-01,,OFF-MUN,MUN,finance,small,active
+NGS-DEMO-EMP-0137,NGS-DEMO-TP-0137,Bosso Estate Bakery Demo Ltd,2019-01-01,,OFF-CHA,CHA,manufacturing,large,active
+NGS-DEMO-EMP-0138,NGS-DEMO-TP-0138,Garatu Ceramics Demo Ltd,2019-01-01,,OFF-BID,BID,agriculture,large,active
+NGS-DEMO-EMP-0139,NGS-DEMO-TP-0139,Bosso Estate Agro Processing Demo Ltd,2019-01-01,,OFF-SUL,SUL,agriculture,medium,active
+NGS-DEMO-EMP-0140,NGS-DEMO-TP-0140,Sabon Gari Furniture Demo Ltd,2019-01-01,,OFF-MOK,MOK,finance,medium,active
+NGS-DEMO-EMP-0141,NGS-DEMO-TP-0141,Jikpan Hotels Demo Ltd,2019-01-01,,OFF-MAS,MAS,finance,medium,active
+NGS-DEMO-EMP-0142,NGS-DEMO-TP-0142,Beji Construction Demo Ltd,2019-01-01,,OFF-AGA,AGA,manufacturing,small,active
+NGS-DEMO-EMP-0143,NGS-DEMO-TP-0143,Tudun Fulani Transport Demo Ltd,2019-01-01,,OFF-WUS,WUS,agriculture,small,active
+NGS-DEMO-EMP-0144,NGS-DEMO-TP-0144,Gidan Kwano Fisheries Demo Ltd,2019-01-01,,OFF-WUS,WUS,agriculture,large,active
+NGS-DEMO-EMP-0145,NGS-DEMO-TP-0145,Kodo Foods Demo Ltd,2019-01-01,,OFF-SUL,SUL,health,medium,active

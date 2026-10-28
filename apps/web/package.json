@@ -1,0 +1,31 @@
+{
+  "name": "@ngsirs/web",
+  "version": "1.0.0",
+  "private": true,
+  "description": "NGSIRS Compliance Risk Management Platform - operations console (Milestone D)",
+  "scripts": {
+    "dev": "next dev -p 3000",
+    "build": "next build",
+    "start": "next start -p 3000",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test:e2e": "pnpm --filter @ngsirs/e2e test"
+  },
+  "dependencies": {
+    "@ngsirs/contracts": "workspace:*",
+    "@ngsirs/design": "workspace:*",
+    "next": "15.5.28",
+    "openapi-fetch": "0.17.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3.3.1",
+    "@types/node": "^22.10.0",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "eslint": "^9.39.0",
+    "eslint-config-next": "15.5.28",
+    "typescript": "5.9.3"
+  }
+}

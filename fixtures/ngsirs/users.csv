@@ -1,0 +1,14 @@
+username,display_name,roles,unit,lga_scope,purposes
+platform.admin,Demo Platform Administrator,platform_admin,ICT,,data_quality
+legal.approver,Demo Legal Approver,legal_approver,Legal,,audit;case_review
+risk.analyst,Demo Risk Analyst,risk_analyst,PAYE Compliance,,case_review;desk_review;management_reporting
+risk.analyst2,Demo Risk Analyst Two,risk_analyst,PAYE Compliance,,case_review;desk_review
+compliance.manager,Demo Head of Compliance,compliance_manager,Compliance Directorate,,case_review;desk_review;management_reporting;audit
+compliance.manager2,Demo Deputy Head of Compliance,compliance_manager,Compliance Directorate,,case_review;desk_review;management_reporting
+compliance.officer,Demo PAYE Compliance Officer,compliance_officer,PAYE Unit,,case_review
+field.officer.minna,Demo Field Officer (Minna),compliance_officer,Minna Field Office,CHA;BOS,case_review
+taxpayer.services,Demo Taxpayer Service Officer,compliance_officer,Taxpayer Services,,case_review
+audit.officer,Demo Audit Manager,audit_officer,Audit,,audit;desk_review;case_review
+data.steward,Demo Data Steward,data_steward,Data Administration,,data_quality
+data.steward2,Demo Data Steward Two,data_steward,Data Administration,,data_quality
+executive.chairman,Demo Executive Chairman (viewer),executive_viewer,Office of the Executive Chairman,,management_reporting

@@ -1,0 +1,130 @@
+# Reference Kubernetes manifests for a state-hosted, single-tenant NGSIRS installation.
+# Secrets (database URLs, data/token keys, signing key, OIDC settings) come from the state's vault via
+# an ExternalSecret or sealed secret named `ngsirs-crm-secrets`; nothing sensitive is stored here.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ngsirs-crm
+  labels: {pod-security.kubernetes.io/enforce: restricted}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata: {name: ngsirs-crm-config, namespace: ngsirs-crm}
+data:
+  NGSIRS_ENVIRONMENT: production
+  NGSIRS_DEV_AUTH_ENABLED: "false"
+  NGSIRS_REQUIRE_MFA: "true"
+  NGSIRS_CELERY_EAGER: "false"
+  NGSIRS_STORAGE_BACKEND: s3
+  NGSIRS_OUTBOUND_MESSAGING_ENABLED: "false"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: ngsirs-api, namespace: ngsirs-crm}
+spec:
+  replicas: 2
+  selector: {matchLabels: {app: ngsirs-api}}
+  template:
+    metadata: {labels: {app: ngsirs-api}}
+    spec:
+      automountServiceAccountToken: false
+      securityContext: {runAsNonRoot: true, seccompProfile: {type: RuntimeDefault}}
+      initContainers:
+        - name: migrate
+          image: ngsirs-crm-api:1.0.0
+          command: ["ngsirs", "migrate"]
+          envFrom: [{configMapRef: {name: ngsirs-crm-config}}, {secretRef: {name: ngsirs-crm-secrets}}]
+          securityContext: {allowPrivilegeEscalation: false, readOnlyRootFilesystem: true, capabilities: {drop: [ALL]}}
+      containers:
+        - name: api
+          image: ngsirs-crm-api:1.0.0
+          ports: [{containerPort: 8000}]
+          envFrom: [{configMapRef: {name: ngsirs-crm-config}}, {secretRef: {name: ngsirs-crm-secrets}}]
+          readinessProbe: {httpGet: {path: /readyz, port: 8000}, periodSeconds: 10}
+          livenessProbe: {httpGet: {path: /healthz, port: 8000}, periodSeconds: 20}
+          resources: {requests: {cpu: 250m, memory: 512Mi}, limits: {cpu: "2", memory: 2Gi}}
+          securityContext: {allowPrivilegeEscalation: false, readOnlyRootFilesystem: true, capabilities: {drop: [ALL]}}
+          volumeMounts: [{name: tmp, mountPath: /tmp}, {name: keys, mountPath: /data/keys, readOnly: true}]
+      volumes:
+        - {name: tmp, emptyDir: {}}
+        - {name: keys, secret: {secretName: ngsirs-crm-signing-keys}}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: ngsirs-worker, namespace: ngsirs-crm}
+spec:
+  replicas: 1
+  selector: {matchLabels: {app: ngsirs-worker}}
+  template:
+    metadata: {labels: {app: ngsirs-worker}}
+    spec:
+      automountServiceAccountToken: false
+      securityContext: {runAsNonRoot: true, seccompProfile: {type: RuntimeDefault}}
+      containers:
+        - name: worker
+          image: ngsirs-crm-api:1.0.0
+          command: ["celery", "-A", "ngsirs_api.worker", "worker", "--beat", "--loglevel=info"]
+          envFrom: [{configMapRef: {name: ngsirs-crm-config}}, {secretRef: {name: ngsirs-crm-secrets}}]
+          resources: {requests: {cpu: 500m, memory: 1Gi}, limits: {cpu: "4", memory: 4Gi}}
+          securityContext: {allowPrivilegeEscalation: false, readOnlyRootFilesystem: true, capabilities: {drop: [ALL]}}
+          volumeMounts: [{name: tmp, mountPath: /tmp}, {name: keys, mountPath: /data/keys, readOnly: true}]
+      volumes:
+        - {name: tmp, emptyDir: {}}
+        - {name: keys, secret: {secretName: ngsirs-crm-signing-keys}}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: ngsirs-web, namespace: ngsirs-crm}
+spec:
+  replicas: 2
+  selector: {matchLabels: {app: ngsirs-web}}
+  template:
+    metadata: {labels: {app: ngsirs-web}}
+    spec:
+      automountServiceAccountToken: false
+      securityContext: {runAsNonRoot: true, seccompProfile: {type: RuntimeDefault}}
+      containers:
+        - name: web
+          image: ngsirs-crm-web:1.0.0
+          ports: [{containerPort: 3000}]
+          readinessProbe: {httpGet: {path: /, port: 3000}}
+          resources: {requests: {cpu: 100m, memory: 256Mi}, limits: {cpu: "1", memory: 1Gi}}
+          securityContext: {allowPrivilegeEscalation: false, capabilities: {drop: [ALL]}}
+---
+apiVersion: v1
+kind: Service
+metadata: {name: ngsirs-api, namespace: ngsirs-crm}
+spec: {selector: {app: ngsirs-api}, ports: [{port: 80, targetPort: 8000}]}
+---
+apiVersion: v1
+kind: Service
+metadata: {name: ngsirs-web, namespace: ngsirs-crm}
+spec: {selector: {app: ngsirs-web}, ports: [{port: 80, targetPort: 3000}]}
+---
+# Default-deny; only the ingress controller reaches web/api, and only api/worker reach the data tier.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: {name: default-deny, namespace: ngsirs-crm}
+spec: {podSelector: {}, policyTypes: [Ingress, Egress]}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: {name: allow-ingress-to-edge, namespace: ngsirs-crm}
+spec:
+  podSelector: {matchExpressions: [{key: app, operator: In, values: [ngsirs-api, ngsirs-web]}]}
+  policyTypes: [Ingress]
+  ingress:
+    - from: [{namespaceSelector: {matchLabels: {kubernetes.io/metadata.name: ingress-nginx}}}]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: {name: allow-app-egress, namespace: ngsirs-crm}
+spec:
+  podSelector: {matchExpressions: [{key: app, operator: In, values: [ngsirs-api, ngsirs-worker]}]}
+  policyTypes: [Egress]
+  egress:
+    - to: [{namespaceSelector: {matchLabels: {kubernetes.io/metadata.name: ngsirs-data}}}]
+      ports: [{port: 5432}, {port: 6379}, {port: 9000}]
+    - to: [{namespaceSelector: {matchLabels: {kubernetes.io/metadata.name: ngsirs-identity}}}]
+      ports: [{port: 8080}, {port: 443}]
+    - ports: [{port: 53, protocol: UDP}, {port: 53, protocol: TCP}]

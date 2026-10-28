@@ -1,0 +1,23 @@
+receivers:
+  otlp:
+    protocols:
+      http:
+        endpoint: 0.0.0.0:4318
+processors:
+  batch: {}
+  # Never ship identifiers or request bodies to telemetry backends.
+  attributes/redact:
+    actions:
+      - key: http.request.body
+        action: delete
+      - key: enduser.id
+        action: hash
+exporters:
+  debug:
+    verbosity: basic
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [attributes/redact, batch]
+      exporters: [debug]

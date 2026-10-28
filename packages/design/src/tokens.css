@@ -1,0 +1,65 @@
+/*
+ * NGSIRS console design tokens.
+ * Restrained neutral institutional theme. These are NOT NGSIRS brand colours: no official
+ * logo or palette has been supplied, so none is imitated. Replace only with approved assets.
+ * All foreground/background pairs below meet WCAG 2.2 AA (4.5:1 for text).
+ */
+:root {
+  /* Neutrals */
+  --ng-color-bg: #f4f5f7;
+  --ng-color-surface: #ffffff;
+  --ng-color-surface-alt: #f9fafb;
+  --ng-color-ink: #1a1d21;
+  --ng-color-ink-muted: #4a5260;
+  --ng-color-border: #c6ccd4;
+  --ng-color-border-strong: #8a93a0;
+
+  /* Single accent used for links, primary actions and focus */
+  --ng-color-accent: #1d4a6e;
+  --ng-color-accent-hover: #143852;
+  --ng-color-accent-ink: #ffffff;
+  --ng-color-focus: #1d4a6e;
+
+  /* Status tones: background / foreground / border */
+  --ng-tone-neutral-bg: #eceef1;
+  --ng-tone-neutral-fg: #333a44;
+  --ng-tone-neutral-border: #b9c0c9;
+  --ng-tone-info-bg: #e6eef5;
+  --ng-tone-info-fg: #12385a;
+  --ng-tone-info-border: #9db6cc;
+  --ng-tone-success-bg: #e5f1e8;
+  --ng-tone-success-fg: #1c4d2c;
+  --ng-tone-success-border: #9cc4a8;
+  --ng-tone-warning-bg: #fbf0d9;
+  --ng-tone-warning-fg: #5e4100;
+  --ng-tone-warning-border: #d9b867;
+  --ng-tone-danger-bg: #f8e4e2;
+  --ng-tone-danger-fg: #7d1a12;
+  --ng-tone-danger-border: #d79d97;
+
+  /* Synthetic-data banner */
+  --ng-banner-bg: #3a3000;
+  --ng-banner-fg: #fff6cc;
+
+  /* Typography */
+  --ng-font-sans: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+  --ng-font-mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --ng-text-xs: 0.75rem;
+  --ng-text-sm: 0.8125rem;
+  --ng-text-md: 0.9375rem;
+  --ng-text-lg: 1.125rem;
+  --ng-text-xl: 1.375rem;
+  --ng-text-2xl: 1.75rem;
+  --ng-leading: 1.45;
+
+  /* Space and shape */
+  --ng-space-1: 0.25rem;
+  --ng-space-2: 0.5rem;
+  --ng-space-3: 0.75rem;
+  --ng-space-4: 1rem;
+  --ng-space-5: 1.5rem;
+  --ng-space-6: 2rem;
+  --ng-radius: 4px;
+  --ng-shadow: 0 1px 2px rgba(16, 24, 40, 0.06);
+  --ng-sidebar-width: 15rem;
+}
