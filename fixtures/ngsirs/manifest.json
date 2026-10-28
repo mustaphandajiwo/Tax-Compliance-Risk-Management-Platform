@@ -1,0 +1,74 @@
+{
+  "as_of": "2026-10-01T00:00:00+01:00",
+  "period_from": "2025-09",
+  "period_to": "2026-08",
+  "note": "SYNTHETIC NGSIRS pilot fixture. Load in order; evaluate as at as_of.",
+  "loads": [
+    {
+      "file": "taxpayers.csv",
+      "feed_type": "ngsirs_taxpayer",
+      "source": "ngsirs_registration",
+      "extracted_at": "2026-09-29T18:00:00+01:00"
+    },
+    {
+      "file": "employers.csv",
+      "feed_type": "ngsirs_employer",
+      "source": "ngsirs_registration",
+      "extracted_at": "2026-09-29T18:00:00+01:00"
+    },
+    {
+      "file": "obligations.csv",
+      "feed_type": "ngsirs_obligation",
+      "source": "ngsirs_registration",
+      "extracted_at": "2026-09-29T18:00:00+01:00"
+    },
+    {
+      "file": "extensions.csv",
+      "feed_type": "ngsirs_extension",
+      "source": "ngsirs_registration",
+      "extracted_at": "2026-09-29T18:00:00+01:00"
+    },
+    {
+      "file": "paye_returns.csv",
+      "feed_type": "ngsirs_paye_return",
+      "source": "ngsirs_etax_portal",
+      "extracted_at": "2026-09-29T18:00:00+01:00",
+      "coverage_from": "2025-09",
+      "coverage_to": "2026-08"
+    },
+    {
+      "file": "paye_returns_late.csv",
+      "feed_type": "ngsirs_paye_return",
+      "source": "ngsirs_etax_portal",
+      "extracted_at": "2026-09-30T14:00:00+01:00"
+    },
+    {
+      "file": "paye_returns_legacy.csv",
+      "feed_type": "ngsirs_paye_return",
+      "source": "ngsirs_legacy_register",
+      "extracted_at": "2026-09-29T18:00:00+01:00"
+    },
+    {
+      "file": "payments.csv",
+      "feed_type": "ngsirs_payment",
+      "source": "ngsirs_treasury",
+      "extracted_at": "2026-09-29T18:00:00+01:00",
+      "coverage_from": "2025-09",
+      "coverage_to": "2026-08"
+    },
+    {
+      "file": "payments_bank.csv",
+      "feed_type": "ngsirs_payment",
+      "source": "ngsirs_bank_feed",
+      "extracted_at": "2026-09-29T18:00:00+01:00"
+    },
+    {
+      "file": "assessments.csv",
+      "feed_type": "ngsirs_assessment",
+      "source": "ngsirs_assessment_ledger",
+      "extracted_at": "2026-09-29T18:00:00+01:00",
+      "coverage_from": "2025-09",
+      "coverage_to": "2026-08"
+    }
+  ]
+}

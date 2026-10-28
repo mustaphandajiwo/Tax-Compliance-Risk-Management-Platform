@@ -1,0 +1,8 @@
+assessment_id,employer_id,period,assessment_type,amount,served_on,due_date,appeal_status,outstanding_amount,status
+NGS-DEMO-ASM-0135,NGS-DEMO-EMP-0135,2026-02,additional,485000.00,2026-05-01,,none,485000.00,served
+NGS-DEMO-ASM-0136,NGS-DEMO-EMP-0136,2026-02,additional,486000.00,2026-05-01,,none,486000.00,served
+NGS-DEMO-ASM-0137,NGS-DEMO-EMP-0137,2026-02,additional,487000.00,2026-05-01,,none,487000.00,served
+NGS-DEMO-ASM-0138,NGS-DEMO-EMP-0138,2026-02,additional,488000.00,2026-05-01,,appealed,488000.00,served
+NGS-DEMO-ASM-0139,NGS-DEMO-EMP-0139,2026-02,additional,489000.00,2026-05-01,,appealed,489000.00,served
+NGS-DEMO-ASM-0140,NGS-DEMO-EMP-0140,2026-02,additional,490000.00,2026-05-01,,none,490000.00,superseded
+NGS-DEMO-ASM-0141,NGS-DEMO-EMP-0141,2026-02,additional,200000.00,2026-05-01,,none,0.00,served

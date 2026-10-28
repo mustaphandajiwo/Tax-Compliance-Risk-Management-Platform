@@ -1,0 +1,955 @@
+{
+  "as_of": "2026-10-01T00:00:00+01:00",
+  "periods": [
+    "2025-09",
+    "2026-08"
+  ],
+  "employers": 145,
+  "scenarios": {
+    "clean": 60,
+    "late_filing_once": 6,
+    "late_filing_repeated": 4,
+    "missing_one": 6,
+    "missing_three": 4,
+    "extension_granted": 3,
+    "extension_pending": 2,
+    "processing_delay": 3,
+    "late_ingest": 2,
+    "late_payment_once": 5,
+    "late_payment_repeated": 4,
+    "underpayment": 4,
+    "partial_with_credit": 2,
+    "within_tolerance": 2,
+    "reversed": 3,
+    "reversed_repaid": 2,
+    "reversal_pending": 2,
+    "suspense_receipt": 3,
+    "unmatched_reference": 2,
+    "invalid_period": 2,
+    "filing_source_conflict": 2,
+    "payment_source_conflict": 2,
+    "unverified_identity": 2,
+    "ceased": 3,
+    "no_obligation": 2,
+    "obligation_pending_verification": 2,
+    "assessment_unpaid": 3,
+    "assessment_appealed": 2,
+    "assessment_superseded": 1,
+    "assessment_paid": 1,
+    "rejected_uncorrected": 2,
+    "legal_transition": 2
+  },
+  "count": 129,
+  "compare": [
+    "rule_id",
+    "subject",
+    "period",
+    "status",
+    "hold"
+  ],
+  "findings": [
+    {
+      "rule_id": "DAT-001",
+      "subject": "NGS-DEMO-TP-0001~NGS-DEMO-TP-D001",
+      "period": null,
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "DAT-001",
+      "subject": "NGS-DEMO-TP-0002~NGS-DEMO-TP-D002",
+      "period": null,
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "DAT-001",
+      "subject": "NGS-DEMO-TP-0003~NGS-DEMO-TP-D003",
+      "period": null,
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "DAT-002",
+      "subject": "ngsirs_payment:NGS-DEMO-PAY-0120-2026-03",
+      "period": null,
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "DAT-002",
+      "subject": "ngsirs_payment:NGS-DEMO-PAY-0121-2026-03",
+      "period": null,
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "DAT-003",
+      "subject": "NGS-DEMO-EMP-0122",
+      "period": "2026-02",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "DAT-003",
+      "subject": "NGS-DEMO-EMP-0123",
+      "period": "2026-02",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "DAT-003",
+      "subject": "NGS-DEMO-EMP-0124",
+      "period": "2026-05",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "DAT-003",
+      "subject": "NGS-DEMO-EMP-0125",
+      "period": "2026-05",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "FIL-001",
+      "subject": "NGS-DEMO-EMP-0071",
+      "period": "2026-06",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "FIL-001",
+      "subject": "NGS-DEMO-EMP-0072",
+      "period": "2026-06",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "FIL-001",
+      "subject": "NGS-DEMO-EMP-0073",
+      "period": "2026-06",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "FIL-001",
+      "subject": "NGS-DEMO-EMP-0074",
+      "period": "2026-06",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "FIL-001",
+      "subject": "NGS-DEMO-EMP-0075",
+      "period": "2026-06",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "FIL-001",
+      "subject": "NGS-DEMO-EMP-0076",
+      "period": "2026-06",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "FIL-001",
+      "subject": "NGS-DEMO-EMP-0077",
+      "period": "2026-04",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "FIL-001",
+      "subject": "NGS-DEMO-EMP-0077",
+      "period": "2026-06",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "FIL-001",
+      "subject": "NGS-DEMO-EMP-0077",
+      "period": "2026-08",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "FIL-001",
+      "subject": "NGS-DEMO-EMP-0078",
+      "period": "2026-04",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "FIL-001",
+      "subject": "NGS-DEMO-EMP-0078",
+      "period": "2026-06",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "FIL-001",
+      "subject": "NGS-DEMO-EMP-0078",
+      "period": "2026-08",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "FIL-001",
+      "subject": "NGS-DEMO-EMP-0079",
+      "period": "2026-04",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "FIL-001",
+      "subject": "NGS-DEMO-EMP-0079",
+      "period": "2026-06",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "FIL-001",
+      "subject": "NGS-DEMO-EMP-0079",
+      "period": "2026-08",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "FIL-001",
+      "subject": "NGS-DEMO-EMP-0080",
+      "period": "2026-04",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "FIL-001",
+      "subject": "NGS-DEMO-EMP-0080",
+      "period": "2026-06",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "FIL-001",
+      "subject": "NGS-DEMO-EMP-0080",
+      "period": "2026-08",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "FIL-001",
+      "subject": "NGS-DEMO-EMP-0084",
+      "period": "2026-07",
+      "status": "review_required",
+      "hold": "data_hold"
+    },
+    {
+      "rule_id": "FIL-001",
+      "subject": "NGS-DEMO-EMP-0085",
+      "period": "2026-07",
+      "status": "review_required",
+      "hold": "data_hold"
+    },
+    {
+      "rule_id": "FIL-001",
+      "subject": "NGS-DEMO-EMP-0126",
+      "period": "2026-06",
+      "status": "review_required",
+      "hold": "data_hold"
+    },
+    {
+      "rule_id": "FIL-001",
+      "subject": "NGS-DEMO-EMP-0127",
+      "period": "2026-06",
+      "status": "review_required",
+      "hold": "data_hold"
+    },
+    {
+      "rule_id": "FIL-001",
+      "subject": "NGS-DEMO-EMP-0133",
+      "period": "2026-08",
+      "status": "review_required",
+      "hold": "data_hold"
+    },
+    {
+      "rule_id": "FIL-001",
+      "subject": "NGS-DEMO-EMP-0134",
+      "period": "2026-08",
+      "status": "review_required",
+      "hold": "data_hold"
+    },
+    {
+      "rule_id": "FIL-001",
+      "subject": "NGS-DEMO-EMP-0142",
+      "period": "2026-07",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "FIL-001",
+      "subject": "NGS-DEMO-EMP-0143",
+      "period": "2026-07",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "FIL-002",
+      "subject": "NGS-DEMO-EMP-0061",
+      "period": "2026-03",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "FIL-002",
+      "subject": "NGS-DEMO-EMP-0062",
+      "period": "2026-03",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "FIL-002",
+      "subject": "NGS-DEMO-EMP-0063",
+      "period": "2026-03",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "FIL-002",
+      "subject": "NGS-DEMO-EMP-0064",
+      "period": "2026-03",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "FIL-002",
+      "subject": "NGS-DEMO-EMP-0065",
+      "period": "2026-03",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "FIL-002",
+      "subject": "NGS-DEMO-EMP-0066",
+      "period": "2026-03",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "FIL-002",
+      "subject": "NGS-DEMO-EMP-0067",
+      "period": "2026-03",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "FIL-002",
+      "subject": "NGS-DEMO-EMP-0067",
+      "period": "2026-04",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "FIL-002",
+      "subject": "NGS-DEMO-EMP-0067",
+      "period": "2026-06",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "FIL-002",
+      "subject": "NGS-DEMO-EMP-0067",
+      "period": "2026-08",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "FIL-002",
+      "subject": "NGS-DEMO-EMP-0068",
+      "period": "2026-03",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "FIL-002",
+      "subject": "NGS-DEMO-EMP-0068",
+      "period": "2026-04",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "FIL-002",
+      "subject": "NGS-DEMO-EMP-0068",
+      "period": "2026-06",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "FIL-002",
+      "subject": "NGS-DEMO-EMP-0068",
+      "period": "2026-08",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "FIL-002",
+      "subject": "NGS-DEMO-EMP-0069",
+      "period": "2026-03",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "FIL-002",
+      "subject": "NGS-DEMO-EMP-0069",
+      "period": "2026-04",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "FIL-002",
+      "subject": "NGS-DEMO-EMP-0069",
+      "period": "2026-06",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "FIL-002",
+      "subject": "NGS-DEMO-EMP-0069",
+      "period": "2026-08",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "FIL-002",
+      "subject": "NGS-DEMO-EMP-0070",
+      "period": "2026-03",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "FIL-002",
+      "subject": "NGS-DEMO-EMP-0070",
+      "period": "2026-04",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "FIL-002",
+      "subject": "NGS-DEMO-EMP-0070",
+      "period": "2026-06",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "FIL-002",
+      "subject": "NGS-DEMO-EMP-0070",
+      "period": "2026-08",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "FIL-002",
+      "subject": "NGS-DEMO-EMP-0144",
+      "period": "2025-12",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "FIL-002",
+      "subject": "NGS-DEMO-EMP-0145",
+      "period": "2025-12",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "FIL-003",
+      "subject": "NGS-DEMO-EMP-0077",
+      "period": "2026-08",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "FIL-003",
+      "subject": "NGS-DEMO-EMP-0078",
+      "period": "2026-08",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "FIL-003",
+      "subject": "NGS-DEMO-EMP-0079",
+      "period": "2026-08",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "FIL-003",
+      "subject": "NGS-DEMO-EMP-0080",
+      "period": "2026-08",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "PAY-001",
+      "subject": "NGS-DEMO-EMP-0071",
+      "period": "2026-06",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "PAY-001",
+      "subject": "NGS-DEMO-EMP-0072",
+      "period": "2026-06",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "PAY-001",
+      "subject": "NGS-DEMO-EMP-0073",
+      "period": "2026-06",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "PAY-001",
+      "subject": "NGS-DEMO-EMP-0074",
+      "period": "2026-06",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "PAY-001",
+      "subject": "NGS-DEMO-EMP-0075",
+      "period": "2026-06",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "PAY-001",
+      "subject": "NGS-DEMO-EMP-0076",
+      "period": "2026-06",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "PAY-001",
+      "subject": "NGS-DEMO-EMP-0077",
+      "period": "2026-04",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "PAY-001",
+      "subject": "NGS-DEMO-EMP-0077",
+      "period": "2026-06",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "PAY-001",
+      "subject": "NGS-DEMO-EMP-0077",
+      "period": "2026-08",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "PAY-001",
+      "subject": "NGS-DEMO-EMP-0078",
+      "period": "2026-04",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "PAY-001",
+      "subject": "NGS-DEMO-EMP-0078",
+      "period": "2026-06",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "PAY-001",
+      "subject": "NGS-DEMO-EMP-0078",
+      "period": "2026-08",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "PAY-001",
+      "subject": "NGS-DEMO-EMP-0079",
+      "period": "2026-04",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "PAY-001",
+      "subject": "NGS-DEMO-EMP-0079",
+      "period": "2026-06",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "PAY-001",
+      "subject": "NGS-DEMO-EMP-0079",
+      "period": "2026-08",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "PAY-001",
+      "subject": "NGS-DEMO-EMP-0080",
+      "period": "2026-04",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "PAY-001",
+      "subject": "NGS-DEMO-EMP-0080",
+      "period": "2026-06",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "PAY-001",
+      "subject": "NGS-DEMO-EMP-0080",
+      "period": "2026-08",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "PAY-001",
+      "subject": "NGS-DEMO-EMP-0108",
+      "period": "2026-04",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "PAY-001",
+      "subject": "NGS-DEMO-EMP-0109",
+      "period": "2026-04",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "PAY-001",
+      "subject": "NGS-DEMO-EMP-0110",
+      "period": "2026-04",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "PAY-001",
+      "subject": "NGS-DEMO-EMP-0118",
+      "period": "2026-07",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "PAY-001",
+      "subject": "NGS-DEMO-EMP-0119",
+      "period": "2026-07",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "PAY-001",
+      "subject": "NGS-DEMO-EMP-0126",
+      "period": "2026-06",
+      "status": "review_required",
+      "hold": "data_hold"
+    },
+    {
+      "rule_id": "PAY-001",
+      "subject": "NGS-DEMO-EMP-0127",
+      "period": "2026-06",
+      "status": "review_required",
+      "hold": "data_hold"
+    },
+    {
+      "rule_id": "PAY-001",
+      "subject": "NGS-DEMO-EMP-0133",
+      "period": "2026-08",
+      "status": "review_required",
+      "hold": "data_hold"
+    },
+    {
+      "rule_id": "PAY-001",
+      "subject": "NGS-DEMO-EMP-0134",
+      "period": "2026-08",
+      "status": "review_required",
+      "hold": "data_hold"
+    },
+    {
+      "rule_id": "PAY-002",
+      "subject": "NGS-DEMO-EMP-0091",
+      "period": "2026-02",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "PAY-002",
+      "subject": "NGS-DEMO-EMP-0092",
+      "period": "2026-02",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "PAY-002",
+      "subject": "NGS-DEMO-EMP-0093",
+      "period": "2026-02",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "PAY-002",
+      "subject": "NGS-DEMO-EMP-0094",
+      "period": "2026-02",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "PAY-002",
+      "subject": "NGS-DEMO-EMP-0095",
+      "period": "2026-02",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "PAY-002",
+      "subject": "NGS-DEMO-EMP-0096",
+      "period": "2026-03",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "PAY-002",
+      "subject": "NGS-DEMO-EMP-0096",
+      "period": "2026-04",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "PAY-002",
+      "subject": "NGS-DEMO-EMP-0096",
+      "period": "2026-06",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "PAY-002",
+      "subject": "NGS-DEMO-EMP-0096",
+      "period": "2026-08",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "PAY-002",
+      "subject": "NGS-DEMO-EMP-0097",
+      "period": "2026-03",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "PAY-002",
+      "subject": "NGS-DEMO-EMP-0097",
+      "period": "2026-04",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "PAY-002",
+      "subject": "NGS-DEMO-EMP-0097",
+      "period": "2026-06",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "PAY-002",
+      "subject": "NGS-DEMO-EMP-0097",
+      "period": "2026-08",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "PAY-002",
+      "subject": "NGS-DEMO-EMP-0098",
+      "period": "2026-03",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "PAY-002",
+      "subject": "NGS-DEMO-EMP-0098",
+      "period": "2026-04",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "PAY-002",
+      "subject": "NGS-DEMO-EMP-0098",
+      "period": "2026-06",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "PAY-002",
+      "subject": "NGS-DEMO-EMP-0098",
+      "period": "2026-08",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "PAY-002",
+      "subject": "NGS-DEMO-EMP-0099",
+      "period": "2026-03",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "PAY-002",
+      "subject": "NGS-DEMO-EMP-0099",
+      "period": "2026-04",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "PAY-002",
+      "subject": "NGS-DEMO-EMP-0099",
+      "period": "2026-06",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "PAY-002",
+      "subject": "NGS-DEMO-EMP-0099",
+      "period": "2026-08",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "PAY-003",
+      "subject": "NGS-DEMO-EMP-0096",
+      "period": "2026-08",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "PAY-003",
+      "subject": "NGS-DEMO-EMP-0097",
+      "period": "2026-08",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "PAY-003",
+      "subject": "NGS-DEMO-EMP-0098",
+      "period": "2026-08",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "PAY-003",
+      "subject": "NGS-DEMO-EMP-0099",
+      "period": "2026-08",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "PAY-004",
+      "subject": "NGS-DEMO-EMP-0100",
+      "period": "2026-05",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "PAY-004",
+      "subject": "NGS-DEMO-EMP-0101",
+      "period": "2026-05",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "PAY-004",
+      "subject": "NGS-DEMO-EMP-0102",
+      "period": "2026-05",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "PAY-004",
+      "subject": "NGS-DEMO-EMP-0103",
+      "period": "2026-05",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "PAY-005",
+      "subject": "NGS-DEMO-PAY-0115-2026-07",
+      "period": null,
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "PAY-005",
+      "subject": "NGS-DEMO-PAY-0116-2026-07",
+      "period": null,
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "PAY-005",
+      "subject": "NGS-DEMO-PAY-0117-2026-07",
+      "period": null,
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "PAY-005",
+      "subject": "NGS-DEMO-PAY-X118-2026-07",
+      "period": null,
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "PAY-005",
+      "subject": "NGS-DEMO-PAY-X119-2026-07",
+      "period": null,
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "PAY-006",
+      "subject": "NGS-DEMO-ASM-0135",
+      "period": "2026-02",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "PAY-006",
+      "subject": "NGS-DEMO-ASM-0136",
+      "period": "2026-02",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "PAY-006",
+      "subject": "NGS-DEMO-ASM-0137",
+      "period": "2026-02",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "PAY-006",
+      "subject": "NGS-DEMO-ASM-0138",
+      "period": "2026-02",
+      "status": "review_required",
+      "hold": "legal_hold"
+    },
+    {
+      "rule_id": "PAY-006",
+      "subject": "NGS-DEMO-ASM-0139",
+      "period": "2026-02",
+      "status": "review_required",
+      "hold": "legal_hold"
+    }
+  ]
+}
