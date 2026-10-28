@@ -86,13 +86,20 @@ def versions_for(db: Session, code: str) -> list[LegalRuleVersion]:
 
 
 def resolve(db: Session, code: str, period: str, *, approved_only: bool = True) -> LegalRuleVersion | None:
+    """The version in force for the period: the latest effective_from that covers the period start.
+
+    A later version takes precedence from its own effective date, so an open-ended earlier version never has
+    to be edited (approved versions are immutable) when the law changes.
+    """
     start, _ = period_bounds(period)
-    for v in versions_for(db, code):
-        if approved_only and v.status != "approved":
-            continue
-        if v.effective_from <= start and (v.effective_to is None or start <= v.effective_to):
-            return v
-    return None
+    covering = [
+        v
+        for v in versions_for(db, code)
+        if (not approved_only or v.status == "approved")
+        and v.effective_from <= start
+        and (v.effective_to is None or start <= v.effective_to)
+    ]
+    return max(covering, key=lambda v: v.effective_from, default=None)
 
 
 def content_hash(v: dict[str, Any]) -> str:
@@ -130,12 +137,10 @@ def draft_version(db: Session, actor: Principal, data: dict[str, Any]) -> LegalR
     if eff_to is not None and eff_to < eff_from:
         raise unprocessable("effective_to precedes effective_from")
     for other in versions_for(db, code):
-        if (
-            other.status in ("approved", "pending_approval")
-            and eff_from <= (other.effective_to or date.max)
-            and other.effective_from <= (eff_to or date.max)
-        ):
-            raise conflict(f"Effective window overlaps {other.code} {other.version} ({other.status})")
+        if other.status in ("approved", "pending_approval") and other.effective_from == eff_from:
+            raise conflict(
+                f"{other.code} {other.version} ({other.status}) already takes effect on {eff_from}"
+            )
     row = LegalRuleVersion(
         tenant_id=actor.tenant_id,
         code=code,

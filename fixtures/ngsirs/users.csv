@@ -10,4 +10,5 @@ field.officer.minna,Demo Field Officer (Minna),compliance_officer,Minna Field Of
 taxpayer.services,Demo Taxpayer Service Officer,compliance_officer,Taxpayer Services,,case_review
 audit.officer,Demo Audit Manager,audit_officer,Audit,,audit;desk_review;case_review
 data.steward,Demo Data Steward,data_steward,Data Administration,,data_quality
+data.steward2,Demo Data Steward Two,data_steward,Data Administration,,data_quality
 executive.chairman,Demo Executive Chairman (viewer),executive_viewer,Office of the Executive Chairman,,management_reporting

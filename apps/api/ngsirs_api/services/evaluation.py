@@ -200,20 +200,19 @@ def run_evaluation(
     snap = _store_snapshot(db, tenant, as_of, period_from, period_to, records, batch_ids)
     rs_hash = rule_set_hash([rv.expression_json for rv in versions], _legal_inputs(db))
 
-    prior = (
+    # Replaying exactly the latest run (same snapshot, same rule set) is a no-op. An identical snapshot from an
+    # older run is not: findings may have changed since, so it is evaluated again (still idempotently).
+    latest = (
         db.execute(
-            select(EvaluationRun).where(
-                EvaluationRun.mode == "operational",
-                EvaluationRun.status == "completed",
-                EvaluationRun.rule_set_hash == rs_hash,
-                EvaluationRun.snapshot_id == snap.id,
-            )
+            select(EvaluationRun)
+            .where(EvaluationRun.mode == "operational", EvaluationRun.status == "completed")
+            .order_by(EvaluationRun.finished_at.desc())
         )
         .scalars()
         .first()
     )
-    if prior is not None:
-        return prior, False
+    if latest is not None and latest.rule_set_hash == rs_hash and latest.snapshot_id == snap.id:
+        return latest, False
 
     actor_id = actor.actor_id if isinstance(actor, Principal) else actor
     run = EvaluationRun(
@@ -318,6 +317,8 @@ def _persist(
         same_version = next((f for f in existing[key] if f.rule_version_id == rv.id), None)
         employer_ref = o.subject_id if o.subject_type == "employer" else rec.get("employer_ref")  # type: ignore[attr-defined]
         emp = employers.get(employer_ref or "")
+        if same_version is not None and same_version.superseded_by_id is not None:
+            _revive_after_rollback(db, tenant, same_version, active_case_findings, o)
         if same_version is not None:
             same_version.last_seen_run_id = run.id
             if same_version.outcome_hash != o_hash and same_version.status not in TERMINAL_FINDING_STATES:
@@ -447,6 +448,55 @@ def _persist(
                     )
                 )
     db.flush()
+
+
+def _revive_after_rollback(
+    db: Session, tenant: Tenant, f: RiskFinding, active_case_findings: set[Any], o: Outcome
+) -> None:
+    """The rule was rolled back to this finding's version: make it current again.
+
+    The finding from the rolled-back version is withdrawn unless a case is already working on it, in which
+    case that case continues and this finding stays superseded.
+    """
+    newer = db.get(RiskFinding, f.superseded_by_id)
+    if newer is not None and (
+        newer.id in active_case_findings
+        or newer.status in TERMINAL_FINDING_STATES
+        and newer.status != "withdrawn"
+    ):
+        return
+    reason = f"rule {o.rule_code} rolled back to {o.rule_version}"
+    if newer is not None and newer.status in OPEN_FINDING_STATES:
+        db.add(
+            FindingEvent(
+                tenant_id=tenant.id,
+                finding_id=newer.id,
+                event_type="state_change",
+                from_status=newer.status,
+                to_status="withdrawn",
+                actor_id=SYSTEM_ACTOR,
+                reason=reason,
+            )
+        )
+        newer.status = "withdrawn"
+        newer.superseded_by_id = f.id
+        newer.version += 1
+    f.superseded_by_id = None
+    f.supersedes_id = newer.id if newer is not None else f.supersedes_id
+    if f.status == "withdrawn":
+        db.add(
+            FindingEvent(
+                tenant_id=tenant.id,
+                finding_id=f.id,
+                event_type="state_change",
+                from_status="withdrawn",
+                to_status="review_required",
+                actor_id=SYSTEM_ACTOR,
+                reason=reason,
+            )
+        )
+        f.status = "review_required"
+    f.version += 1
 
 
 def _apply(f: RiskFinding, o: Outcome, o_hash: str, run: EvaluationRun, snap: InputSnapshot) -> None:

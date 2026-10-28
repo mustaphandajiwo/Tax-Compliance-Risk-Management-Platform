@@ -349,7 +349,8 @@ def commit_batch(db: Session, actor: Principal, batch_id: uuid.UUID) -> IngestBa
             identity.resolve_employer(db, tenant, emp, by_ref, by_lga, rec.id, prior)
     elif feed == "ngsirs_obligation":
         keys = [
-            f"{v['taxpayer_id']}|{v['tax_type']}|{v['obligation_type']}|{v['effective_from']}" for _, v in rows
+            f"{v['taxpayer_id']}|{v['tax_type']}|{v['obligation_type']}|{v['effective_from']}"
+            for _, v in rows
         ]
         supersede("natural_key", keys)
         for (rec, v), key in zip(rows, keys, strict=True):

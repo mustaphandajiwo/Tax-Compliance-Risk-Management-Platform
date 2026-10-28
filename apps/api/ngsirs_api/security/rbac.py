@@ -55,7 +55,7 @@ PERMISSIONS: dict[str, tuple[str, ...]] = {
     "taxpayers:reveal_identifiers": ("data_steward", "audit_officer"),
     "cases:read": (*OPERATIONAL, "legal_approver"),
     "cases:create": ("risk_analyst", "compliance_officer", "compliance_manager", "data_steward"),
-    "cases:approve": ("compliance_manager",),
+    "cases:approve": ("compliance_manager", "data_steward"),  # treatment approver_roles narrow this further
     "cases:assign": ("compliance_manager",),
     "cases:act": ("compliance_officer", "compliance_manager", "audit_officer", "data_steward"),
     "cases:close": ("compliance_manager", "compliance_officer", "data_steward"),

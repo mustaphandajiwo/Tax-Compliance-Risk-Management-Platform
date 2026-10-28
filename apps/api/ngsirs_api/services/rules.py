@@ -186,9 +186,11 @@ def rollback(db: Session, actor: Principal, rule_code: str, reason: str) -> Rule
         raise not_found("Active rule")
     current = db.get(RuleVersion, definition.active_version_id)
     assert current is not None
-    retired = list(db.execute(
+    retired = list(
+        db.execute(
             select(RuleVersion).where(RuleVersion.rule_code == rule_code, RuleVersion.status == "retired")
-        ).scalars())
+        ).scalars()
+    )
     if not retired:
         raise conflict("No earlier approved version to roll back to")
     target = max(retired, key=lambda v: _semver(v.version))
