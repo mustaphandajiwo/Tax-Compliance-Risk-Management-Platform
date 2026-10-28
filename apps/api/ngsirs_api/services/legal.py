@@ -44,6 +44,48 @@ OBLIGATION_CODES: dict[str, dict[str, Any]] = {
 }
 
 
+# NGSIRS functional tax scope (PRD / Tech Spec section 19/23). Only PAYE has rules in the pilot; every other
+# workstream needs its own legal confirmation, data feed and rule approval before anything is evaluated.
+TAX_SCOPE: list[dict[str, str]] = [
+    {
+        "workstream": "Employer PAYE",
+        "status": "pilot_primary",
+        "treatment": "Monthly remittance, employer returns, annual obligations, reconciliation",
+        "condition": "Per-period obligation verification and approved legal versions",
+    },
+    {
+        "workstream": "Individual PIT / direct assessment",
+        "status": "secondary_next",
+        "treatment": "Return obligations, outstanding liabilities",
+        "condition": "Residence and jurisdiction verification",
+    },
+    {
+        "workstream": "Withholding tax relating to individuals",
+        "status": "next",
+        "treatment": "Filing, payment, reconciliation",
+        "condition": "Confirm Niger State legal competence, payer obligation and period",
+    },
+    {
+        "workstream": "Business premises, motor vehicle, state fees and levies",
+        "status": "future",
+        "treatment": "Not automatically classed as income tax",
+        "condition": "Separate statutory instrument and owner for each rule",
+    },
+    {
+        "workstream": "Property / land-related charges",
+        "status": "future",
+        "treatment": "Only where NGSIRS has the legal/administrative mandate",
+        "condition": "Do not assume all property taxes are administered by NGSIRS",
+    },
+    {
+        "workstream": "Federal company income tax and VAT",
+        "status": "excluded",
+        "treatment": "Excluded from NGSIRS assessment or enforcement engines",
+        "condition": "Contextual only when formally authorised",
+    },
+]
+
+
 def period_bounds(period: str) -> tuple[date, date]:
     y, m = int(period[:4]), int(period[5:7])
     return date(y, m, 1), date(y, m, calendar.monthrange(y, m)[1])

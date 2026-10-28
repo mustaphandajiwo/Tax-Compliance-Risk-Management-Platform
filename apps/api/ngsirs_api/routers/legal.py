@@ -72,6 +72,7 @@ def obligations(
         counts[o.status] = counts.get(o.status, 0) + 1
     return {
         "codes": legal.OBLIGATION_CODES,
+        "tax_scope": legal.TAX_SCOPE,
         "versions": versions,
         "taxpayer_obligations_by_status": counts,
         "notice": "All parameters are SYNTHETIC placeholders pending NGSIRS legal confirmation from "

@@ -128,6 +128,31 @@ DATA_SOURCES = [
 
 INSTRUMENTS = [
     (
+        "NTA-2025",
+        "Nigeria Tax Act 2025",
+        "Federal",
+        "NG",
+        "pending_legal_confirmation",
+        "Substantive federal tax provisions (including personal income tax / PAYE) from 2026 periods; "
+        "operative sections, rates and reliefs to be confirmed by NGSIRS legal from the authenticated text.",
+    ),
+    (
+        "TAX-ACTS-2025-TRANSITION",
+        "Federal Government transition guidelines for the Tax Acts 2025 (June 2026)",
+        "Federal Ministry of Finance",
+        "NG",
+        "pending_legal_confirmation",
+        "Governs the treatment of periods straddling the old and new regimes; confirm before activating rules.",
+    ),
+    (
+        "NS-SCHEDULES",
+        "Niger State schedules and revenue instruments (levies, fees, business premises, motor vehicle)",
+        "Niger State",
+        "NG-NI",
+        "not_in_pilot_scope",
+        "Each state levy or fee needs its own statutory instrument, owner and legal sign-off before any rule.",
+    ),
+    (
         "PRIOR-PAYE-LAW",
         "Previously applicable PAYE law (for tax periods before 1 January 2026)",
         "Federal / State",
@@ -249,8 +274,29 @@ def bootstrap_tenant(
     return tid
 
 
+def ensure_instruments(db: Session, tid: uuid.UUID) -> None:
+    """Add any instrument missing from an existing tenant (idempotent)."""
+    have = set(db.execute(select(LegalInstrument.code)).scalars())
+    for code, title, authority, juris, status, note in INSTRUMENTS:
+        if code not in have:
+            db.add(
+                LegalInstrument(
+                    tenant_id=tid,
+                    code=code,
+                    title=title,
+                    authority=authority,
+                    jurisdiction=juris,
+                    status=status,
+                    source_note=note,
+                    is_synthetic=True,
+                )
+            )
+    db.flush()
+
+
 def seed_reference(db: Session, tid: uuid.UUID) -> None:
     if db.execute(select(Lga)).first():
+        ensure_instruments(db, tid)
         return
     for n in NIGER_STATE_LGAS:
         db.add(Lga(tenant_id=tid, code=lga_code(n), name=n, verified=False, pilot=n in PILOT_LGAS))
