@@ -147,6 +147,9 @@ def main(argv: list[str] | None = None) -> int:
     ev.add_argument("--from", dest="period_from")
     ev.add_argument("--to", dest="period_to")
     sub.add_parser("verify-golden")
+    cr = sub.add_parser("connector-run", help="pull now from a connector, e.g. COLLECTION-PLATFORM")
+    cr.add_argument("code")
+    cr.add_argument("--feed", default="ngsirs_payment")
     sub.add_parser("demo", help="migrate + seed + load fixtures + evaluate (synthetic data)")
     oa = sub.add_parser("export-openapi")
     oa.add_argument("path", nargs="?", default=str(REPO / "packages" / "contracts" / "openapi.json"))
@@ -195,6 +198,21 @@ def main(argv: list[str] | None = None) -> int:
             res = compare_golden(tid)
             print(json.dumps(res, indent=2, default=str))
             if not res["match"]:
+                return 1
+    elif args.cmd == "connector-run":
+        from .db import resolve_tenant_id, tenant_session
+        from .services import integrations
+
+        tid = resolve_tenant_id(get_settings().default_tenant_code)
+        if tid is None:
+            print("tenant not seeded; run `ngsirs seed`", file=sys.stderr)
+            return 1
+        with tenant_session(tid) as db:
+            run = integrations.run_pull(
+                db, integrations.get_connector(db, args.code), args.feed, trigger="manual"
+            )
+            print(json.dumps(integrations.run_payload(run), indent=2))
+            if run.status == "failed":
                 return 1
     elif args.cmd == "export-openapi":
         from .main import app

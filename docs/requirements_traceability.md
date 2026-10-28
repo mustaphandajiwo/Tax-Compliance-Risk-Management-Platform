@@ -7,7 +7,7 @@ stated limitation; **Not built** = outside this delivery (reason given).
 
 | ID | Pri | Requirement | Status | Where / evidence |
 |---|---|---|---|---|
-| FR-001 | P0 | CSV/XLSX import, mapping, validation, preview, rollback | Done (API batch import; no live API connectors) | `services/importer`, `services/imports.py`; `test_90_import_lifecycle.py`, `test_importer_and_legal.py` |
+| FR-001 | P0 | CSV/XLSX/API import, mapping, validation, preview, rollback | Done: file upload, JSON push API, scheduled pull connector and signed webhooks (`docs/integrations.md`, `test_40_integrations.py`) | `services/importer`, `services/imports.py`; `test_90_import_lifecycle.py`, `test_importer_and_legal.py` |
 | FR-002 | P0 | Tenant isolation everywhere | Done for DB, API, jobs. No shared cache holds tenant data | Forced RLS (`0002` migration); `test_20_security.py` |
 | FR-003 | P0 | Obligation calendar by tax, category, period, effective date | Done (PAYE) | `services/legal.py`, `period_schedule`; legal transition tests |
 | FR-004 | P0 | Provenance, extraction time, sharing basis, lineage | Done | `ingest_batch` (signed manifest), `source_record`, `data_source`; evidence refs on findings |

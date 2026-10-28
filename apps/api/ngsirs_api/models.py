@@ -773,4 +773,67 @@ class ProgrammeMember(Base):
     group_name: Mapped[str] = mapped_column(String(20))  # intervention | comparison
 
 
+# --- Integrations ---------------------------------------------------------------------------
+
+
+class Connector(Base):
+    """A configured link to a source system (e.g. the NGSIRS collection platform).
+
+    Secrets are never stored: ``secret_env`` names the environment variable (vault-injected) that holds the
+    API key, OAuth client secret or webhook signing secret.
+    """
+
+    __tablename__ = "connector"
+    __table_args__ = (UniqueConstraint("tenant_id", "code"),)
+    id: Mapped[uuid.UUID] = pk()
+    tenant_id: Mapped[uuid.UUID] = tenant_fk()
+    code: Mapped[str] = mapped_column(String(64))
+    name: Mapped[str] = mapped_column(String(200))
+    source_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("data_source.id"))
+    mode: Mapped[str] = mapped_column(String(20))  # pull | webhook | pull_and_webhook
+    base_url: Mapped[str | None] = mapped_column(String(500))
+    auth_type: Mapped[str] = mapped_column(String(32))  # api_key | bearer | oauth2_client_credentials | none
+    secret_env: Mapped[str | None] = mapped_column(String(100))
+    webhook_secret_env: Mapped[str | None] = mapped_column(String(100))
+    config: Mapped[dict[str, Any]] = mapped_column(JSONB)
+    state: Mapped[dict[str, Any]] = mapped_column(JSONB, default=dict)
+    schedule_minutes: Mapped[int] = mapped_column(Integer, default=15)
+    enabled: Mapped[bool] = mapped_column(Boolean, default=False)
+    last_run_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    last_status: Mapped[str | None] = mapped_column(String(32))
+    created_at: Mapped[datetime] = now_col()
+
+
+class ConnectorRun(Base):
+    __tablename__ = "connector_run"
+    id: Mapped[uuid.UUID] = pk()
+    tenant_id: Mapped[uuid.UUID] = tenant_fk()
+    connector_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("connector.id"), index=True)
+    trigger: Mapped[str] = mapped_column(String(20))  # schedule | manual | webhook
+    feed_type: Mapped[str] = mapped_column(String(40))
+    status: Mapped[str] = mapped_column(String(20))  # running | succeeded | failed | no_new_data
+    cursor_from: Mapped[str | None] = mapped_column(String(100))
+    cursor_to: Mapped[str | None] = mapped_column(String(100))
+    pages: Mapped[int] = mapped_column(Integer, default=0)
+    records_received: Mapped[int] = mapped_column(Integer, default=0)
+    records_filtered: Mapped[int] = mapped_column(Integer, default=0)
+    batch_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
+    error: Mapped[str | None] = mapped_column(Text)
+    started_at: Mapped[datetime] = now_col()
+    finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+class ConnectorEvent(Base):
+    """Webhook deliveries already accepted, for replay protection."""
+
+    __tablename__ = "connector_event"
+    __table_args__ = (UniqueConstraint("tenant_id", "connector_id", "event_id"),)
+    id: Mapped[uuid.UUID] = pk()
+    tenant_id: Mapped[uuid.UUID] = tenant_fk()
+    connector_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("connector.id"))
+    event_id: Mapped[str] = mapped_column(String(200))
+    batch_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
+    received_at: Mapped[datetime] = now_col()
+
+
 TENANT_TABLES = [t.name for t in Base.metadata.sorted_tables if "tenant_id" in t.c]

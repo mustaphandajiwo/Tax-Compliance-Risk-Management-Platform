@@ -16,7 +16,7 @@ from sqlalchemy import text
 from . import errors
 from .config import get_settings
 from .db import get_engine
-from .routers import auth, cases, imports, insights, legal, risks, rules, taxpayers
+from .routers import auth, cases, imports, insights, integrations, legal, risks, rules, taxpayers
 
 
 class JsonFormatter(logging.Formatter):
@@ -148,7 +148,7 @@ def create_app() -> FastAPI:
             conn.execute(text("SELECT 1"))
         return {"status": "ready", "environment": s.environment}
 
-    for r in (auth, imports, legal, rules, risks, taxpayers, cases, insights):
+    for r in (auth, imports, integrations, legal, rules, risks, taxpayers, cases, insights):
         app.include_router(r.router)
     _configure_tracing(app)
     return app

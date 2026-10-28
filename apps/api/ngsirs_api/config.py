@@ -38,6 +38,7 @@ class Settings(BaseSettings):
     token_ttl_seconds: int = 3600
 
     default_tenant_code: str = "NGSIRS"
+    collection_platform_url: str = "http://127.0.0.1:8100"  # demo: tools/mock_collection_platform
     outbound_messaging_enabled: bool = False
     rate_limit_per_minute: int = 600
     otel_exporter_endpoint: str | None = None

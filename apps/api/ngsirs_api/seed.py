@@ -476,5 +476,9 @@ def seed_all(users_csv: Path, code: str = "NGSIRS") -> uuid.UUID:
     with new_session(tid) as db:
         seed_reference(db, tid)
         seed_users(db, tid, users_csv)
+        from .config import get_settings
+        from .services.integrations import seed_collection_platform
+
+        seed_collection_platform(db, tid, get_settings().collection_platform_url)
         db.commit()
     return tid

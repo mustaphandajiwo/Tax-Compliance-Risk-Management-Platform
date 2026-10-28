@@ -540,3 +540,45 @@ export interface AuditVerify {
   broken_at_seq?: number;
   reason?: string;
 }
+
+// --- integrations ----------------------------------------------------------------------------
+
+export interface ConnectorRunItem {
+  id: string;
+  trigger: "schedule" | "manual" | "webhook";
+  feed_type: string;
+  status: string;
+  cursor_from: string | null;
+  cursor_to: string | null;
+  pages: number;
+  records_received: number;
+  records_filtered: number;
+  batch_id: string | null;
+  error: string | null;
+  started_at: string;
+  finished_at: string | null;
+}
+
+export interface ConnectorItem {
+  id: string;
+  code: string;
+  name: string;
+  source: string;
+  mode: string;
+  base_url: string | null;
+  auth_type: string;
+  secret_configured: boolean;
+  webhook_secret_configured: boolean;
+  feeds: string[];
+  webhook_feed: string | null;
+  schedule_minutes: number;
+  enabled: boolean;
+  state: Record<string, { cursor: string | null; last_batch: string | null; last_success_at: string }>;
+  last_run_at: string | null;
+  last_status: string | null;
+  config: Record<string, unknown>;
+}
+
+export interface ConnectorDetail extends ConnectorItem {
+  runs: ConnectorRunItem[];
+}

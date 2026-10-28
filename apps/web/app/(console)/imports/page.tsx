@@ -1,6 +1,9 @@
 "use client";
 
 import type {
+  ConnectorDetail,
+  ConnectorItem,
+  ConnectorRunItem,
   DataSource,
   FeedTemplate,
   IdentityDecisionCode,
@@ -39,6 +42,7 @@ function DataOperations() {
       : []),
     ...(can("imports:read")
       ? [
+          { id: "connectors", label: "System connectors" },
           { id: "sources", label: "Data sources & freshness" },
           { id: "templates", label: "Feed templates" },
         ]
@@ -56,6 +60,7 @@ function DataOperations() {
         {tab === "batches" && <Batches />}
         {tab === "quarantine" && <Quarantine />}
         {tab === "identity" && <IdentityQueue />}
+        {tab === "connectors" && <Connectors />}
         {tab === "sources" && <Sources />}
         {tab === "templates" && <Templates />}
       </Tabs>
@@ -749,5 +754,177 @@ function Templates() {
         </div>
       )}
     </AsyncBlock>
+  );
+}
+
+// --- system connectors ---------------------------------------------------------------------------
+
+const RUN_TONE: Record<string, "success" | "warning" | "danger" | "info"> = {
+  succeeded: "success",
+  no_new_data: "info",
+  failed: "danger",
+  validated: "warning",
+  rejected: "danger",
+  running: "info",
+};
+
+function Connectors() {
+  const { can } = useAuth();
+  const list = useAsync(() => unwrap<ConnectorItem[]>(api.GET("/api/v1/connectors")), []);
+  const [selected, setSelected] = useState<string | null>(null);
+  return (
+    <>
+      <Section
+        title="System connectors"
+        description="Live links to source systems such as the NGSIRS revenue collection platform. Each connector pulls new records on a schedule (cursor-based, so nothing is fetched twice) and can also receive signed webhooks. Everything it brings in goes through the same validation, quarantine and audit as a file import."
+      >
+        <AsyncBlock state={list} what="connectors" empty={(d) => d.length === 0}>
+          {(d) => (
+            <div className="table-wrap" tabIndex={0} role="region" aria-label="Scrollable table">
+              <table className="data">
+                <caption className="ng-visually-hidden">System connectors</caption>
+                <thead>
+                  <tr>
+                    <th scope="col">Connector</th>
+                    <th scope="col">Mode</th>
+                    <th scope="col">Feeds</th>
+                    <th scope="col">Credentials</th>
+                    <th scope="col">Last run</th>
+                    <th scope="col">Cursor</th>
+                    <th scope="col"><span className="ng-visually-hidden">Actions</span></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {d.map((c) => (
+                    <tr key={c.id}>
+                      <th scope="row">
+                        {c.name}
+                        <div className="small muted mono">{c.code} · {c.source}</div>
+                        {!c.enabled && <StatusBadge tone="danger">Disabled</StatusBadge>}
+                      </th>
+                      <td>
+                        {humanize(c.mode)}
+                        <div className="small muted">every {c.schedule_minutes} min</div>
+                      </td>
+                      <td className="small">{c.feeds.join(", ")}</td>
+                      <td className="small">
+                        API {c.secret_configured ? <StatusBadge tone="success">set</StatusBadge> : <StatusBadge tone="warning">missing</StatusBadge>}
+                        {c.webhook_feed && (
+                          <div>
+                            Webhook {c.webhook_secret_configured ? <StatusBadge tone="success">set</StatusBadge> : <StatusBadge tone="warning">missing</StatusBadge>}
+                          </div>
+                        )}
+                      </td>
+                      <td>
+                        {c.last_status ? <StatusBadge tone={RUN_TONE[c.last_status] ?? "info"}>{humanize(c.last_status)}</StatusBadge> : "Never run"}
+                        <div className="small muted">{c.last_run_at ? fmtDateTime(c.last_run_at) : ""}</div>
+                      </td>
+                      <td className="small mono">{Object.values(c.state)[0]?.cursor ?? "—"}</td>
+                      <td>
+                        <button type="button" className="btn btn-sm" onClick={() => setSelected(c.code)}>
+                          Details
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </AsyncBlock>
+      </Section>
+      {selected && <ConnectorPanel code={selected} canRun={can("connectors:run")} onChanged={list.reload} />}
+    </>
+  );
+}
+
+function ConnectorPanel({ code, canRun, onChanged }: { code: string; canRun: boolean; onChanged: () => void }) {
+  const detail = useAsync(
+    () => unwrap<ConnectorDetail>(api.GET("/api/v1/connectors/{code}", { params: { path: { code } } })),
+    [code],
+  );
+  const run = useMutation((feed: string) =>
+    unwrap<ConnectorRunItem>(
+      api.POST("/api/v1/connectors/{code}/run", { params: { path: { code }, query: { feed_type: feed } } }),
+    ),
+  );
+  async function pull(feed: string) {
+    const r = await run.run(feed);
+    if (r) {
+      detail.reload();
+      onChanged();
+    }
+  }
+  return (
+    <Section title={`Connector ${code}`} description="Configuration, recent runs and a manual pull. Secrets are never shown; only whether they are configured.">
+      <AsyncBlock state={detail} what="connector">
+        {(c) => (
+          <>
+            <KeyValues
+              items={[
+                ["Base URL", <span className="mono" key="u">{c.base_url ?? "—"}</span>],
+                ["Authentication", humanize(c.auth_type)],
+                ["Webhook endpoint", c.webhook_feed ? <span className="mono" key="w">POST /api/v1/connectors/{c.code}/webhook</span> : "Not enabled"],
+                ["Webhook feed", c.webhook_feed ?? "—"],
+              ]}
+            />
+            {canRun && (
+              <div className="row">
+                {c.feeds.map((f) => (
+                  <button key={f} type="button" className="btn btn-primary" disabled={run.pending || !c.enabled} onClick={() => pull(f)}>
+                    {run.pending ? "Pulling…" : `Pull ${f} now`}
+                  </button>
+                ))}
+              </div>
+            )}
+            <ErrorNotice error={run.error} />
+            <div aria-live="polite">
+              {run.result && (
+                <p className="small">
+                  Last pull: <StatusBadge tone={RUN_TONE[run.result.status] ?? "info"}>{humanize(run.result.status)}</StatusBadge>{" "}
+                  {run.result.records_received} records received, {run.result.records_filtered} filtered out
+                  {run.result.error ? ` · ${run.result.error}` : ""}
+                </p>
+              )}
+            </div>
+            <h3>Recent runs</h3>
+            {c.runs.length === 0 ? (
+              <StateMessage state="no_data">This connector has not run yet.</StateMessage>
+            ) : (
+              <div className="table-wrap" tabIndex={0} role="region" aria-label="Scrollable table">
+                <table className="data">
+                  <caption className="ng-visually-hidden">Connector runs</caption>
+                  <thead>
+                    <tr>
+                      <th scope="col">Started</th>
+                      <th scope="col">Trigger</th>
+                      <th scope="col">Status</th>
+                      <th scope="col" className="num">Received</th>
+                      <th scope="col" className="num">Filtered</th>
+                      <th scope="col">Batch</th>
+                      <th scope="col">Detail</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {c.runs.map((r) => (
+                      <tr key={r.id}>
+                        <td>{fmtDateTime(r.started_at)}</td>
+                        <td>{humanize(r.trigger)}</td>
+                        <td><StatusBadge tone={RUN_TONE[r.status] ?? "info"}>{humanize(r.status)}</StatusBadge></td>
+                        <td className="num">{r.records_received}</td>
+                        <td className="num">{r.records_filtered}</td>
+                        <td><Hash value={r.batch_id} len={8} /></td>
+                        <td className="small">{r.error ?? (r.cursor_to ? `up to ${r.cursor_to}` : "")}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+            <JsonView value={c.config} label="Field mapping and paging configuration" />
+          </>
+        )}
+      </AsyncBlock>
+    </Section>
   );
 }

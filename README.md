@@ -23,6 +23,7 @@ no automated assessment, penalty, notice, levy, bank action or sanction exists a
 | `packages/design` | Design tokens and shared UI components |
 | `fixtures/ngsirs` | Synthetic pilot fixture: 145 employers, 12 periods, 32 scenarios, `expected_findings.json` |
 | `tests/` | Unit, integration (golden fixture, acceptance, security), e2e (Playwright + axe) |
+| `tools/mock_collection_platform` | Simulated revenue collection platform for developing and testing the connector |
 | `infra/` | Dockerfiles, Compose stack (Postgres, Redis, MinIO, Keycloak, OTel), Kubernetes reference manifests |
 | `docs/` | Architecture decisions, legal configuration, security model, operations, acceptance walkthrough |
 
@@ -76,6 +77,18 @@ pnpm test:e2e                                          # Playwright + axe; needs
 The golden-file test loads the fixture through the real import pipeline, evaluates as at 2026-10-01 and
 compares `rule_id + subject + period + status + hold` against `expected_findings.json`. The expectations
 are declared per scenario in `fixtures/ngsirs/generate.py`, independently of the engine.
+
+## Integrations
+
+The platform connects to source systems three ways, all through the same validation, quarantine and audit
+pipeline as file imports: a scheduled **pull connector** (configured for the NGSIRS revenue collection
+platform), **signed webhooks**, and a **JSON push API** for machine clients such as the e-tax portal or
+employer payroll systems. Connecting a real platform is a mapping change, not new code. See
+`docs/integrations.md`, including what the collection-platform vendor needs to provide.
+
+Third-party sources (CAC, licensing registers, PenCom and similar) can be added the same way once a
+data-sharing basis is recorded. Social-media monitoring is deliberately not supported: it falls outside
+the PRD's lawful-data scope and cannot meet the platform's evidence standard.
 
 ## Key design choices
 

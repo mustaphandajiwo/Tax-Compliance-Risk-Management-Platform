@@ -16,12 +16,15 @@ ROLES = {
     "audit_officer": "Audit officer",
     "data_steward": "Data steward",
     "executive_viewer": "Executive / reporting viewer",
+    "integration_client": "System integration (machine client)",
 }
 
 OPERATIONAL = ("risk_analyst", "compliance_manager", "compliance_officer", "audit_officer")
 
 PERMISSIONS: dict[str, tuple[str, ...]] = {
     "imports:read": ("data_steward", "platform_admin", "risk_analyst", "compliance_manager"),
+    "ingest:push": ("integration_client", "data_steward"),
+    "connectors:run": ("data_steward", "platform_admin"),
     "imports:create": ("data_steward", "platform_admin"),
     "imports:commit": ("data_steward",),
     "imports:rollback": ("data_steward",),
@@ -71,7 +74,7 @@ PERMISSIONS: dict[str, tuple[str, ...]] = {
     "admin:users": ("platform_admin",),
     "admin:retention": ("platform_admin",),
     "ops:read": ("platform_admin", "data_steward", "risk_analyst"),
-    "reference:read": tuple(ROLES),
+    "reference:read": tuple(r for r in ROLES if r != "integration_client"),
 }
 
 # Purposes a request must declare (X-Purpose) for sensitive reads or exports.

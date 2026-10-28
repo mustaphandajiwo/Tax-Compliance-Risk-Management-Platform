@@ -14,6 +14,7 @@ RUN groupadd --system ngsirs && useradd --system --gid ngsirs --home /app ngsirs
 WORKDIR /app
 COPY --from=build /app /app
 COPY fixtures fixtures
+COPY tools tools
 ENV PATH="/app/.venv/bin:$PATH" PYTHONUNBUFFERED=1 NGSIRS_STORAGE_PATH=/data/objects
 RUN mkdir -p /data/objects /data/keys && chown -R ngsirs:ngsirs /data
 USER ngsirs

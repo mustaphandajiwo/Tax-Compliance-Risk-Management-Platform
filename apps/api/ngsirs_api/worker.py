@@ -30,6 +30,8 @@ celery_app.conf.update(
     beat_schedule={
         # Nightly operational evaluation as at the latest committed extracts (shadow mode stays internal).
         "nightly-evaluation": {"task": "ngsirs.evaluate_latest", "schedule": crontab(hour=2, minute=17)},
+        # Pull connectors whose schedule is due (each connector sets its own interval).
+        "connector-poll": {"task": "ngsirs.poll_connectors", "schedule": crontab(minute="*/5")},
     },
 )
 
@@ -67,3 +69,19 @@ def evaluate_latest() -> dict[str, Any] | None:
     periods = period_range(code(end - 11), code(end))
     result: dict[str, Any] = evaluate(str(tid), now.isoformat(), periods[0], periods[-1])
     return result
+
+
+@celery_app.task(name="ngsirs.poll_connectors")
+def poll_connectors() -> list[dict[str, Any]]:
+    from .services import integrations
+
+    tid = resolve_tenant_id(settings.default_tenant_code)
+    if tid is None:
+        return []
+    out = []
+    with tenant_session(tid) as db:
+        for c in integrations.due_connectors(db):
+            for feed in (c.config or {}).get("feeds", {}):
+                run = integrations.run_pull(db, c, feed, trigger="schedule")
+                out.append({"connector": c.code, "feed": feed, "status": run.status})
+    return out
