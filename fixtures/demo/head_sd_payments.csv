@@ -1,0 +1,2 @@
+payment_reference,account_id,tax_head,period,paid_at,amount,reversal_status,settlement_status,allocation_status
+DEMO-RPAY-SD-0074,DEMO-SD-I014,SD,2026-05,2026-05-26T23:59:59+01:00,134000.00,none,settled,allocated

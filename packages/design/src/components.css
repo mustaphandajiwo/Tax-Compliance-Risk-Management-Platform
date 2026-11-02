@@ -1,0 +1,100 @@
+/* Styles for the shared components in this package. Depends on tokens.css. */
+
+.ng-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ng-space-1);
+  padding: 0.0625rem 0.4375rem;
+  border: 1px solid var(--ng-tone-neutral-border);
+  border-radius: 999px;
+  background: var(--ng-tone-neutral-bg);
+  color: var(--ng-tone-neutral-fg);
+  font-size: var(--ng-text-xs);
+  font-weight: 600;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+.ng-tone-info { background: var(--ng-tone-info-bg); color: var(--ng-tone-info-fg); border-color: var(--ng-tone-info-border); }
+.ng-tone-success { background: var(--ng-tone-success-bg); color: var(--ng-tone-success-fg); border-color: var(--ng-tone-success-border); }
+.ng-tone-warning { background: var(--ng-tone-warning-bg); color: var(--ng-tone-warning-fg); border-color: var(--ng-tone-warning-border); }
+.ng-tone-danger { background: var(--ng-tone-danger-bg); color: var(--ng-tone-danger-fg); border-color: var(--ng-tone-danger-border); }
+.ng-tone-neutral { background: var(--ng-tone-neutral-bg); color: var(--ng-tone-neutral-fg); border-color: var(--ng-tone-neutral-border); }
+
+/* Metric card */
+.ng-metric {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ng-space-2);
+  padding: var(--ng-space-4);
+  background: var(--ng-color-surface);
+  border: 1px solid var(--ng-color-border);
+  border-radius: var(--ng-radius);
+  box-shadow: var(--ng-shadow);
+  min-width: 0;
+}
+.ng-metric__title { margin: 0; font-size: var(--ng-text-sm); font-weight: 600; color: var(--ng-color-ink); }
+.ng-metric__value { margin: 0; font-size: var(--ng-text-2xl); font-weight: 700; color: var(--ng-color-ink); font-variant-numeric: tabular-nums; }
+.ng-metric__withheld { margin: 0; font-size: var(--ng-text-lg); font-weight: 700; color: var(--ng-tone-warning-fg); }
+.ng-metric__facts {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.125rem var(--ng-space-3);
+  margin: 0;
+  font-size: var(--ng-text-sm);
+}
+.ng-metric__facts dt { color: var(--ng-color-ink-muted); }
+.ng-metric__facts dd { margin: 0; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.ng-metric__caveats { margin: 0; padding-left: 1.1rem; font-size: var(--ng-text-xs); color: var(--ng-color-ink-muted); }
+
+/* Risk indicator */
+.ng-risk { display: inline-flex; flex-direction: column; gap: 0.125rem; min-width: 9rem; }
+.ng-risk__row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--ng-space-2); }
+.ng-risk__score { font-weight: 700; font-variant-numeric: tabular-nums; }
+.ng-risk__label { font-size: var(--ng-text-xs); color: var(--ng-color-ink-muted); font-style: italic; }
+.ng-risk__confidence { font-size: var(--ng-text-sm); }
+.ng-risk--block {
+  padding: var(--ng-space-3) var(--ng-space-4);
+  border: 1px solid var(--ng-color-border);
+  border-radius: var(--ng-radius);
+  background: var(--ng-color-surface-alt);
+}
+.ng-risk--block .ng-risk__score { font-size: var(--ng-text-xl); }
+
+/* State message */
+.ng-state {
+  display: flex;
+  gap: var(--ng-space-3);
+  align-items: flex-start;
+  padding: var(--ng-space-3) var(--ng-space-4);
+  border: 1px solid var(--ng-tone-neutral-border);
+  border-left-width: 4px;
+  border-radius: var(--ng-radius);
+  background: var(--ng-tone-neutral-bg);
+  color: var(--ng-tone-neutral-fg);
+}
+.ng-state__body { display: flex; flex-direction: column; gap: var(--ng-space-1); min-width: 0; }
+.ng-state__title { margin: 0; font-size: var(--ng-text-md); font-weight: 700; }
+.ng-state__text { margin: 0; font-size: var(--ng-text-sm); }
+.ng-state__icon { font-weight: 700; font-family: var(--ng-font-mono); flex: none; }
+.ng-state.ng-tone-info { border-color: var(--ng-tone-info-border); }
+.ng-state.ng-tone-success { border-color: var(--ng-tone-success-border); }
+.ng-state.ng-tone-warning { border-color: var(--ng-tone-warning-border); }
+.ng-state.ng-tone-danger { border-color: var(--ng-tone-danger-border); }
+.ng-state--loading .ng-state__icon::after { content: "…"; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .ng-state--loading .ng-state__icon { animation: ng-pulse 1.2s ease-in-out infinite; }
+  @keyframes ng-pulse { 50% { opacity: 0.35; } }
+}
+
+.ng-visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

@@ -1,0 +1,2 @@
+payment_reference,account_id,tax_head,period,paid_at,amount,reversal_status,settlement_status,allocation_status
+DEMO-RPAY-CGT-0073,DEMO-CGT-I010,CGT,2026-02,2026-03-06T23:59:59+01:00,130000.00,none,settled,allocated

@@ -1,0 +1,818 @@
+[
+  {
+    "version": "1.0.0",
+    "signal_class": "taxpayer_risk",
+    "eligibility": [
+      "active_account_obligation",
+      "return_required",
+      "past_head_return_due"
+    ],
+    "exclusions": [
+      "ceased_account",
+      "head_filing_coverage_incomplete"
+    ],
+    "holds": [
+      "legal_hold",
+      "disputed"
+    ],
+    "alternative_explanations": [
+      "Return filed through a channel whose extract is not yet ingested",
+      "Account ceased or became exempt but the register was not updated",
+      "Return filed under another account reference"
+    ],
+    "references": [
+      "SYNTHETIC: effective-dated return provision for the revenue head (pending the authority's legal confirmation)"
+    ],
+    "approval": {
+      "author": "risk_analyst",
+      "checker": "legal_and_risk_manager"
+    },
+    "id": "FIL-101",
+    "domain": "filing",
+    "title": "Return missing under a revenue head",
+    "scope": {
+      "tax_type": "*",
+      "entity": "account",
+      "fact_kind": "account_period"
+    },
+    "obligation_ref": "*:return@effective_period",
+    "input_refs": [
+      "revenue_account",
+      "revenue_liability"
+    ],
+    "conditions": [
+      {
+        "field": "pattern",
+        "op": "ne",
+        "value": "transaction"
+      },
+      {
+        "field": "filed_count",
+        "op": "eq",
+        "value": 0
+      }
+    ],
+    "quality": {
+      "max_staleness_days": 7,
+      "min_match_confidence": 0.98,
+      "require_coverage": [
+        "filing"
+      ]
+    },
+    "signal": {
+      "likelihood": {
+        "base": 3,
+        "adjust": [
+          {
+            "when": [
+              {
+                "aggregate": "count",
+                "series": "filing",
+                "window": 4,
+                "where": [
+                  {
+                    "field": "missing",
+                    "op": "eq",
+                    "value": true
+                  }
+                ],
+                "op": "gte",
+                "value": 2
+              }
+            ],
+            "add": 1
+          }
+        ]
+      },
+      "consequence": "unknown",
+      "effort": "low"
+    },
+    "treatment": "review_then_approved_reminder",
+    "explanation": "No {tax_head} return found for {period} after the due date {return_due_at}."
+  },
+  {
+    "version": "1.0.0",
+    "signal_class": "taxpayer_risk",
+    "eligibility": [
+      "active_account_obligation",
+      "return_required",
+      "past_head_return_due"
+    ],
+    "exclusions": [
+      "ceased_account",
+      "head_filing_coverage_incomplete"
+    ],
+    "holds": [
+      "legal_hold",
+      "disputed"
+    ],
+    "alternative_explanations": [
+      "Transaction exempt or below the threshold",
+      "Declaration made by the counterparty or an agent",
+      "Registry record is a correction, not a new transaction"
+    ],
+    "references": [
+      "SYNTHETIC: effective-dated return provision for the revenue head (pending the authority's legal confirmation)"
+    ],
+    "approval": {
+      "author": "risk_analyst",
+      "checker": "legal_and_risk_manager"
+    },
+    "id": "FIL-102",
+    "domain": "filing",
+    "title": "Recorded taxable transaction without a declaration",
+    "scope": {
+      "tax_type": "*",
+      "entity": "account",
+      "fact_kind": "account_period"
+    },
+    "obligation_ref": "*:return@effective_period",
+    "input_refs": [
+      "revenue_account",
+      "revenue_liability"
+    ],
+    "conditions": [
+      {
+        "field": "pattern",
+        "op": "eq",
+        "value": "transaction"
+      },
+      {
+        "field": "transaction_count",
+        "op": "gt",
+        "value": 0
+      },
+      {
+        "field": "filed_count",
+        "op": "eq",
+        "value": 0
+      }
+    ],
+    "quality": {
+      "max_staleness_days": 7,
+      "min_match_confidence": 0.98,
+      "require_coverage": [
+        "filing"
+      ]
+    },
+    "signal": {
+      "likelihood": {
+        "base": 3
+      },
+      "consequence": "unknown",
+      "effort": "medium"
+    },
+    "treatment": "compliance_engagement",
+    "explanation": "{transaction_count} recorded {tax_head} transaction(s) in {period} with no declaration after the due date {return_due_at}."
+  },
+  {
+    "version": "1.0.0",
+    "signal_class": "taxpayer_risk",
+    "eligibility": [
+      "active_account_obligation",
+      "return_required",
+      "past_head_return_due"
+    ],
+    "exclusions": [
+      "ceased_account",
+      "head_filing_coverage_incomplete"
+    ],
+    "holds": [
+      "legal_hold",
+      "disputed"
+    ],
+    "alternative_explanations": [
+      "Portal outage or approved extension not captured"
+    ],
+    "references": [
+      "SYNTHETIC: effective-dated return provision for the revenue head (pending the authority's legal confirmation)"
+    ],
+    "approval": {
+      "author": "risk_analyst",
+      "checker": "legal_and_risk_manager"
+    },
+    "id": "FIL-103",
+    "domain": "filing",
+    "title": "Return filed late under a revenue head",
+    "scope": {
+      "tax_type": "*",
+      "entity": "account",
+      "fact_kind": "account_period"
+    },
+    "obligation_ref": "*:return@effective_period",
+    "input_refs": [
+      "revenue_liability"
+    ],
+    "conditions": [
+      {
+        "field": "filing_late_days",
+        "op": "gt",
+        "value": 0
+      }
+    ],
+    "quality": {
+      "max_staleness_days": 7,
+      "min_match_confidence": 0.98,
+      "require_coverage": [
+        "filing"
+      ]
+    },
+    "signal": {
+      "likelihood": {
+        "base": 2,
+        "adjust": [
+          {
+            "when": [
+              {
+                "aggregate": "count",
+                "series": "filing",
+                "window": 6,
+                "where": [
+                  {
+                    "field": "late",
+                    "op": "eq",
+                    "value": true
+                  }
+                ],
+                "op": "gte",
+                "value": 2
+              }
+            ],
+            "add": 1
+          }
+        ]
+      },
+      "consequence": "unknown",
+      "effort": "low"
+    },
+    "treatment": "targeted_assistance",
+    "explanation": "{tax_head} return for {period} filed {filing_late_days} day(s) after the due date {return_due_at}."
+  },
+  {
+    "version": "1.0.0",
+    "signal_class": "taxpayer_risk",
+    "eligibility": [
+      "active_account_obligation",
+      "liability_established",
+      "past_head_payment_due"
+    ],
+    "exclusions": [
+      "ceased_account",
+      "head_payment_coverage_incomplete",
+      "head_unallocated_receipt"
+    ],
+    "holds": [
+      "legal_hold",
+      "disputed",
+      "reversal_unconfirmed"
+    ],
+    "alternative_explanations": [
+      "Paid with a wrong reference and sitting unallocated",
+      "Bank settlement delay",
+      "Demand or levy disputed informally"
+    ],
+    "references": [
+      "SYNTHETIC: effective-dated payment provision for the revenue head (pending the authority's legal confirmation)"
+    ],
+    "approval": {
+      "author": "risk_analyst",
+      "checker": "legal_and_risk_manager"
+    },
+    "id": "PAY-101",
+    "domain": "payment",
+    "title": "Liability unpaid after due date under a revenue head",
+    "scope": {
+      "tax_type": "*",
+      "entity": "account",
+      "fact_kind": "account_period"
+    },
+    "obligation_ref": "*:payment@effective_period",
+    "input_refs": [
+      "revenue_liability",
+      "revenue_payment"
+    ],
+    "conditions": [
+      {
+        "field": "pattern",
+        "op": "ne",
+        "value": "licence_renewal"
+      },
+      {
+        "field": "settled_payment_count",
+        "op": "eq",
+        "value": 0
+      }
+    ],
+    "quality": {
+      "max_staleness_days": 7,
+      "min_match_confidence": 0.98,
+      "require_coverage": [
+        "payment"
+      ]
+    },
+    "signal": {
+      "likelihood": {
+        "base": 3,
+        "adjust": [
+          {
+            "when": [
+              {
+                "aggregate": "count",
+                "series": "payment",
+                "window": 4,
+                "where": [
+                  {
+                    "field": "missing",
+                    "op": "eq",
+                    "value": true
+                  }
+                ],
+                "op": "gte",
+                "value": 2
+              }
+            ],
+            "add": 1
+          }
+        ]
+      },
+      "consequence": {
+        "field": "liability_amount",
+        "bounds": [
+          1,
+          50000,
+          250000,
+          1000000,
+          5000000
+        ]
+      },
+      "effort": "low"
+    },
+    "treatment": "payment_engagement",
+    "explanation": "No settled {tax_head} payment for {period} after the due date {payment_due_at}. Amount due: {liability_amount}."
+  },
+  {
+    "version": "1.0.0",
+    "signal_class": "taxpayer_risk",
+    "eligibility": [
+      "active_account_obligation",
+      "liability_established",
+      "past_head_payment_due"
+    ],
+    "exclusions": [
+      "ceased_account",
+      "head_payment_coverage_incomplete",
+      "head_unallocated_receipt"
+    ],
+    "holds": [
+      "legal_hold",
+      "disputed",
+      "reversal_unconfirmed"
+    ],
+    "alternative_explanations": [
+      "Part payment under an approved instalment plan",
+      "Relief or discount not yet captured",
+      "Second payment unallocated"
+    ],
+    "references": [
+      "SYNTHETIC: effective-dated payment provision for the revenue head (pending the authority's legal confirmation)"
+    ],
+    "approval": {
+      "author": "risk_analyst",
+      "checker": "legal_and_risk_manager"
+    },
+    "id": "PAY-102",
+    "domain": "payment",
+    "title": "Payment short of the liability under a revenue head",
+    "scope": {
+      "tax_type": "*",
+      "entity": "account",
+      "fact_kind": "account_period"
+    },
+    "obligation_ref": "*:payment@effective_period",
+    "input_refs": [
+      "revenue_liability",
+      "revenue_payment"
+    ],
+    "conditions": [
+      {
+        "field": "settled_payment_count",
+        "op": "gt",
+        "value": 0
+      },
+      {
+        "field": "residual_amount",
+        "op": "gt",
+        "value": 100
+      }
+    ],
+    "quality": {
+      "max_staleness_days": 7,
+      "min_match_confidence": 0.98,
+      "require_coverage": [
+        "payment"
+      ]
+    },
+    "signal": {
+      "likelihood": {
+        "base": 3
+      },
+      "consequence": {
+        "field": "residual_amount",
+        "bounds": [
+          1,
+          50000,
+          250000,
+          1000000,
+          5000000
+        ]
+      },
+      "effort": "low"
+    },
+    "treatment": "payment_engagement",
+    "explanation": "{tax_head} payments for {period} total {paid_total} against {liability_amount}; {residual_amount} outstanding after the due date {payment_due_at}."
+  },
+  {
+    "version": "1.0.0",
+    "signal_class": "taxpayer_risk",
+    "eligibility": [
+      "active_account_obligation",
+      "liability_established",
+      "past_head_payment_due"
+    ],
+    "exclusions": [
+      "ceased_account",
+      "head_payment_coverage_incomplete"
+    ],
+    "holds": [
+      "legal_hold",
+      "disputed",
+      "reversal_unconfirmed"
+    ],
+    "alternative_explanations": [
+      "Bank settlement delay",
+      "Payment channel outage"
+    ],
+    "references": [
+      "SYNTHETIC: effective-dated payment provision for the revenue head (pending the authority's legal confirmation)"
+    ],
+    "approval": {
+      "author": "risk_analyst",
+      "checker": "legal_and_risk_manager"
+    },
+    "id": "PAY-103",
+    "domain": "payment",
+    "title": "Payment made after the due date under a revenue head",
+    "scope": {
+      "tax_type": "*",
+      "entity": "account",
+      "fact_kind": "account_period"
+    },
+    "obligation_ref": "*:payment@effective_period",
+    "input_refs": [
+      "revenue_payment"
+    ],
+    "conditions": [
+      {
+        "field": "payment_late_days",
+        "op": "gt",
+        "value": 0
+      }
+    ],
+    "quality": {
+      "max_staleness_days": 7,
+      "min_match_confidence": 0.98,
+      "require_coverage": [
+        "payment"
+      ]
+    },
+    "signal": {
+      "likelihood": {
+        "base": 2,
+        "adjust": [
+          {
+            "when": [
+              {
+                "aggregate": "count",
+                "series": "payment",
+                "window": 6,
+                "where": [
+                  {
+                    "field": "late",
+                    "op": "eq",
+                    "value": true
+                  }
+                ],
+                "op": "gte",
+                "value": 2
+              }
+            ],
+            "add": 1
+          }
+        ]
+      },
+      "consequence": "unknown",
+      "effort": "low"
+    },
+    "treatment": "targeted_assistance",
+    "explanation": "{tax_head} payment for {period} posted {payment_late_days} day(s) after the due date {payment_due_at}."
+  },
+  {
+    "version": "1.0.0",
+    "signal_class": "taxpayer_risk",
+    "eligibility": [
+      "active_account_obligation",
+      "liability_established",
+      "past_head_payment_due"
+    ],
+    "exclusions": [
+      "ceased_account",
+      "head_payment_coverage_incomplete",
+      "head_unallocated_receipt"
+    ],
+    "holds": [
+      "legal_hold",
+      "disputed",
+      "reversal_unconfirmed"
+    ],
+    "alternative_explanations": [
+      "Vehicle or premises no longer in use but not deregistered",
+      "Renewed in another state or office",
+      "Renewal paid with a wrong reference"
+    ],
+    "references": [
+      "SYNTHETIC: effective-dated payment provision for the revenue head (pending the authority's legal confirmation)"
+    ],
+    "approval": {
+      "author": "risk_analyst",
+      "checker": "legal_and_risk_manager"
+    },
+    "id": "REG-101",
+    "domain": "registration",
+    "title": "Licence or registration not renewed after expiry",
+    "scope": {
+      "tax_type": "*",
+      "entity": "account",
+      "fact_kind": "account_period"
+    },
+    "obligation_ref": "*:payment@effective_period",
+    "input_refs": [
+      "revenue_account",
+      "revenue_liability",
+      "revenue_payment"
+    ],
+    "conditions": [
+      {
+        "field": "pattern",
+        "op": "eq",
+        "value": "licence_renewal"
+      },
+      {
+        "field": "settled_payment_count",
+        "op": "eq",
+        "value": 0
+      }
+    ],
+    "quality": {
+      "max_staleness_days": 7,
+      "min_match_confidence": 0.98,
+      "require_coverage": [
+        "payment"
+      ]
+    },
+    "signal": {
+      "likelihood": {
+        "base": 3,
+        "adjust": [
+          {
+            "when": [
+              {
+                "field": "use_class",
+                "op": "eq",
+                "value": "commercial"
+              }
+            ],
+            "add": 1
+          }
+        ]
+      },
+      "consequence": "unknown",
+      "effort": "low"
+    },
+    "treatment": "review_then_approved_reminder",
+    "explanation": "{tax_head} for {subject_id} expired and was not renewed by {payment_due_at}."
+  },
+  {
+    "version": "1.0.0",
+    "signal_class": "taxpayer_risk",
+    "eligibility": [
+      "individual_taxpayer",
+      "direct_assessment_due_passed"
+    ],
+    "exclusions": [
+      "inactive_taxpayer"
+    ],
+    "holds": [
+      "legal_hold",
+      "disputed"
+    ],
+    "alternative_explanations": [
+      "All income is employment income taxed through PAYE",
+      "Income below the filing threshold or exempt",
+      "Business operated by a company, not the individual",
+      "Return filed under a different taxpayer record"
+    ],
+    "references": [
+      "SYNTHETIC: effective-dated return provision for the revenue head (pending the authority's legal confirmation)"
+    ],
+    "approval": {
+      "author": "risk_analyst",
+      "checker": "legal_and_risk_manager"
+    },
+    "id": "REG-102",
+    "domain": "registration",
+    "title": "Business, property or vehicle activity without a direct-assessment return",
+    "scope": {
+      "tax_type": "*",
+      "entity": "taxpayer",
+      "fact_kind": "taxpayer_profile"
+    },
+    "obligation_ref": "*:return@tax_year",
+    "input_refs": [
+      "taxpayer",
+      "revenue_account",
+      "revenue_liability"
+    ],
+    "conditions": [
+      {
+        "field": "income_indicator_count",
+        "op": "gte",
+        "value": 1
+      },
+      {
+        "field": "direct_assessment_filed",
+        "op": "eq",
+        "value": false
+      }
+    ],
+    "quality": {
+      "max_staleness_days": 7,
+      "min_match_confidence": 0.98,
+      "require_coverage": []
+    },
+    "signal": {
+      "likelihood": {
+        "base": 3,
+        "adjust": [
+          {
+            "when": [
+              {
+                "field": "income_indicator_count",
+                "op": "gte",
+                "value": 2
+              }
+            ],
+            "add": 1
+          }
+        ]
+      },
+      "consequence": "unknown",
+      "effort": "medium"
+    },
+    "treatment": "compliance_engagement",
+    "explanation": "Active {income_indicator_heads} account(s) indicate business income, but no direct-assessment return was filed for tax year {tax_year}."
+  },
+  {
+    "version": "1.0.0",
+    "signal_class": "data_quality",
+    "eligibility": [
+      "active_account_obligation"
+    ],
+    "exclusions": [
+      "head_filing_coverage_incomplete"
+    ],
+    "holds": [],
+    "alternative_explanations": [],
+    "references": [
+      "Authority billing procedure (internal)"
+    ],
+    "approval": {
+      "author": "risk_analyst",
+      "checker": "legal_and_risk_manager"
+    },
+    "id": "DAT-101",
+    "domain": "data_quality",
+    "title": "Demand or levy bill not issued for an active account",
+    "scope": {
+      "tax_type": "*",
+      "entity": "account",
+      "fact_kind": "account_period"
+    },
+    "obligation_ref": null,
+    "input_refs": [
+      "revenue_account",
+      "revenue_liability"
+    ],
+    "conditions": [
+      {
+        "field": "pattern",
+        "op": "eq",
+        "value": "annual_demand"
+      },
+      {
+        "field": "period_closed",
+        "op": "eq",
+        "value": true
+      },
+      {
+        "field": "demand_issued",
+        "op": "eq",
+        "value": false
+      }
+    ],
+    "quality": {
+      "max_staleness_days": 7,
+      "min_match_confidence": 0.98,
+      "require_coverage": [
+        "filing"
+      ]
+    },
+    "signal": {
+      "likelihood": {
+        "base": 3
+      },
+      "consequence": "unknown",
+      "effort": "low"
+    },
+    "treatment": "internal_correction",
+    "explanation": "No {tax_head} demand was issued for active account {subject_id} for {period}. Billing gap on the authority side, not a taxpayer default."
+  },
+  {
+    "version": "1.0.0",
+    "signal_class": "data_quality",
+    "eligibility": [
+      "active_account_obligation"
+    ],
+    "exclusions": [
+      "head_filing_coverage_incomplete"
+    ],
+    "holds": [],
+    "alternative_explanations": [],
+    "references": [
+      "Authority demand service procedure (internal)"
+    ],
+    "approval": {
+      "author": "risk_analyst",
+      "checker": "legal_and_risk_manager"
+    },
+    "id": "DAT-102",
+    "domain": "data_quality",
+    "title": "Demand issued but not served",
+    "scope": {
+      "tax_type": "*",
+      "entity": "account",
+      "fact_kind": "account_period"
+    },
+    "obligation_ref": null,
+    "input_refs": [
+      "revenue_liability"
+    ],
+    "conditions": [
+      {
+        "field": "pattern",
+        "op": "eq",
+        "value": "annual_demand"
+      },
+      {
+        "field": "period_closed",
+        "op": "eq",
+        "value": true
+      },
+      {
+        "field": "demand_issued",
+        "op": "eq",
+        "value": true
+      },
+      {
+        "field": "demand_served",
+        "op": "eq",
+        "value": false
+      }
+    ],
+    "quality": {
+      "max_staleness_days": 7,
+      "min_match_confidence": 0.98,
+      "require_coverage": [
+        "filing"
+      ]
+    },
+    "signal": {
+      "likelihood": {
+        "base": 3
+      },
+      "consequence": "unknown",
+      "effort": "low"
+    },
+    "treatment": "internal_correction",
+    "explanation": "A {tax_head} demand for {period} was issued for {subject_id} but has no record of service, so no payment can be due yet."
+  }
+]

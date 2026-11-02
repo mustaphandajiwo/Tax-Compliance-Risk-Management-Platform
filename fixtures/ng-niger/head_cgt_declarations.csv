@@ -1,0 +1,3 @@
+liability_reference,account_id,tax_head,period,kind,status,event_date,filed_at,amount,appeal_status
+DEMO-LIA-CGT-0076,DEMO-CGT-I010,CGT,2026-02,return,filed,,2026-03-06T23:59:59+01:00,130000.00,none
+DEMO-LIA-CGT-0079,DEMO-CGT-I012,CGT,2026-08,return,filed,,2026-09-14T23:59:59+01:00,132000.00,none

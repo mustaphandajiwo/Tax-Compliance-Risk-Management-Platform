@@ -1,0 +1,117 @@
+# Tax Compliance Risk Platform local stack (SYNTHETIC DATA ONLY).
+#   docker compose -f infra/docker-compose.yml up --build
+# Then: docker compose -f infra/docker-compose.yml exec api taxrisk demo
+# Web console http://localhost:3000, API http://localhost:8000/docs, Keycloak http://localhost:8080
+#
+# The demo profile uses the built-in development token issuer. To exercise OIDC + MFA via Keycloak instead,
+# set TAXRISK_DEV_AUTH_ENABLED=false, TAXRISK_REQUIRE_MFA=true and
+# TAXRISK_OIDC_JWKS_URL=http://keycloak:8080/realms/taxrisk/protocol/openid-connect/certs,
+# TAXRISK_OIDC_ISSUER=http://localhost:8080/realms/taxrisk on the api and worker services.
+
+x-api-env: &api-env
+  TAXRISK_ENVIRONMENT: demo
+  TAXRISK_DATABASE_URL: postgresql+psycopg://taxrisk_app:taxrisk_app@postgres:5432/taxrisk
+  TAXRISK_OWNER_DATABASE_URL: postgresql+psycopg://taxrisk_owner:taxrisk_owner@postgres:5432/taxrisk
+  TAXRISK_REDIS_URL: redis://redis:6379/0
+  TAXRISK_CELERY_EAGER: "false"
+  TAXRISK_STORAGE_BACKEND: s3
+  TAXRISK_S3_ENDPOINT: http://minio:9000
+  TAXRISK_S3_BUCKET: taxrisk-raw
+  TAXRISK_S3_ACCESS_KEY: taxrisk-demo
+  TAXRISK_S3_SECRET_KEY: taxrisk-demo-secret
+  TAXRISK_SIGNING_KEY_PATH: /data/keys/evidence_ed25519.pem
+  TAXRISK_JWT_KEY_PATH: /data/keys/dev_jwt_rsa.pem
+  TAXRISK_OTEL_EXPORTER_ENDPOINT: http://otel-collector:4318/v1/traces
+  TAXRISK_CORS_ORIGINS: http://localhost:3000
+  TAXRISK_COLLECTION_PLATFORM_URL: http://mock-collection:8100
+  TAXRISK_COLLECTION_API_KEY: demo-collection-platform-key
+  TAXRISK_COLLECTION_WEBHOOK_SECRET: demo-collection-webhook-secret
+
+services:
+  postgres:
+    image: postgres:16.4
+    environment:
+      POSTGRES_PASSWORD: postgres-local-only
+    volumes:
+      - ./db/init.sql:/docker-entrypoint-initdb.d/00-roles.sql:ro
+      - ./db/create-db.sql:/docker-entrypoint-initdb.d/01-db.sql:ro
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 5s
+      retries: 20
+    ports: ["5432:5432"]
+
+  redis:
+    image: redis:7.4-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+
+  minio:
+    image: minio/minio:RELEASE.2024-10-13T13-34-11Z
+    command: server /data --console-address :9001
+    environment:
+      MINIO_ROOT_USER: taxrisk-demo
+      MINIO_ROOT_PASSWORD: taxrisk-demo-secret
+    volumes: [miniodata:/data]
+    ports: ["9001:9001"]
+
+  minio-init:
+    image: minio/mc:RELEASE.2024-10-08T09-37-26Z
+    depends_on: [minio]
+    entrypoint: >
+      sh -c "sleep 3 && mc alias set local http://minio:9000 taxrisk-demo taxrisk-demo-secret &&
+             mc mb --ignore-existing local/taxrisk-raw && mc encrypt set sse-s3 local/taxrisk-raw || true"
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:25.0.6
+    command: start-dev --import-realm
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin-local-only
+    volumes:
+      - ./keycloak/taxrisk-realm.json:/opt/keycloak/data/import/taxrisk-realm.json:ro
+    ports: ["8080:8080"]
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.111.0
+    command: ["--config=/etc/otel/collector.yaml"]
+    volumes: [./otel/collector.yaml:/etc/otel/collector.yaml:ro]
+
+  mock-collection:
+    # Simulated revenue collection platform (SYNTHETIC) for the COLLECTION-PLATFORM connector.
+    build: {context: .., dockerfile: infra/docker/api.Dockerfile}
+    command: uvicorn tools.mock_collection_platform:app --host 0.0.0.0 --port 8100
+    ports: ["8100:8100"]
+
+  api:
+    build: {context: .., dockerfile: infra/docker/api.Dockerfile}
+    environment: *api-env
+    command: sh -c "taxrisk migrate && uvicorn taxrisk_api.main:app --host 0.0.0.0 --port 8000 --proxy-headers"
+    depends_on:
+      postgres: {condition: service_healthy}
+      redis: {condition: service_healthy}
+      minio-init: {condition: service_completed_successfully}
+    volumes: [keys:/data/keys]
+    ports: ["8000:8000"]
+
+  worker:
+    build: {context: .., dockerfile: infra/docker/api.Dockerfile}
+    environment: *api-env
+    command: celery -A taxrisk_api.worker worker --beat --loglevel=info
+    depends_on: [api]
+    volumes: [keys:/data/keys]
+
+  web:
+    build:
+      context: ..
+      dockerfile: infra/docker/web.Dockerfile
+      args: {NEXT_PUBLIC_API_URL: "http://localhost:8000"}
+    depends_on: [api]
+    ports: ["3000:3000"]
+
+volumes:
+  pgdata: {}
+  miniodata: {}
+  keys: {}

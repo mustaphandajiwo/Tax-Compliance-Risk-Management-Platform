@@ -1,0 +1,3 @@
+payment_reference,account_id,tax_head,period,paid_at,amount,reversal_status,settlement_status,allocation_status
+DEMO-RPAY-BPR-0095,DEMO-BPR-B001,BPR,2025,2026-01-16T23:59:59+01:00,25000.00,none,settled,allocated
+DEMO-RPAY-BPR-0096,DEMO-BPR-B003,BPR,2025,2026-03-05T23:59:59+01:00,25000.00,none,settled,allocated
