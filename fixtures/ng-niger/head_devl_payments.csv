@@ -1,0 +1,5 @@
+payment_reference,account_id,tax_head,period,paid_at,amount,reversal_status,settlement_status,allocation_status
+DEMO-RPAY-DEVL-0075,DEMO-DEVL-I001,DEVL,2025,2025-03-01T23:59:59+01:00,1000.00,none,settled,allocated
+DEMO-RPAY-DEVL-0076,DEMO-DEVL-I001,DEVL,2026,2026-03-01T23:59:59+01:00,1000.00,none,settled,allocated
+DEMO-RPAY-DEVL-0077,DEMO-DEVL-I002,DEVL,2025,2025-03-01T23:59:59+01:00,1000.00,none,settled,allocated
+DEMO-RPAY-DEVL-0078,DEMO-DEVL-I003,DEVL,2026,2026-03-01T23:59:59+01:00,1000.00,none,settled,allocated

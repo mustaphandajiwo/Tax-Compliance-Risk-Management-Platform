@@ -92,17 +92,19 @@
     {
       "name": "registration_system",
       "feed_types": [
-        "taxpayer",
         "employer",
+        "extension",
         "obligation",
-        "extension"
+        "revenue_account",
+        "taxpayer"
       ],
       "owner": "Revenue Service taxpayer & employer registration system"
     },
     {
       "name": "etax_portal",
       "feed_types": [
-        "paye_return"
+        "paye_return",
+        "revenue_liability"
       ],
       "owner": "Revenue Service e-tax filing portal"
     },
@@ -117,7 +119,8 @@
     {
       "name": "treasury",
       "feed_types": [
-        "payment"
+        "payment",
+        "revenue_payment"
       ],
       "owner": "Revenue Service treasury / collection reconciliation"
     },
@@ -135,6 +138,27 @@
         "assessment"
       ],
       "owner": "Revenue Service assessment ledger"
+    },
+    {
+      "name": "revenue_registers",
+      "feed_types": [
+        "revenue_account"
+      ],
+      "owner": "Revenue Service head registers: property, vehicles, business premises, agents, operators, markets"
+    },
+    {
+      "name": "billing_system",
+      "feed_types": [
+        "revenue_liability"
+      ],
+      "owner": "Revenue Service billing: land use charge and levy demand notices, licence renewals"
+    },
+    {
+      "name": "land_registry",
+      "feed_types": [
+        "revenue_liability"
+      ],
+      "owner": "Lands registry: recorded disposals and dutiable instruments (transaction evidence)"
     },
     {
       "name": "external_business_licensing",
@@ -173,6 +197,22 @@
       "jurisdiction": "XX-DEMO",
       "status": "pending_legal_confirmation",
       "note": "Replace with the authority's own revenue law and amendment history."
+    },
+    {
+      "code": "INCOME-TAX-ACT",
+      "title": "National income tax act (placeholder)",
+      "authority": "National",
+      "jurisdiction": "XX",
+      "status": "pending_legal_confirmation",
+      "note": "Personal income tax, withholding, capital gains and stamp duty provisions for periods from 2026."
+    },
+    {
+      "code": "LAND-USE-CHARGE-LAW",
+      "title": "State land use charge law (placeholder)",
+      "authority": "State",
+      "jurisdiction": "XX-DEMO",
+      "status": "pending_legal_confirmation",
+      "note": "Consolidated annual charge on land and buildings, replacing tenement rates and ground rent."
     }
   ],
   "legal_versions": [
@@ -235,44 +275,239 @@
       "parameters": {
         "payment_days_after_service": 30
       }
+    },
+    {
+      "code": "PITDA_ANNUAL_RETURN",
+      "version": "2020.1-SYN",
+      "instrument": "PRIOR-PAYE-LAW",
+      "effective_from": "2020-01-01",
+      "effective_to": "2025-12-31",
+      "parameters": {
+        "due_month": 3,
+        "due_day": 31
+      }
+    },
+    {
+      "code": "PITDA_ANNUAL_RETURN",
+      "version": "2026.1-SYN",
+      "instrument": "INCOME-TAX-ACT",
+      "effective_from": "2026-01-01",
+      "effective_to": null,
+      "parameters": {
+        "due_month": 3,
+        "due_day": 31
+      }
+    },
+    {
+      "code": "PITDA_ANNUAL_PAYMENT",
+      "version": "2020.1-SYN",
+      "instrument": "PRIOR-PAYE-LAW",
+      "effective_from": "2020-01-01",
+      "effective_to": "2025-12-31",
+      "parameters": {
+        "due_month": 3,
+        "due_day": 31
+      }
+    },
+    {
+      "code": "PITDA_ANNUAL_PAYMENT",
+      "version": "2026.1-SYN",
+      "instrument": "INCOME-TAX-ACT",
+      "effective_from": "2026-01-01",
+      "effective_to": null,
+      "parameters": {
+        "due_month": 3,
+        "due_day": 31
+      }
+    },
+    {
+      "code": "WHT_MONTHLY_RETURN",
+      "version": "2020.1-SYN",
+      "instrument": "PRIOR-PAYE-LAW",
+      "effective_from": "2020-01-01",
+      "effective_to": "2025-12-31",
+      "parameters": {
+        "due_day_of_following_month": 21
+      }
+    },
+    {
+      "code": "WHT_MONTHLY_RETURN",
+      "version": "2026.1-SYN",
+      "instrument": "INCOME-TAX-ACT",
+      "effective_from": "2026-01-01",
+      "effective_to": null,
+      "parameters": {
+        "due_day_of_following_month": 21
+      }
+    },
+    {
+      "code": "WHT_MONTHLY_PAYMENT",
+      "version": "2020.1-SYN",
+      "instrument": "PRIOR-PAYE-LAW",
+      "effective_from": "2020-01-01",
+      "effective_to": "2025-12-31",
+      "parameters": {
+        "due_day_of_following_month": 21
+      }
+    },
+    {
+      "code": "WHT_MONTHLY_PAYMENT",
+      "version": "2026.1-SYN",
+      "instrument": "INCOME-TAX-ACT",
+      "effective_from": "2026-01-01",
+      "effective_to": null,
+      "parameters": {
+        "due_day_of_following_month": 21
+      }
+    },
+    {
+      "code": "CGT_TRANSACTION",
+      "version": "2020.1-SYN",
+      "instrument": "PRIOR-PAYE-LAW",
+      "effective_from": "2020-01-01",
+      "effective_to": "2025-12-31",
+      "parameters": {
+        "days_after_transaction": 30
+      }
+    },
+    {
+      "code": "CGT_TRANSACTION",
+      "version": "2026.1-SYN",
+      "instrument": "INCOME-TAX-ACT",
+      "effective_from": "2026-01-01",
+      "effective_to": null,
+      "parameters": {
+        "days_after_transaction": 30
+      }
+    },
+    {
+      "code": "SD_TRANSACTION",
+      "version": "2020.1-SYN",
+      "instrument": "PRIOR-PAYE-LAW",
+      "effective_from": "2020-01-01",
+      "effective_to": "2025-12-31",
+      "parameters": {
+        "days_after_transaction": 30
+      }
+    },
+    {
+      "code": "SD_TRANSACTION",
+      "version": "2026.1-SYN",
+      "instrument": "INCOME-TAX-ACT",
+      "effective_from": "2026-01-01",
+      "effective_to": null,
+      "parameters": {
+        "days_after_transaction": 30
+      }
+    },
+    {
+      "code": "LUC_DEMAND",
+      "version": "2020.1-SYN",
+      "instrument": "LAND-USE-CHARGE-LAW",
+      "effective_from": "2020-01-01",
+      "effective_to": null,
+      "parameters": {
+        "payment_days_after_service": 45
+      }
+    },
+    {
+      "code": "BPR_RENEWAL",
+      "version": "2020.1-SYN",
+      "instrument": "STATE-REVENUE-LAW",
+      "effective_from": "2020-01-01",
+      "effective_to": null,
+      "parameters": {
+        "grace_days": 31
+      }
+    },
+    {
+      "code": "MVL_RENEWAL",
+      "version": "2020.1-SYN",
+      "instrument": "STATE-REVENUE-LAW",
+      "effective_from": "2020-01-01",
+      "effective_to": null,
+      "parameters": {
+        "grace_days": 14
+      }
+    },
+    {
+      "code": "DEVL_ANNUAL_LEVY",
+      "version": "2020.1-SYN",
+      "instrument": "STATE-REVENUE-LAW",
+      "effective_from": "2020-01-01",
+      "effective_to": null,
+      "parameters": {
+        "due_month": 3,
+        "due_day": 31
+      }
+    },
+    {
+      "code": "GAM_MONTHLY_RETURN",
+      "version": "2020.1-SYN",
+      "instrument": "STATE-REVENUE-LAW",
+      "effective_from": "2020-01-01",
+      "effective_to": null,
+      "parameters": {
+        "due_day_of_following_month": 10
+      }
+    },
+    {
+      "code": "GAM_MONTHLY_PAYMENT",
+      "version": "2020.1-SYN",
+      "instrument": "STATE-REVENUE-LAW",
+      "effective_from": "2020-01-01",
+      "effective_to": null,
+      "parameters": {
+        "due_day_of_following_month": 10
+      }
+    },
+    {
+      "code": "MKT_DEMAND",
+      "version": "2020.1-SYN",
+      "instrument": "STATE-REVENUE-LAW",
+      "effective_from": "2020-01-01",
+      "effective_to": null,
+      "parameters": {
+        "payment_days_after_service": 30
+      }
     }
   ],
   "tax_scope": [
     {
       "workstream": "Employer PAYE",
       "status": "pilot_primary",
-      "treatment": "Monthly remittance, employer returns, annual obligations and reconciliation",
+      "treatment": "Monthly returns and remittance, annual obligations, reconciliation",
       "condition": "Per-period obligation verification and approved legal versions"
     },
     {
-      "workstream": "Individual income tax / direct assessment",
-      "status": "secondary_next",
-      "treatment": "Return obligations, outstanding liabilities",
-      "condition": "Residence and jurisdiction verification"
+      "workstream": "Personal income tax (direct assessment), development levy",
+      "status": "pilot_primary",
+      "treatment": "Annual returns, payment and levy; cross-checks against business, property and vehicle records",
+      "condition": "Approved legal versions per tax year"
     },
     {
-      "workstream": "Withholding tax relating to individuals",
-      "status": "next",
-      "treatment": "Filing, payment, reconciliation",
-      "condition": "Confirm the authority's legal competence, payer obligation and period"
+      "workstream": "Withholding tax, capital gains tax and stamp duties (individuals)",
+      "status": "pilot_primary",
+      "treatment": "Agent remittance; transaction-based declarations from registry records",
+      "condition": "Transaction evidence from a system of record"
     },
     {
-      "workstream": "Local fees, levies, business premises, motor vehicle",
+      "workstream": "Land use charge, business premises, motor vehicle licences, market levies, gaming taxes",
+      "status": "pilot_primary",
+      "treatment": "Demand notices, renewals and operator returns",
+      "condition": "Served demand or recorded expiry before any payment signal"
+    },
+    {
+      "workstream": "Legacy property rates (tenement rates)",
       "status": "future",
-      "treatment": "Not automatically classed as income tax",
-      "condition": "Separate statutory instrument and owner for each rule"
-    },
-    {
-      "workstream": "Property / land-related charges",
-      "status": "future",
-      "treatment": "Only where the authority has the legal and administrative mandate",
-      "condition": "Do not assume every property tax is administered by the authority"
+      "treatment": "Customised per authority where the land use charge law is not in force",
+      "condition": "Separate property-rate module"
     },
     {
       "workstream": "National taxes administered by another agency (e.g. company income tax, VAT)",
       "status": "excluded",
-      "treatment": "Excluded from assessment and enforcement engines",
-      "condition": "Contextual only when formally authorised"
+      "treatment": "Excluded from the Revenue Service assessment and enforcement",
+      "condition": "Administered by the national revenue agency"
     }
   ],
   "retention": [
@@ -436,5 +671,121 @@
         "purposes": "case_review"
       }
     ]
-  }
+  },
+  "tax_heads": [
+    {
+      "code": "PITDA",
+      "name": "Personal income tax - direct assessment",
+      "pattern": "annual_return_payment",
+      "subject_type": "individual",
+      "status": "pilot_primary",
+      "revenue_codes": [
+        "PIT-DA"
+      ],
+      "description": "Self-employed individuals, partnerships and other persons not on PAYE: annual self-assessment return and payment."
+    },
+    {
+      "code": "WHT",
+      "name": "Withholding tax (income of individuals)",
+      "pattern": "monthly_return_payment",
+      "subject_type": "agent",
+      "status": "pilot_primary",
+      "revenue_codes": [
+        "WHT-IND"
+      ],
+      "description": "Tax deducted at source by paying agents on payments to individuals and enterprises: monthly schedule and remittance."
+    },
+    {
+      "code": "CGT",
+      "name": "Capital gains tax (individuals)",
+      "pattern": "transaction",
+      "subject_type": "individual",
+      "status": "pilot_primary",
+      "revenue_codes": [
+        "CGT-IND"
+      ],
+      "description": "Gains on disposal of chargeable assets by individuals; disposals evidenced by land registry and other transfer records."
+    },
+    {
+      "code": "SD",
+      "name": "Stamp duties (instruments executed by individuals)",
+      "pattern": "transaction",
+      "subject_type": "individual",
+      "status": "pilot_primary",
+      "revenue_codes": [
+        "SD-IND"
+      ],
+      "description": "Duty on dutiable instruments (deeds, leases, agreements) executed between individuals."
+    },
+    {
+      "code": "LUC",
+      "name": "Land use charge",
+      "pattern": "annual_demand",
+      "subject_type": "property",
+      "status": "pilot_primary",
+      "indicates_income": true,
+      "revenue_codes": [
+        "LUC"
+      ],
+      "description": "Consolidated annual charge on land and buildings, billed by demand notice. Replaces tenement rates and ground rent where the land use charge law applies."
+    },
+    {
+      "code": "BPR",
+      "name": "Business premises registration and renewal levy",
+      "pattern": "licence_renewal",
+      "subject_type": "premises",
+      "status": "pilot_primary",
+      "indicates_income": true,
+      "revenue_codes": [
+        "BPR"
+      ],
+      "description": "Registration of business premises and annual renewal."
+    },
+    {
+      "code": "MVL",
+      "name": "Motor vehicle licence and road taxes",
+      "pattern": "licence_renewal",
+      "subject_type": "vehicle",
+      "status": "pilot_primary",
+      "indicates_income": true,
+      "revenue_codes": [
+        "MVL"
+      ],
+      "description": "Vehicle licence, road worthiness and related road taxes renewed on expiry. Commercial vehicles indicate business income."
+    },
+    {
+      "code": "DEVL",
+      "name": "Development levy (individuals)",
+      "pattern": "annual_levy",
+      "subject_type": "individual",
+      "status": "pilot_primary",
+      "revenue_codes": [
+        "DEV-LEVY"
+      ],
+      "description": "Flat annual levy on taxable individuals."
+    },
+    {
+      "code": "GAM",
+      "name": "Pools betting, lotteries, gaming and casino taxes",
+      "pattern": "monthly_return_payment",
+      "subject_type": "operator",
+      "status": "pilot_primary",
+      "revenue_codes": [
+        "GAMING"
+      ],
+      "description": "Licensed operators file monthly returns of stakes and winnings and remit the tax."
+    },
+    {
+      "code": "MKT",
+      "name": "Market taxes and levies (state-financed markets)",
+      "pattern": "annual_demand",
+      "subject_type": "premises",
+      "status": "pilot_primary",
+      "revenue_codes": [
+        "MARKET"
+      ],
+      "description": "Annual stall and shop levies in markets where the state finances the market."
+    }
+  ],
+  "property_regime": "land_use_charge"
 }

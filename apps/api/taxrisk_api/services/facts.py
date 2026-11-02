@@ -647,4 +647,7 @@ def build(
     records.extend(_taxpayer_pairs(ctx))
     records.extend(_quarantine_records(ctx))
     records.extend(_receipts(ctx))
+    from . import revenue_facts
+
+    records.extend(revenue_facts.build(ctx))
     return records, ctx.batch_ids

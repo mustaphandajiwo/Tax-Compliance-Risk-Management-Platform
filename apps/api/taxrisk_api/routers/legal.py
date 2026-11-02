@@ -72,7 +72,9 @@ def obligations(
     for o in db.execute(select(TaxObligation).where(TaxObligation.is_current)).scalars():
         counts[o.status] = counts.get(o.status, 0) + 1
     return {
-        "codes": legal.OBLIGATION_CODES,
+        "codes": legal.known_codes(settings_of(db)),
+        "tax_heads": settings_of(db).get("tax_heads", []),
+        "property_regime": settings_of(db).get("property_regime", "none"),
         "tax_scope": settings_of(db).get("tax_scope", []),
         "versions": versions,
         "taxpayer_obligations_by_status": counts,

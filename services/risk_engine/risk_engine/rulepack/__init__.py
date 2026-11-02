@@ -1,4 +1,6 @@
-"""Bundled PAYE pilot rule pack (12 deterministic PAYE-led rules)."""
+"""Bundled rule packs: the PAYE pilot pack (12 rules) and the revenue-heads pack (10 rules that apply to
+every configured head: personal income tax, withholding, capital gains, stamp duties, land use charge,
+licences, levies)."""
 
 from __future__ import annotations
 
@@ -9,11 +11,15 @@ from typing import Any
 from ..dsl import RuleDefinition, validate_rule
 
 PILOT_PACK = "paye_pilot_v1.json"
+REVENUE_HEADS_PACK = "revenue_heads_v1.json"
+PACKS = (PILOT_PACK, REVENUE_HEADS_PACK)
 
 
 def load_pilot_pack_raw() -> list[dict[str, Any]]:
-    text = resources.files(__package__).joinpath(PILOT_PACK).read_text(encoding="utf-8")
-    data: list[dict[str, Any]] = json.loads(text)
+    """Every bundled rule, PAYE first."""
+    data: list[dict[str, Any]] = []
+    for name in PACKS:
+        data.extend(json.loads(resources.files(__package__).joinpath(name).read_text(encoding="utf-8")))
     return data
 
 

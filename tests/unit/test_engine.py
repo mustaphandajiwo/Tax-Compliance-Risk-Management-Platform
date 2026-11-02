@@ -24,8 +24,24 @@ def run(code: str, record: dict) -> Outcome:
 # --- DSL -----------------------------------------------------------------------------------
 
 
-def test_pilot_pack_has_twelve_valid_rules() -> None:
-    assert sorted(RULES) == sorted(
+def test_bundled_packs_are_paye_twelve_plus_revenue_heads_ten() -> None:
+    paye = [r.id for r in RULES.values() if r.scope.tax_type == "PAYE"]
+    heads = [r.id for r in RULES.values() if r.scope.tax_type == "*"]
+    assert sorted(heads) == sorted(
+        [
+            "FIL-101",
+            "FIL-102",
+            "FIL-103",
+            "PAY-101",
+            "PAY-102",
+            "PAY-103",
+            "REG-101",
+            "REG-102",
+            "DAT-101",
+            "DAT-102",
+        ]
+    )
+    assert sorted(paye) == sorted(
         [
             "FIL-001",
             "FIL-002",

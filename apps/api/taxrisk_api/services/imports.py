@@ -47,6 +47,9 @@ from ..models import (
     Payment,
     PaymentAllocation,
     ReturnFiling,
+    RevenueAccount,
+    RevenueLiability,
+    RevenuePayment,
     SourceCoverage,
     SourceRecord,
     TaxObligation,
@@ -69,6 +72,9 @@ CANONICAL_MODELS: dict[str, Any] = {
     "paye_return": ReturnFiling,
     "payment": Payment,
     "assessment": Assessment,
+    "revenue_account": RevenueAccount,
+    "revenue_liability": RevenueLiability,
+    "revenue_payment": RevenuePayment,
 }
 COMMIT_ORDER = [
     "taxpayer",
@@ -78,7 +84,26 @@ COMMIT_ORDER = [
     "paye_return",
     "payment",
     "assessment",
+    "revenue_account",
+    "revenue_liability",
+    "revenue_payment",
 ]
+
+
+def current_account_refs(db: Session) -> set[str]:
+    return set(db.execute(select(RevenueAccount.account_ref).where(RevenueAccount.is_current)).scalars())
+
+
+def configured_heads(settings: dict[str, Any]) -> set[str]:
+    return {h["code"] for h in settings.get("tax_heads", [])}
+
+
+def coverage_periods(coverage_from: str, coverage_to: str) -> list[str]:
+    """Monthly periods in the range, plus every tax year the range covers in full."""
+    months = period_range(coverage_from, coverage_to)
+    years = sorted({m[:4] for m in months})
+    full = [y for y in years if f"{y}-01" in months and f"{y}-12" in months]
+    return months + full
 
 
 def current_employer_refs(db: Session) -> set[str]:
@@ -144,7 +169,11 @@ def create_batch(
     ctx = ValidationContext(
         tin_pattern=settings.get("tin_pattern", r"^DEMO-TIN-\d{6}$"),
         known_areas=areas or None,
-        known_employers=None if feed_type in ("employer", "taxpayer") else current_employer_refs(db),
+        known_employers=None
+        if feed_type in ("employer", "taxpayer") or feed_type.startswith("revenue_")
+        else current_employer_refs(db),
+        known_heads=configured_heads(settings),
+        known_accounts=current_account_refs(db) if feed_type.startswith("revenue_") else None,
         tz=tz_of(db),
     )
     report = validate_rows(feed_type, headers, rows, mapping, ctx)
@@ -486,19 +515,105 @@ def commit_batch(db: Session, actor: Principal, batch_id: uuid.UUID) -> IngestBa
                 )
             )
 
-    if batch.coverage_from and batch.coverage_to:
-        for p in period_range(batch.coverage_from, batch.coverage_to):
+    elif feed == "revenue_account":
+        supersede("account_ref", [v["account_id"] for _, v in rows])
+        for rec, v in rows:
             db.add(
-                SourceCoverage(
-                    tenant_id=actor.tenant_id,
-                    feed_type=feed,
-                    period_code=p,
-                    scope_area=batch.coverage_area,
-                    batch_id=batch.id,
-                    complete=True,
-                    reconciled=True,
+                RevenueAccount(
+                    **common,
+                    source_record_id=rec.id,
+                    account_ref=v["account_id"],
+                    tax_head=v["tax_head"],
+                    subject_type=v["subject_type"],
+                    taxpayer_ref=v.get("taxpayer_id"),
+                    employer_ref=v.get("employer_id"),
+                    display_name=v["account_name"],
+                    area_code=v.get("area_code"),
+                    use_class=v.get("use_class"),
+                    category=v.get("category"),
+                    assessed_value=v.get("assessed_value"),
+                    status=v["status"],
+                    effective_from=v.get("effective_from"),
+                    effective_to=v.get("effective_to"),
                 )
             )
+    elif feed == "revenue_liability":
+        keys = [f"{source.source_name}|{v['liability_reference']}" for _, v in rows]
+        supersede("natural_key", keys)
+        for (rec, v), key in zip(rows, keys, strict=True):
+            db.add(
+                RevenueLiability(
+                    **common,
+                    source_record_id=rec.id,
+                    natural_key=key,
+                    source_name=source.source_name,
+                    liability_ref=v["liability_reference"],
+                    account_ref=v["account_id"],
+                    tax_head=v["tax_head"],
+                    period_code=v["period"],
+                    kind=v["kind"],
+                    status=v["status"],
+                    event_date=v.get("event_date"),
+                    filed_at=v.get("filed_at"),
+                    amount=v.get("amount"),
+                    appeal_status=v.get("appeal_status") or "none",
+                )
+            )
+    elif feed == "revenue_payment":
+        keys = [f"{source.source_name}|{v['payment_reference']}" for _, v in rows]
+        supersede("natural_key", keys)
+        known = current_account_refs(db)
+        for (rec, v), key in zip(rows, keys, strict=True):
+            acct = v.get("account_id")
+            alloc = v.get("allocation_status") or (
+                "allocated" if acct in known and v.get("period") else "unallocated"
+            )
+            if acct not in known:
+                alloc = "unallocated"
+            db.add(
+                RevenuePayment(
+                    **common,
+                    source_record_id=rec.id,
+                    natural_key=key,
+                    source_name=source.source_name,
+                    payment_reference=v["payment_reference"],
+                    account_ref=acct,
+                    tax_head=v["tax_head"],
+                    period_code=v.get("period"),
+                    paid_at=v["paid_at"],
+                    amount=v["amount"],
+                    reversal_status=v["reversal_status"],
+                    settlement_status=v.get("settlement_status") or "settled",
+                    allocation_status=alloc,
+                )
+            )
+
+    if batch.coverage_from and batch.coverage_to:
+        # Revenue-head feeds claim coverage per head present in the batch: a land use charge extract says
+        # nothing about motor vehicle licences.
+        scopes = (
+            sorted({f"{feed}:{v['tax_head']}" for _, v in rows if v.get("tax_head")})
+            if feed in ("revenue_liability", "revenue_payment")
+            else [feed]
+        )
+        periods_covered = (
+            coverage_periods(batch.coverage_from, batch.coverage_to)
+            if feed.startswith("revenue_")
+            else period_range(batch.coverage_from, batch.coverage_to)
+        )
+        for scope in scopes:
+            for p in periods_covered:
+                db.add(
+                    SourceCoverage(
+                        tenant_id=actor.tenant_id,
+                        feed_type=scope,
+                        period_code=p,
+                        scope_area=batch.coverage_area,
+                        batch_id=batch.id,
+                        complete=True,
+                        reconciled=True,
+                    )
+                )
     batch.qa_status = "committed"
     batch.committed_by = actor.actor_id
     batch.committed_at = datetime.now(UTC)

@@ -202,6 +202,541 @@ def build_employers() -> list[Emp]:
     return out
 
 
+# ---------------------------------------------------------------------------------------------------------
+# Revenue heads beyond PAYE. Each scenario declares its expected finding here, independently of the engine.
+# ---------------------------------------------------------------------------------------------------------
+HEADS = {h["code"]: h for h in PACK.get("tax_heads", [])}
+
+
+def param(code: str, period: str, name: str) -> int:
+    start = date(int(period[:4]), int(period[5:7]) if len(period) > 4 else 1, 1)
+    for v in PACK["legal_versions"]:
+        lo = date.fromisoformat(v["effective_from"])
+        hi = date.fromisoformat(v["effective_to"]) if v["effective_to"] else date(2100, 1, 1)
+        if v["code"] == code and lo <= start <= hi:
+            return int(v["parameters"][name])
+    raise KeyError(code)
+
+
+def eod(d: date) -> datetime:
+    return datetime(d.year, d.month, d.day, 23, 59, 59, tzinfo=TZ)
+
+
+def monthly_due(code: str, p: str) -> datetime:
+    y, m = int(p[:4]), int(p[5:7])
+    ny, nm = (y + 1, 1) if m == 12 else (y, m + 1)
+    day = min(param(code, p, "due_day_of_following_month"), calendar.monthrange(ny, nm)[1])
+    return eod(date(ny, nm, day))
+
+
+def at(d: date, hour: int = 11) -> datetime:
+    return datetime(d.year, d.month, d.day, hour, 0, tzinfo=TZ)
+
+
+def revenue_head_fixture(employers: list[Emp], taxpayers: list[dict], expected: list[Expect]) -> list[dict]:
+    """Accounts, liabilities and payments for every configured head; returns manifest load entries."""
+    if not HEADS:
+        return []
+    accounts: list[dict] = []
+    liabilities: dict[str, list[dict]] = {h: [] for h in HEADS}
+    payments: dict[str, list[dict]] = {h: [] for h in HEADS}
+    seq = {"l": 0, "p": 0}
+    years = ["2025", "2026"]
+
+    def person(n: int, status: str = "active", area: str | None = None) -> str:
+        ref = f"DEMO-TP-I{n:03d}"
+        taxpayers.append(
+            {
+                "source_taxpayer_id": ref,
+                "taxpayer_type": "individual",
+                "status": status,
+                "taxpayer_name": f"{PLACES[n % len(PLACES)]} Demo Person {n}",
+                "tin": f"DEMO-TIN-{700000 + n:06d}",
+                "jurisdiction": JURISDICTION,
+                "area_code": area or PILOT_AREAS[n % len(PILOT_AREAS)],
+                "sector": "",
+                "effective_from": "2018-01-01",
+                "effective_to": "",
+            }
+        )
+        return ref
+
+    def company(code: str, name: str, n: int) -> str:
+        ref = f"DEMO-TP-{code}"
+        taxpayers.append(
+            {
+                "source_taxpayer_id": ref,
+                "taxpayer_type": "company",
+                "status": "active",
+                "taxpayer_name": name,
+                "tin": f"DEMO-TIN-{800000 + n:06d}",
+                "jurisdiction": JURISDICTION,
+                "area_code": PILOT_AREAS[0],
+                "sector": "gaming",
+                "effective_from": "2019-01-01",
+                "effective_to": "",
+            }
+        )
+        return ref
+
+    def account(acct: str, head: str, subject: str, name: str, tp: str | None, **kw: str) -> str:
+        accounts.append(
+            {
+                "account_id": acct,
+                "tax_head": head,
+                "subject_type": subject,
+                "taxpayer_id": tp or "",
+                "employer_id": kw.get("employer", ""),
+                "account_name": name,
+                "area_code": kw.get("area", PILOT_AREAS[0]),
+                "use_class": kw.get("use", ""),
+                "category": kw.get("category", ""),
+                "assessed_value": kw.get("value", ""),
+                "status": kw.get("status", "active"),
+                "effective_from": kw.get("since", "2020-01-01"),
+                "effective_to": kw.get("until", ""),
+            }
+        )
+        return acct
+
+    def liability(head: str, acct: str, period: str, kind: str, status: str, **kw: object) -> None:
+        seq["l"] += 1
+        liabilities[head].append(
+            {
+                "liability_reference": f"DEMO-LIA-{head}-{seq['l']:04d}",
+                "account_id": acct,
+                "tax_head": head,
+                "period": period,
+                "kind": kind,
+                "status": status,
+                "event_date": iso(kw.get("event")),  # type: ignore[arg-type]
+                "filed_at": iso(kw.get("filed")),  # type: ignore[arg-type]
+                "amount": f"{kw['amount']}.00" if kw.get("amount") is not None else "",
+                "appeal_status": str(kw.get("appeal", "none")),
+            }
+        )
+
+    def pay(head: str, acct: str, period: str, amount: int, when: datetime) -> None:
+        seq["p"] += 1
+        payments[head].append(
+            {
+                "payment_reference": f"DEMO-RPAY-{head}-{seq['p']:04d}",
+                "account_id": acct,
+                "tax_head": head,
+                "period": period,
+                "paid_at": iso(when),
+                "amount": f"{amount}.00",
+                "reversal_status": "none",
+                "settlement_status": "settled",
+                "allocation_status": "allocated",
+            }
+        )
+
+    # --- Personal income tax, direct assessment (annual return and payment) -----------------------------
+    if "PITDA" in HEADS:
+        due25 = eod(
+            date(
+                2026,
+                param("PITDA_ANNUAL_RETURN", "2025", "due_month"),
+                param("PITDA_ANNUAL_RETURN", "2025", "due_day"),
+            )
+        )
+        cases = [
+            (1, "on_time", 180000),
+            (2, "not_filed", None),
+            (3, "late_filed_late_paid", 220000),
+            (4, "filed_unpaid", 400000),
+            (5, "part_paid", 300000),
+            (6, "ceased", None),
+            (7, "unknown_owner", None),
+        ]
+        for n, case, amount in cases:
+            tp = person(n) if case != "unknown_owner" else None
+            acct = account(
+                f"DEMO-DA-{n:03d}",
+                "PITDA",
+                "individual",
+                f"Direct assessment - Demo Person {n}",
+                tp or f"DEMO-TP-I9{n:02d}",
+                status="ceased" if case == "ceased" else "active",
+                until="2024-12-31" if case == "ceased" else "",
+                since="2019-01-01",
+            )
+            if case == "on_time":
+                liability(
+                    "PITDA",
+                    acct,
+                    "2025",
+                    "return",
+                    "accepted",
+                    filed=due25 - timedelta(days=12),
+                    amount=amount,
+                )
+                pay("PITDA", acct, "2025", amount, due25 - timedelta(days=12))
+            elif case == "not_filed":
+                expected.append(Expect("FIL-101", acct, "2025"))
+            elif case == "late_filed_late_paid":
+                liability(
+                    "PITDA",
+                    acct,
+                    "2025",
+                    "return",
+                    "accepted",
+                    filed=due25 + timedelta(days=40),
+                    amount=amount,
+                )
+                pay("PITDA", acct, "2025", amount, due25 + timedelta(days=40))
+                expected += [Expect("FIL-103", acct, "2025"), Expect("PAY-103", acct, "2025")]
+            elif case == "filed_unpaid":
+                liability(
+                    "PITDA",
+                    acct,
+                    "2025",
+                    "return",
+                    "accepted",
+                    filed=due25 - timedelta(days=5),
+                    amount=amount,
+                )
+                expected.append(Expect("PAY-101", acct, "2025"))
+            elif case == "part_paid":
+                liability(
+                    "PITDA",
+                    acct,
+                    "2025",
+                    "return",
+                    "accepted",
+                    filed=due25 - timedelta(days=5),
+                    amount=amount,
+                )
+                pay("PITDA", acct, "2025", 100000, due25 - timedelta(days=5))
+                expected.append(Expect("PAY-102", acct, "2025"))
+            elif case == "unknown_owner":
+                expected.append(Expect("FIL-101", acct, "2025", "data_hold"))
+
+    # --- Withholding tax (monthly agent return and remittance) ------------------------------------------
+    if "WHT" in HEADS:
+        agents = [e for e in employers if e.scenario == "clean"][10:14]
+        for i, e in enumerate(agents, start=1):
+            acct = account(
+                f"DEMO-WHT-{i:03d}",
+                "WHT",
+                "agent",
+                f"WHT agent - {e.name}",
+                e.tp_ref,
+                employer=e.ref,
+                area=e.area,
+            )
+            for p in PERIODS:
+                d = monthly_due("WHT_MONTHLY_RETURN", p)
+                amount = 40000 + 1000 * i
+                if i == 2 and p in ("2026-06", "2026-07"):
+                    continue  # agent stopped filing
+                liability("WHT", acct, p, "return", "accepted", filed=d - timedelta(days=4), amount=amount)
+                if i == 3 and p == "2026-05":
+                    continue  # filed but not remitted
+                when = d + timedelta(days=3) if (i == 4 and p == "2026-03") else d - timedelta(days=4)
+                pay("WHT", acct, p, amount, when)
+            if i == 2:
+                expected += [Expect("FIL-101", acct, "2026-06"), Expect("FIL-101", acct, "2026-07")]
+            if i == 3:
+                expected.append(Expect("PAY-101", acct, "2026-05"))
+            if i == 4:
+                expected.append(Expect("PAY-103", acct, "2026-03"))
+
+    # --- Gaming taxes (monthly operator return and payment) ---------------------------------------------
+    if "GAM" in HEADS:
+        for i in (1, 2):
+            tp = company(f"O{i:03d}", f"Lucky {PLACES[i]} Pools Demo Ltd", i)
+            acct = account(
+                f"DEMO-GAM-{i:03d}", "GAM", "operator", f"Gaming operator - Lucky {PLACES[i]} Pools", tp
+            )
+            for p in PERIODS:
+                d = monthly_due("GAM_MONTHLY_RETURN", p)
+                amount = 150000 + 5000 * i
+                liability("GAM", acct, p, "return", "accepted", filed=d - timedelta(days=2), amount=amount)
+                paid = amount * 6 // 10 if (i == 2 and p == "2026-04") else amount
+                pay("GAM", acct, p, paid, d - timedelta(days=2))
+        expected.append(Expect("PAY-102", "DEMO-GAM-002", "2026-04"))
+
+    # --- Capital gains tax and stamp duties (transaction-based) -----------------------------------------
+    for head, rows in (
+        (
+            "CGT",
+            [
+                (10, date(2026, 2, 14), "declared_paid"),
+                (11, date(2026, 4, 3), "undeclared"),
+                (12, date(2026, 8, 25), "declared_unpaid"),
+            ],
+        ),
+        ("SD", [(13, date(2026, 1, 10), "undeclared"), (14, date(2026, 5, 6), "declared_paid")]),
+    ):
+        if head not in HEADS:
+            continue
+        code = f"{head}_TRANSACTION"
+        for n, tx, case in rows:
+            tp = person(n)
+            acct = account(f"DEMO-{head}-I{n:03d}", head, "individual", f"{head} - Demo Person {n}", tp)
+            p = f"{tx.year}-{tx.month:02d}"
+            liability(head, acct, p, "transaction", "recorded", event=tx, amount=2500000 + n * 10000)
+            d = eod(tx + timedelta(days=param(code, p, "days_after_transaction")))
+            if case == "undeclared":
+                expected.append(Expect("FIL-102", acct, p))
+                continue
+            amount = 120000 + n * 1000
+            liability(head, acct, p, "return", "filed", filed=d - timedelta(days=10), amount=amount)
+            if case == "declared_paid":
+                pay(head, acct, p, amount, d - timedelta(days=10))
+            else:
+                expected.append(Expect("PAY-101", acct, p))
+
+    # --- Development levy (annual flat levy) ------------------------------------------------------------
+    if "DEVL" in HEADS:
+        for n, case in ((1, "paid"), (2, "unpaid_2026"), (3, "new_2026")):
+            tp = f"DEMO-TP-I{n:03d}"
+            acct = account(
+                f"DEMO-DEVL-I{n:03d}",
+                "DEVL",
+                "individual",
+                f"Development levy - Demo Person {n}",
+                tp,
+                since="2026-01-01" if case == "new_2026" else "2018-01-01",
+            )
+            for y in years:
+                if case == "new_2026" and y == "2025":
+                    continue
+                due = eod(
+                    date(
+                        int(y),
+                        param("DEVL_ANNUAL_LEVY", y, "due_month"),
+                        param("DEVL_ANNUAL_LEVY", y, "due_day"),
+                    )
+                )
+                liability("DEVL", acct, y, "levy", "issued", event=date(int(y), 1, 5), amount=1000)
+                if case == "unpaid_2026" and y == "2026":
+                    expected.append(Expect("PAY-101", acct, "2026"))
+                    continue
+                pay("DEVL", acct, y, 1000, due - timedelta(days=30))
+
+    # --- Land use charge (annual demand on property) ----------------------------------------------------
+    if "LUC" in HEADS:
+        props = [
+            (1, "company", "commercial", "paid", "paid"),
+            (2, "individual", "residential", "unpaid", "paid"),
+            (3, "individual", "commercial", "paid", "part_paid"),
+            (4, "company", "commercial", "not_issued", "paid"),
+            (5, "individual", "residential", "not_served", "paid"),
+            (6, "unknown", "residential", "unpaid", "paid"),
+            (7, "company", "commercial", "appealed", "paid"),
+            (8, "individual", "commercial", "paid", "paid"),
+            (9, "individual", "residential", "paid", "paid"),
+        ]
+        owners = {8: 20, 9: 22, 2: 15, 3: 16, 5: 17}
+        for n, owner, use, c25, c26 in props:
+            if owner == "individual":
+                tp = person(owners[n])
+            elif owner == "company":
+                tp = [e for e in employers if e.scenario == "clean"][20 + n].tp_ref
+            else:
+                tp = None
+            value = 20_000_000 + n * 5_000_000
+            acct = account(
+                f"DEMO-LUC-P{n:03d}",
+                "LUC",
+                "property",
+                f"Property {n}, {PLACES[n]} (SYNTHETIC)",
+                tp,
+                use=use,
+                value=str(value),
+            )
+            amount = 60000 + n * 15000
+            for y, case in (("2025", c25), ("2026", c26)):
+                served_on = date(int(y), 2, 15)
+                due = eod(served_on + timedelta(days=param("LUC_DEMAND", y, "payment_days_after_service")))
+                if case == "not_issued":
+                    expected.append(Expect("DAT-101", acct, y))
+                    continue
+                if case == "not_served":
+                    liability("LUC", acct, y, "demand", "issued", amount=amount)
+                    expected.append(Expect("DAT-102", acct, y))
+                    continue
+                liability(
+                    "LUC",
+                    acct,
+                    y,
+                    "demand",
+                    "served",
+                    event=served_on,
+                    amount=amount,
+                    appeal="appealed" if case == "appealed" else "none",
+                )
+                if case == "paid":
+                    pay("LUC", acct, y, amount, due - timedelta(days=10))
+                elif case == "part_paid":
+                    pay("LUC", acct, y, amount // 3, due - timedelta(days=10))
+                    expected.append(Expect("PAY-102", acct, y))
+                elif case == "unpaid":
+                    expected.append(Expect("PAY-101", acct, y, "data_hold" if owner == "unknown" else None))
+                elif case == "appealed":
+                    expected.append(Expect("PAY-101", acct, y, "legal_hold"))
+
+    # --- Market levies (annual demand on stalls) --------------------------------------------------------
+    if "MKT" in HEADS:
+        for i, c26 in ((1, "unpaid"), (2, "paid")):
+            tp = [e for e in employers if e.scenario == "clean"][30 + i].tp_ref
+            acct = account(
+                f"DEMO-MKT-{i:03d}",
+                "MKT",
+                "premises",
+                f"Market stall {i}, Central Market (SYNTHETIC)",
+                tp,
+                use="commercial",
+            )
+            for y in years:
+                served_on = date(int(y), 1, 20)
+                due = eod(served_on + timedelta(days=param("MKT_DEMAND", y, "payment_days_after_service")))
+                liability("MKT", acct, y, "demand", "served", event=served_on, amount=24000)
+                if y == "2026" and c26 == "unpaid":
+                    expected.append(Expect("PAY-101", acct, y))
+                    continue
+                pay("MKT", acct, y, 24000, due - timedelta(days=5))
+
+    # --- Business premises and motor vehicle licences (renewal on expiry) -------------------------------
+    if "BPR" in HEADS:
+        for n, owner, case in (
+            (1, 23, "renewed"),
+            (2, 20, "not_renewed"),
+            (3, 24, "renewed_late"),
+            (4, 25, "ceased"),
+        ):
+            tp = person(owner) if owner != 20 else "DEMO-TP-I020"
+            acct = account(
+                f"DEMO-BPR-B{n:03d}",
+                "BPR",
+                "premises",
+                f"Business premises {n}, {PLACES[n + 3]} (SYNTHETIC)",
+                tp,
+                use="commercial",
+                status="ceased" if case == "ceased" else "active",
+                until="2025-06-30" if case == "ceased" else "",
+            )
+            if case == "ceased":
+                continue
+            expiry = date(2025, 12, 31)
+            due = eod(expiry + timedelta(days=param("BPR_RENEWAL", "2025", "grace_days")))
+            liability("BPR", acct, "2025", "renewal_due", "issued", event=expiry, amount=25000)
+            if case == "renewed":
+                pay("BPR", acct, "2025", 25000, due - timedelta(days=15))
+            elif case == "renewed_late":
+                pay("BPR", acct, "2025", 25000, due + timedelta(days=33))
+                expected.append(Expect("PAY-103", acct, "2025"))
+            else:
+                expected.append(Expect("REG-101", acct, "2025"))
+    if "MVL" in HEADS:
+        for n, owner, use, case in (
+            (1, 1, "commercial", "renewed"),
+            (2, 21, "commercial", "not_renewed"),
+            (3, None, "private", "not_renewed"),
+        ):
+            tp = None if owner is None else (person(owner) if owner == 21 else f"DEMO-TP-I{owner:03d}")
+            acct = account(
+                f"DEMO-MVL-V{n:03d}",
+                "MVL",
+                "vehicle",
+                f"Vehicle DEMO-{n:03d}-XX ({use})",
+                tp,
+                use=use,
+                category="bus" if use == "commercial" else "car",
+            )
+            expiry = date(2026, 4 + n, 28)
+            due = eod(expiry + timedelta(days=param("MVL_RENEWAL", "2026", "grace_days")))
+            liability("MVL", acct, "2026", "renewal_due", "issued", event=expiry, amount=18000)
+            if case == "renewed":
+                pay("MVL", acct, "2026", 18000, due - timedelta(days=20))
+            else:
+                expected.append(Expect("REG-101", acct, "2026", "data_hold" if tp is None else None))
+
+    # --- Cross-tax: business, property or vehicle activity without a direct-assessment return ----------
+    if "PITDA" in HEADS:
+        # Person 20: business premises (not renewed) and a commercial property; person 21: a commercial bus.
+        expected += [Expect("REG-102", "DEMO-TP-I020", "2025"), Expect("REG-102", "DEMO-TP-I021", "2025")]
+        # Person 23 renewed business premises, person 24 renewed late, person 16 owns a commercial property:
+        # none has a direct-assessment return either.
+        expected += [
+            Expect("REG-102", "DEMO-TP-I016", "2025"),
+            Expect("REG-102", "DEMO-TP-I023", "2025"),
+            Expect("REG-102", "DEMO-TP-I024", "2025"),
+        ]
+
+    def write(name: str, rows: list[dict]) -> None:
+        with (OUT / name).open("w", newline="") as fh:
+            w = csv.DictWriter(fh, fieldnames=list(rows[0].keys()))
+            w.writeheader()
+            w.writerows(rows)
+
+    loads: list[dict] = []
+    write("revenue_accounts.csv", accounts)
+    loads.append(
+        {
+            "file": "revenue_accounts.csv",
+            "feed_type": "revenue_account",
+            "source": "revenue_registers",
+            "extracted_at": EXTRACTED.isoformat(),
+        }
+    )
+    for head in HEADS:
+        pattern = HEADS[head]["pattern"]
+        monthly = pattern in ("monthly_return_payment", "transaction")
+        cov = (
+            {"coverage_from": PERIODS[0], "coverage_to": PERIODS[-1]}
+            if monthly
+            else {"coverage_from": "2025-01", "coverage_to": "2026-12"}
+        )
+        source = (
+            "land_registry"
+            if pattern == "transaction"
+            else "etax_portal"
+            if "return" in pattern
+            else "billing_system"
+        )
+        if liabilities[head]:
+            write(f"head_{head.lower()}_liabilities.csv", liabilities[head])
+            loads.append(
+                {
+                    "file": f"head_{head.lower()}_liabilities.csv",
+                    "feed_type": "revenue_liability",
+                    "source": source,
+                    "extracted_at": EXTRACTED.isoformat(),
+                    **cov,
+                }
+            )
+            if pattern == "transaction":  # declarations come through the e-tax portal
+                decl = [r for r in liabilities[head] if r["kind"] == "return"]
+                trans = [r for r in liabilities[head] if r["kind"] != "return"]
+                write(f"head_{head.lower()}_liabilities.csv", trans)
+                if decl:
+                    write(f"head_{head.lower()}_declarations.csv", decl)
+                    loads.append(
+                        {
+                            "file": f"head_{head.lower()}_declarations.csv",
+                            "feed_type": "revenue_liability",
+                            "source": "etax_portal",
+                            "extracted_at": EXTRACTED.isoformat(),
+                        }
+                    )
+        if payments[head]:
+            write(f"head_{head.lower()}_payments.csv", payments[head])
+            loads.append(
+                {
+                    "file": f"head_{head.lower()}_payments.csv",
+                    "feed_type": "revenue_payment",
+                    "source": "treasury",
+                    "extracted_at": EXTRACTED.isoformat(),
+                    **cov,
+                }
+            )
+    return loads
+
+
 def main() -> None:
     OUT.mkdir(exist_ok=True)
     employers = build_employers()
@@ -546,6 +1081,8 @@ def main() -> None:
         }
     )
 
+    head_loads = revenue_head_fixture(employers, taxpayers, expected)
+
     def write(name: str, rows: list[dict]) -> None:
         if not rows:
             return
@@ -637,6 +1174,7 @@ def main() -> None:
                 "extracted_at": EXTRACTED.isoformat(),
                 **cov,
             },
+            *head_loads,
         ],
     }
     (OUT / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")

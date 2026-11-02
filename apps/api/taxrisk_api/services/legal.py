@@ -16,6 +16,7 @@ from typing import Any
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from risk_engine import heads
 from risk_engine.hashing import sha256_hex
 
 from .. import audit
@@ -43,7 +44,66 @@ OBLIGATION_CODES: dict[str, dict[str, Any]] = {
 }
 
 
+def obligation_spec(code: str) -> dict[str, Any] | None:
+    """PAYE codes are fixed; revenue-head codes are HEAD_SUFFIX, with parameters set by the pattern."""
+    if code in OBLIGATION_CODES:
+        return OBLIGATION_CODES[code]
+    parts = heads.split_code(code)
+    if parts is None:
+        return None
+    head, suffix = parts
+    return {
+        "tax_type": head,
+        "obligation_type": suffix.lower(),
+        "pattern": heads.PATTERN_SUFFIXES[suffix],
+        "required": list(heads.PATTERNS[heads.PATTERN_SUFFIXES[suffix]].codes[suffix]),
+    }
+
+
+def known_codes(settings: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    """Every obligation code this authority uses: PAYE plus the codes of its configured revenue heads."""
+    out: dict[str, dict[str, Any]] = dict(OBLIGATION_CODES)
+    for h in settings.get("tax_heads", []):
+        for code in heads.obligation_codes(h["code"], h["pattern"]):
+            spec = obligation_spec(code)
+            assert spec is not None
+            out[code] = spec
+    return out
+
+
+def head_due(
+    code: str, period: str, params: dict[str, Any], tz: tzinfo, event: date | None = None
+) -> datetime | None:
+    """Due date for a revenue-head obligation. Event-driven patterns need the event date (service of a
+    demand, licence expiry, transaction date); without it there is no due date (returns None)."""
+    parts = heads.split_code(code)
+    if parts is None:
+        return None
+    suffix = parts[1]
+    year = int(period[:4])
+    if suffix in ("MONTHLY_RETURN", "MONTHLY_PAYMENT"):
+        return due_date_for(period, params, tz)
+    if suffix in ("ANNUAL_RETURN", "ANNUAL_PAYMENT"):
+        return end_of_day(_safe_date(year + 1, int(params["due_month"]), int(params["due_day"])), tz)
+    if suffix == "ANNUAL_LEVY":
+        return end_of_day(_safe_date(year, int(params["due_month"]), int(params["due_day"])), tz)
+    if event is None:
+        return None
+    days = {
+        "DEMAND": "payment_days_after_service",
+        "RENEWAL": "grace_days",
+        "TRANSACTION": "days_after_transaction",
+    }[suffix]
+    return end_of_day(event + timedelta(days=int(params[days])), tz)
+
+
+def _safe_date(y: int, m: int, d: int) -> date:
+    return date(y, m, min(d, calendar.monthrange(y, m)[1]))
+
+
 def period_bounds(period: str) -> tuple[date, date]:
+    if len(period) == 4:  # annual tax year
+        return date(int(period), 1, 1), date(int(period), 12, 31)
     y, m = int(period[:4]), int(period[5:7])
     return date(y, m, 1), date(y, m, calendar.monthrange(y, m)[1])
 
@@ -121,9 +181,13 @@ def content_hash(v: dict[str, Any]) -> str:
 
 def draft_version(db: Session, actor: Principal, data: dict[str, Any]) -> LegalRuleVersion:
     code = data["code"]
-    spec = OBLIGATION_CODES.get(code)
+    from .tenancy import settings_of
+
+    settings = settings_of(db)
+    known = known_codes(settings)
+    spec = known.get(code)
     if spec is None:
-        raise unprocessable(f"Unknown obligation code {code}", {"known": list(OBLIGATION_CODES)})
+        raise unprocessable(f"Unknown obligation code {code}", {"known": sorted(known)})
     missing = [p for p in spec["required"] if p not in data["parameters"]]
     if missing:
         raise unprocessable("Missing legal parameters", {"missing": missing})
@@ -149,7 +213,7 @@ def draft_version(db: Session, actor: Principal, data: dict[str, Any]) -> LegalR
         obligation_type=spec["obligation_type"],
         instrument_id=instrument.id,
         provision_ref=data["provision_ref"],
-        jurisdiction=data.get("jurisdiction", "NG-NI"),
+        jurisdiction=data.get("jurisdiction") or settings.get("jurisdiction", ""),
         effective_from=eff_from,
         effective_to=eff_to,
         parameters=data["parameters"],

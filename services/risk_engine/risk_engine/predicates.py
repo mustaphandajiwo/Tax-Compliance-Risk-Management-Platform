@@ -42,6 +42,8 @@ def _due_passed(due_field: str, passed_field: str) -> Callable[[Facts, dict[str,
 
 
 EP = ("employer_period",)
+AP = ("account_period",)
+TP = ("taxpayer_profile",)
 
 ELIGIBILITY: dict[str, Predicate] = {
     p.name: p
@@ -69,6 +71,48 @@ ELIGIBILITY: dict[str, Predicate] = {
             EP,
             lambda f, q: (f.get("accepted_filing_count") or 0) > 0,
             "An accepted return exists for the period",
+        ),
+        Predicate(
+            "active_account_obligation",
+            AP,
+            _active_obligation,
+            "A legally approved obligation under the revenue head is active for the period",
+        ),
+        Predicate(
+            "return_required",
+            AP,
+            lambda f, q: bool(f.get("return_required")),
+            "The head requires a return or declaration from the taxpayer",
+        ),
+        Predicate(
+            "past_head_return_due",
+            AP,
+            _due_passed("return_due_at", "return_due_passed"),
+            "The return or declaration due date has passed",
+        ),
+        Predicate(
+            "past_head_payment_due",
+            AP,
+            _due_passed("payment_due_at", "payment_due_passed"),
+            "The payment or renewal due date has passed",
+        ),
+        Predicate(
+            "liability_established",
+            AP,
+            lambda f, q: bool(f.get("liability_established")),
+            "A liability exists (return filed, demand served, levy due, renewal due or transaction recorded)",
+        ),
+        Predicate(
+            "individual_taxpayer",
+            TP,
+            lambda f, q: f.get("taxpayer_type") == "individual",
+            "The taxpayer is an individual",
+        ),
+        Predicate(
+            "direct_assessment_due_passed",
+            TP,
+            lambda f, q: None if f.get("tax_year") is None else bool(f.get("tax_year_due_passed")),
+            "A direct-assessment return due date has passed and its legal version is approved",
         ),
         Predicate(
             "served_assessment",
@@ -143,6 +187,36 @@ EXCLUSIONS: dict[str, Predicate] = {
             "Quarantined rows with invalid period IDs may belong to this period; routed to DAT-002",
         ),
         Predicate(
+            "ceased_account",
+            AP,
+            lambda f, q: f.get("obligation_status") in ("ceased", "revoked"),
+            "The account has ceased, is exempt or the obligation was revoked",
+        ),
+        Predicate(
+            "head_filing_coverage_incomplete",
+            AP,
+            lambda f, q: not (q.get("coverage") or {}).get("filing", False),
+            "Return / demand / registry coverage for the head and period is incomplete",
+        ),
+        Predicate(
+            "head_payment_coverage_incomplete",
+            AP,
+            lambda f, q: not (q.get("coverage") or {}).get("payment", False),
+            "Payment coverage for the head and period is incomplete or unreconciled",
+        ),
+        Predicate(
+            "head_unallocated_receipt",
+            AP,
+            lambda f, q: bool(f.get("possible_unallocated_receipt")),
+            "An unallocated receipt under the head may belong to this account",
+        ),
+        Predicate(
+            "inactive_taxpayer",
+            TP,
+            lambda f, q: f.get("taxpayer_status") != "active",
+            "The taxpayer is inactive, dormant or deregistered in the register",
+        ),
+        Predicate(
             "superseded_assessment",
             ("assessment",),
             lambda f, q: f.get("assessment_status") in ("superseded", "withdrawn"),
@@ -156,19 +230,19 @@ HOLDS: dict[str, Predicate] = {
     for p in [
         Predicate(
             "legal_hold",
-            EP + ("assessment",),
+            EP + ("assessment",) + AP + TP,
             lambda f, q: bool(f.get("legal_hold")),
             "Appeal, stay or legal hold: enforcement workflow blocked",
         ),
         Predicate(
             "disputed",
-            EP + ("assessment",),
+            EP + ("assessment",) + AP + TP,
             lambda f, q: bool(f.get("disputed")),
             "Taxpayer dispute recorded",
         ),
         Predicate(
             "reversal_unconfirmed",
-            EP,
+            EP + AP,
             lambda f, q: bool(f.get("reversal_pending")),
             "A payment reversal awaits treasury confirmation",
         ),

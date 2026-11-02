@@ -121,7 +121,7 @@ class LegalVersionDraft(Model):
     version: str
     instrument_code: str
     provision_ref: str
-    jurisdiction: str = "NG-NI"
+    jurisdiction: str = ""
     effective_from: date
     effective_to: date | None = None
     parameters: dict[str, Any]

@@ -24,6 +24,7 @@ from .feeds import FEEDS, FeedProfile
 
 WAT = timezone(timedelta(hours=1), "WAT")  # Africa/Lagos, no DST
 PERIOD_RE = re.compile(r"^(\d{4})-(\d{2})$")
+YEAR_RE = re.compile(r"^(\d{4})$")
 
 # Reasons that quarantine rather than reject.
 QUARANTINE_REASONS = {
@@ -33,6 +34,8 @@ QUARANTINE_REASONS = {
     "conflicting_duplicate",
     "accepted_without_timestamp",
     "conflicting_identifier",
+    "unknown_tax_head",
+    "unknown_account",
 }
 
 
@@ -41,6 +44,8 @@ class ValidationContext:
     tin_pattern: str = r"^DEMO-TIN-\d{6}$"
     known_areas: set[str] | None = None
     known_employers: set[str] | None = None
+    known_heads: set[str] | None = None
+    known_accounts: set[str] | None = None
     tz: tzinfo = WAT
 
 
@@ -100,6 +105,14 @@ def parse_period(v: str) -> str | None:
     return f"{year:04d}-{month:02d}"
 
 
+def parse_tax_period(v: str) -> str | None:
+    """A monthly period (YYYY-MM) or an annual tax year (YYYY)."""
+    m = YEAR_RE.match(v.strip())
+    if m:
+        return m.group(1) if 2000 <= int(m.group(1)) <= 2100 else None
+    return parse_period(v)
+
+
 def parse_datetime(v: str, tz: tzinfo) -> datetime:
     dt = datetime.fromisoformat(v.strip().replace("Z", "+00:00"))
     return dt if dt.tzinfo else dt.replace(tzinfo=tz)
@@ -154,7 +167,7 @@ def validate_rows(
             if not v:
                 values[col.name] = None
                 if col.required:
-                    if col.type == "period":
+                    if col.type in ("period", "tax_period"):
                         reasons.append("invalid_period")
                     elif col.type == "identifier":
                         reasons.append("invalid_identifier")
@@ -182,6 +195,12 @@ def validate_rows(
                     if p is None:
                         reasons.append("invalid_period")
                         messages.append(f"invalid_period: '{v}' is not YYYY-MM")
+                    values[col.name] = p
+                elif col.type == "tax_period":
+                    p = parse_tax_period(v)
+                    if p is None:
+                        reasons.append("invalid_period")
+                        messages.append(f"invalid_period: '{v}' is not YYYY-MM or YYYY")
                     values[col.name] = p
                 elif col.type == "enum":
                     if v not in col.values:
@@ -214,6 +233,23 @@ def validate_rows(
                 messages.append("unmatched_employer: payment reference does not resolve to a known employer")
             else:
                 reasons.append("unknown_employer")
+        if ctx.known_heads is not None and "tax_head" in values and values["tax_head"]:
+            if values["tax_head"] not in ctx.known_heads:
+                reasons.append("unknown_tax_head")
+                messages.append(
+                    f"unknown_tax_head: '{values['tax_head']}' is not configured for this authority"
+                )
+        account_ref = values.get(profile.account_ref_column) if profile.account_ref_column else None
+        if (
+            ctx.known_accounts is not None
+            and account_ref
+            and feed_type != "revenue_account"
+            and account_ref not in ctx.known_accounts
+        ):
+            if feed_type == "revenue_payment":
+                messages.append("unmatched_account: payment does not resolve to a known account")
+            else:
+                reasons.append("unknown_account")
         if (
             feed_type == "paye_return"
             and values.get("status") == "accepted"

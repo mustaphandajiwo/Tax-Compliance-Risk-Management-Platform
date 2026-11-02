@@ -14,7 +14,7 @@ pytestmark = pytest.mark.integration
 def test_golden_fixture_matches_independently_declared_expectations(world: World) -> None:
     g = world.golden
     assert g["missing"] == [] and g["unexpected"] == [], g
-    assert g["expected"] == g["actual"] == 129
+    assert g["expected"] == g["actual"] == 160  # 129 PAYE + 31 across the other revenue heads
 
 
 def test_fixture_contract_size(world: World) -> None:

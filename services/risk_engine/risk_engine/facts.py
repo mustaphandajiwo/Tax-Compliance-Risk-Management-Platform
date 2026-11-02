@@ -111,7 +111,82 @@ FACT_SCHEMA: dict[str, dict[str, FieldSpec]] = {
     },
 }
 
-HISTORY_SERIES = {"employer_period": ["filing", "payment"]}
+FACT_SCHEMA["account_period"] = {
+    "anchor_period": _f("bool", "Latest due period for this account (for repeat-pattern rules)"),
+    "obligation_status": _f("enum", "Obligation status for the head and period", values=OBLIGATION_STATUSES),
+    "pattern": _f(
+        "enum",
+        "Obligation pattern of the revenue head",
+        values=[
+            "monthly_return_payment",
+            "annual_return_payment",
+            "annual_demand",
+            "licence_renewal",
+            "transaction",
+            "annual_levy",
+        ],
+    ),
+    "subject_type": _f(
+        "enum",
+        "What the account is",
+        values=["individual", "agent", "operator", "property", "premises", "vehicle", "business"],
+    ),
+    "use_class": _f(
+        "enum",
+        "Use class of a property, vehicle or premises",
+        values=["residential", "commercial", "mixed", "industrial", "institutional", "private", "unknown"],
+    ),
+    "period_closed": _f("bool", "The period (month or tax year) has ended at evaluation time"),
+    "return_required": _f("bool", "The pattern requires the taxpayer to file a return or declaration"),
+    "return_due_at": _f("datetime", "Return / declaration due date", nullable=True),
+    "return_due_passed": _f("bool", "Return / declaration due date has passed"),
+    "filed_count": _f("int", "Returns or declarations filed and not rejected"),
+    "filed_at": _f("datetime", "Earliest filing timestamp", nullable=True),
+    "filing_late_days": _f("int", "Days filed after the due date", nullable=True),
+    "transaction_count": _f("int", "Recorded taxable transactions in the period (registry evidence)"),
+    "demand_issued": _f("bool", "A demand notice or levy bill has been issued"),
+    "demand_served": _f("bool", "A demand notice has been lawfully served"),
+    "liability_established": _f(
+        "bool",
+        "A liability exists: return filed, demand served, levy due, renewal due or transaction recorded",
+    ),
+    "liability_amount": _f(
+        "number", "Declared, demanded or billed amount (authority currency)", nullable=True
+    ),
+    "payment_due_at": _f("datetime", "Payment / renewal due date", nullable=True),
+    "payment_due_passed": _f("bool", "Payment / renewal due date has passed"),
+    "paid_total": _f("number", "Settled, non-reversed payments allocated to the account and period"),
+    "settled_payment_count": _f("int", "Settled, non-reversed payments allocated to the account and period"),
+    "first_payment_at": _f("datetime", "Earliest settled payment", nullable=True),
+    "payment_late_days": _f("int", "Days the earliest payment posted after the due date", nullable=True),
+    "residual_amount": _f("number", "Liability minus payments (authority currency)", nullable=True),
+    "reversal_pending": _f("bool", "A payment reversal awaits treasury confirmation"),
+    "possible_unallocated_receipt": _f(
+        "bool", "Unallocated receipts under this head may belong to the account"
+    ),
+    "legal_hold": _f("bool", "Appeal, stay or officer legal hold"),
+    "disputed": _f("bool", "Taxpayer dispute recorded"),
+}
+FACT_SCHEMA["taxpayer_profile"] = {
+    "taxpayer_type": _f(
+        "enum", "Register type", values=["company", "individual", "partnership", "government", "ngo"]
+    ),
+    "income_indicator_count": _f(
+        "int", "Active accounts that indicate business income: premises, commercial property or vehicles"
+    ),
+    "income_indicator_heads": _f("string", "Heads with income indicators, e.g. BPR, LUC"),
+    "taxpayer_status": _f(
+        "enum", "Register status", values=["active", "inactive", "dormant", "deregistered"]
+    ),
+    "has_direct_assessment_account": _f("bool", "A direct-assessment account exists for the individual"),
+    "tax_year": _f("string", "Latest tax year whose direct-assessment return due date has passed"),
+    "tax_year_due_passed": _f("bool", "A direct-assessment return due date has passed in the window"),
+    "direct_assessment_filed": _f("bool", "A direct-assessment return was filed for that tax year"),
+    "legal_hold": _f("bool", "Officer legal hold"),
+    "disputed": _f("bool", "Taxpayer dispute recorded"),
+}
+
+HISTORY_SERIES = {"employer_period": ["filing", "payment"], "account_period": ["filing", "payment"]}
 HISTORY_FIELDS: dict[str, FieldType] = {"eligible": "bool", "missing": "bool", "late": "bool"}
 
 QUALITY_FIELDS = {

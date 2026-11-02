@@ -20,6 +20,7 @@ from zoneinfo import ZoneInfo
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from importer import FEEDS
+from risk_engine import heads as head_patterns
 
 REPO = Path(__file__).resolve().parents[3]
 
@@ -79,6 +80,35 @@ class ScopeItem(_Strict):
     condition: str
 
 
+class TaxHead(_Strict):
+    """A tax, levy or charge the authority administers, following one obligation pattern."""
+
+    code: str = Field(pattern=head_patterns.HEAD_CODE_RE)
+    name: str
+    pattern: str
+    subject_type: str
+    level: Literal["state", "local"] = "state"
+    status: Literal["pilot_primary", "secondary_next", "next", "future", "excluded"] = "next"
+    enabled: bool = True
+    indicates_income: bool = False
+    revenue_codes: list[str] = []
+    description: str = ""
+
+    @field_validator("pattern")
+    @classmethod
+    def _pattern(cls, v: str) -> str:
+        if v not in head_patterns.PATTERNS:
+            raise ValueError(f"unknown pattern {v}; known: {sorted(head_patterns.PATTERNS)}")
+        return v
+
+    @field_validator("subject_type")
+    @classmethod
+    def _subject(cls, v: str) -> str:
+        if v not in head_patterns.SubjectType.__args__:  # type: ignore[attr-defined]
+            raise ValueError(f"unknown subject type {v}")
+        return v
+
+
 class Retention(_Strict):
     data_class: str
     retain_days: int = Field(ge=1)
@@ -121,6 +151,8 @@ class Pack(_Strict):
     instruments: list[Instrument]
     legal_versions: list[LegalVersion]
     tax_scope: list[ScopeItem]
+    tax_heads: list[TaxHead] = []
+    property_regime: Literal["land_use_charge", "tenement_rate", "none"] = "none"
     retention: list[Retention]
     fixture: Fixture
 
@@ -138,17 +170,37 @@ class Pack(_Strict):
 
     @model_validator(mode="after")
     def _references(self) -> Pack:
-        from .services.legal import OBLIGATION_CODES
+        from .services.legal import known_codes
 
+        head_codes = [h.code for h in self.tax_heads]
+        if len(set(head_codes)) != len(head_codes):
+            raise ValueError("tax head codes must be unique")
+        if "PAYE" in head_codes:
+            raise ValueError("PAYE is built in; do not configure it as a tax head")
+        property_heads = [
+            h for h in self.tax_heads if h.subject_type == "property" and h.pattern == "annual_demand"
+        ]
+        if self.property_regime == "tenement_rate":
+            raise ValueError(
+                "property_regime 'tenement_rate' is reserved: the legacy property-rate model is a later "
+                "customisation; use 'land_use_charge' or 'none'"
+            )
+        if self.property_regime == "land_use_charge" and len(property_heads) != 1:
+            raise ValueError(
+                "property_regime land_use_charge needs exactly one property head (annual_demand)"
+            )
+        if self.property_regime == "none" and property_heads:
+            raise ValueError("a property head is configured but property_regime is 'none'")
+        known = known_codes({"tax_heads": [h.model_dump() for h in self.tax_heads]})
         codes = {i.code for i in self.instruments}
         for v in self.legal_versions:
             if v.instrument not in codes:
                 raise ValueError(
                     f"legal version {v.code} {v.version} cites unknown instrument {v.instrument}"
                 )
-            if v.code not in OBLIGATION_CODES:
+            if v.code not in known:
                 raise ValueError(f"unknown obligation code {v.code}")
-            missing = [p for p in OBLIGATION_CODES[v.code]["required"] if p not in v.parameters]
+            missing = [p for p in known[v.code]["required"] if p not in v.parameters]
             if missing:
                 raise ValueError(f"{v.code} {v.version} is missing parameters {missing}")
         area_codes = [a.code for a in self.areas]
@@ -170,6 +222,9 @@ class Pack(_Strict):
             "tin_pattern": self.tin_pattern,
             "approved_templates": self.approved_templates,
             "tax_scope": [s.model_dump() for s in self.tax_scope],
+            "tax_heads": [h.model_dump() for h in self.tax_heads if h.enabled],
+            "property_regime": self.property_regime,
+            "jurisdiction": self.jurisdiction,
             "branding": {"authority_name": self.name, "short_name": self.short_name, "logo": None},
         }
 

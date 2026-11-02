@@ -354,7 +354,7 @@ def _persist(
             rule_code=o.rule_code,
             rule_version_id=rv.id,
             rule_version=o.rule_version,
-            tax_type=rule.scope.tax_type,
+            tax_type=rec.get("tax_type") or rule.scope.tax_type,
             domain=rule.domain,
             subject_type=o.subject_type,
             subject_id=o.subject_id,

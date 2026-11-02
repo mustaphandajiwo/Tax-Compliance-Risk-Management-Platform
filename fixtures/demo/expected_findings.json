@@ -39,7 +39,7 @@
     "rejected_uncorrected": 2,
     "legal_transition": 2
   },
-  "count": 129,
+  "count": 160,
   "compare": [
     "rule_id",
     "subject",
@@ -108,6 +108,20 @@
       "rule_id": "DAT-003",
       "subject": "DEMO-EMP-0125",
       "period": "2026-05",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "DAT-101",
+      "subject": "DEMO-LUC-P004",
+      "period": "2025",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "DAT-102",
+      "subject": "DEMO-LUC-P005",
+      "period": "2025",
       "status": "review_required",
       "hold": null
     },
@@ -486,6 +500,55 @@
       "rule_id": "FIL-003",
       "subject": "DEMO-EMP-0080",
       "period": "2026-08",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "FIL-101",
+      "subject": "DEMO-DA-002",
+      "period": "2025",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "FIL-101",
+      "subject": "DEMO-DA-007",
+      "period": "2025",
+      "status": "review_required",
+      "hold": "data_hold"
+    },
+    {
+      "rule_id": "FIL-101",
+      "subject": "DEMO-WHT-002",
+      "period": "2026-06",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "FIL-101",
+      "subject": "DEMO-WHT-002",
+      "period": "2026-07",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "FIL-102",
+      "subject": "DEMO-CGT-I011",
+      "period": "2026-04",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "FIL-102",
+      "subject": "DEMO-SD-I013",
+      "period": "2026-01",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "FIL-103",
+      "subject": "DEMO-DA-003",
+      "period": "2025",
       "status": "review_required",
       "hold": null
     },
@@ -950,6 +1013,160 @@
       "period": "2026-02",
       "status": "review_required",
       "hold": "legal_hold"
+    },
+    {
+      "rule_id": "PAY-101",
+      "subject": "DEMO-CGT-I012",
+      "period": "2026-08",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "PAY-101",
+      "subject": "DEMO-DA-004",
+      "period": "2025",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "PAY-101",
+      "subject": "DEMO-DEVL-I002",
+      "period": "2026",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "PAY-101",
+      "subject": "DEMO-LUC-P002",
+      "period": "2025",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "PAY-101",
+      "subject": "DEMO-LUC-P006",
+      "period": "2025",
+      "status": "review_required",
+      "hold": "data_hold"
+    },
+    {
+      "rule_id": "PAY-101",
+      "subject": "DEMO-LUC-P007",
+      "period": "2025",
+      "status": "review_required",
+      "hold": "legal_hold"
+    },
+    {
+      "rule_id": "PAY-101",
+      "subject": "DEMO-MKT-001",
+      "period": "2026",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "PAY-101",
+      "subject": "DEMO-WHT-003",
+      "period": "2026-05",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "PAY-102",
+      "subject": "DEMO-DA-005",
+      "period": "2025",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "PAY-102",
+      "subject": "DEMO-GAM-002",
+      "period": "2026-04",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "PAY-102",
+      "subject": "DEMO-LUC-P003",
+      "period": "2026",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "PAY-103",
+      "subject": "DEMO-BPR-B003",
+      "period": "2025",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "PAY-103",
+      "subject": "DEMO-DA-003",
+      "period": "2025",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "PAY-103",
+      "subject": "DEMO-WHT-004",
+      "period": "2026-03",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "REG-101",
+      "subject": "DEMO-BPR-B002",
+      "period": "2025",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "REG-101",
+      "subject": "DEMO-MVL-V002",
+      "period": "2026",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "REG-101",
+      "subject": "DEMO-MVL-V003",
+      "period": "2026",
+      "status": "review_required",
+      "hold": "data_hold"
+    },
+    {
+      "rule_id": "REG-102",
+      "subject": "DEMO-TP-I016",
+      "period": "2025",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "REG-102",
+      "subject": "DEMO-TP-I020",
+      "period": "2025",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "REG-102",
+      "subject": "DEMO-TP-I021",
+      "period": "2025",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "REG-102",
+      "subject": "DEMO-TP-I023",
+      "period": "2025",
+      "status": "review_required",
+      "hold": null
+    },
+    {
+      "rule_id": "REG-102",
+      "subject": "DEMO-TP-I024",
+      "period": "2025",
+      "status": "review_required",
+      "hold": null
     }
   ]
 }

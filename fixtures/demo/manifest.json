@@ -69,6 +69,184 @@
       "extracted_at": "2026-09-29T18:00:00+01:00",
       "coverage_from": "2025-09",
       "coverage_to": "2026-08"
+    },
+    {
+      "file": "revenue_accounts.csv",
+      "feed_type": "revenue_account",
+      "source": "revenue_registers",
+      "extracted_at": "2026-09-29T18:00:00+01:00"
+    },
+    {
+      "file": "head_pitda_liabilities.csv",
+      "feed_type": "revenue_liability",
+      "source": "etax_portal",
+      "extracted_at": "2026-09-29T18:00:00+01:00",
+      "coverage_from": "2025-01",
+      "coverage_to": "2026-12"
+    },
+    {
+      "file": "head_pitda_payments.csv",
+      "feed_type": "revenue_payment",
+      "source": "treasury",
+      "extracted_at": "2026-09-29T18:00:00+01:00",
+      "coverage_from": "2025-01",
+      "coverage_to": "2026-12"
+    },
+    {
+      "file": "head_wht_liabilities.csv",
+      "feed_type": "revenue_liability",
+      "source": "etax_portal",
+      "extracted_at": "2026-09-29T18:00:00+01:00",
+      "coverage_from": "2025-09",
+      "coverage_to": "2026-08"
+    },
+    {
+      "file": "head_wht_payments.csv",
+      "feed_type": "revenue_payment",
+      "source": "treasury",
+      "extracted_at": "2026-09-29T18:00:00+01:00",
+      "coverage_from": "2025-09",
+      "coverage_to": "2026-08"
+    },
+    {
+      "file": "head_cgt_liabilities.csv",
+      "feed_type": "revenue_liability",
+      "source": "land_registry",
+      "extracted_at": "2026-09-29T18:00:00+01:00",
+      "coverage_from": "2025-09",
+      "coverage_to": "2026-08"
+    },
+    {
+      "file": "head_cgt_declarations.csv",
+      "feed_type": "revenue_liability",
+      "source": "etax_portal",
+      "extracted_at": "2026-09-29T18:00:00+01:00"
+    },
+    {
+      "file": "head_cgt_payments.csv",
+      "feed_type": "revenue_payment",
+      "source": "treasury",
+      "extracted_at": "2026-09-29T18:00:00+01:00",
+      "coverage_from": "2025-09",
+      "coverage_to": "2026-08"
+    },
+    {
+      "file": "head_sd_liabilities.csv",
+      "feed_type": "revenue_liability",
+      "source": "land_registry",
+      "extracted_at": "2026-09-29T18:00:00+01:00",
+      "coverage_from": "2025-09",
+      "coverage_to": "2026-08"
+    },
+    {
+      "file": "head_sd_declarations.csv",
+      "feed_type": "revenue_liability",
+      "source": "etax_portal",
+      "extracted_at": "2026-09-29T18:00:00+01:00"
+    },
+    {
+      "file": "head_sd_payments.csv",
+      "feed_type": "revenue_payment",
+      "source": "treasury",
+      "extracted_at": "2026-09-29T18:00:00+01:00",
+      "coverage_from": "2025-09",
+      "coverage_to": "2026-08"
+    },
+    {
+      "file": "head_luc_liabilities.csv",
+      "feed_type": "revenue_liability",
+      "source": "billing_system",
+      "extracted_at": "2026-09-29T18:00:00+01:00",
+      "coverage_from": "2025-01",
+      "coverage_to": "2026-12"
+    },
+    {
+      "file": "head_luc_payments.csv",
+      "feed_type": "revenue_payment",
+      "source": "treasury",
+      "extracted_at": "2026-09-29T18:00:00+01:00",
+      "coverage_from": "2025-01",
+      "coverage_to": "2026-12"
+    },
+    {
+      "file": "head_bpr_liabilities.csv",
+      "feed_type": "revenue_liability",
+      "source": "billing_system",
+      "extracted_at": "2026-09-29T18:00:00+01:00",
+      "coverage_from": "2025-01",
+      "coverage_to": "2026-12"
+    },
+    {
+      "file": "head_bpr_payments.csv",
+      "feed_type": "revenue_payment",
+      "source": "treasury",
+      "extracted_at": "2026-09-29T18:00:00+01:00",
+      "coverage_from": "2025-01",
+      "coverage_to": "2026-12"
+    },
+    {
+      "file": "head_mvl_liabilities.csv",
+      "feed_type": "revenue_liability",
+      "source": "billing_system",
+      "extracted_at": "2026-09-29T18:00:00+01:00",
+      "coverage_from": "2025-01",
+      "coverage_to": "2026-12"
+    },
+    {
+      "file": "head_mvl_payments.csv",
+      "feed_type": "revenue_payment",
+      "source": "treasury",
+      "extracted_at": "2026-09-29T18:00:00+01:00",
+      "coverage_from": "2025-01",
+      "coverage_to": "2026-12"
+    },
+    {
+      "file": "head_devl_liabilities.csv",
+      "feed_type": "revenue_liability",
+      "source": "billing_system",
+      "extracted_at": "2026-09-29T18:00:00+01:00",
+      "coverage_from": "2025-01",
+      "coverage_to": "2026-12"
+    },
+    {
+      "file": "head_devl_payments.csv",
+      "feed_type": "revenue_payment",
+      "source": "treasury",
+      "extracted_at": "2026-09-29T18:00:00+01:00",
+      "coverage_from": "2025-01",
+      "coverage_to": "2026-12"
+    },
+    {
+      "file": "head_gam_liabilities.csv",
+      "feed_type": "revenue_liability",
+      "source": "etax_portal",
+      "extracted_at": "2026-09-29T18:00:00+01:00",
+      "coverage_from": "2025-09",
+      "coverage_to": "2026-08"
+    },
+    {
+      "file": "head_gam_payments.csv",
+      "feed_type": "revenue_payment",
+      "source": "treasury",
+      "extracted_at": "2026-09-29T18:00:00+01:00",
+      "coverage_from": "2025-09",
+      "coverage_to": "2026-08"
+    },
+    {
+      "file": "head_mkt_liabilities.csv",
+      "feed_type": "revenue_liability",
+      "source": "billing_system",
+      "extracted_at": "2026-09-29T18:00:00+01:00",
+      "coverage_from": "2025-01",
+      "coverage_to": "2026-12"
+    },
+    {
+      "file": "head_mkt_payments.csv",
+      "feed_type": "revenue_payment",
+      "source": "treasury",
+      "extracted_at": "2026-09-29T18:00:00+01:00",
+      "coverage_from": "2025-01",
+      "coverage_to": "2026-12"
     }
   ]
 }

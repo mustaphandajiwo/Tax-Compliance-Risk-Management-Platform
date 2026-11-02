@@ -11,7 +11,9 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Literal
 
-ColType = Literal["str", "int", "decimal", "date", "datetime", "period", "bool", "enum", "identifier"]
+ColType = Literal[
+    "str", "int", "decimal", "date", "datetime", "period", "tax_period", "bool", "enum", "identifier"
+]
 
 
 @dataclass(frozen=True)
@@ -33,6 +35,7 @@ class FeedProfile:
     employer_ref_column: str | None = None
     safeguard: str = ""
     period_columns: tuple[str, ...] = field(default=())
+    account_ref_column: str | None = None
 
     def column(self, name: str) -> Column | None:
         return next((c for c in self.columns if c.name == name), None)
@@ -196,7 +199,94 @@ FEEDS: dict[str, FeedProfile] = {
             safeguard="Never infer overdue balance from unmatched payments alone",
             period_columns=("period",),
         ),
+        FeedProfile(
+            "revenue_account",
+            "Revenue head accounts",
+            "Accounts under each configured revenue head: individuals, agents, operators, properties, "
+            "business premises and vehicles, linked to the taxpayer register",
+            (
+                Column("account_id", "str"),
+                Column("tax_head", "str", description="Revenue head code from the jurisdiction pack"),
+                Column(
+                    "subject_type",
+                    "enum",
+                    values=("individual", "agent", "operator", "property", "premises", "vehicle", "business"),
+                ),
+                Column("taxpayer_id", "str", required=False, description="Linked taxpayer register ID"),
+                Column("employer_id", "str", required=False),
+                Column("account_name", "str"),
+                Column("area_code", "str", required=False),
+                Column(
+                    "use_class",
+                    "enum",
+                    required=False,
+                    values=("residential", "commercial", "mixed", "industrial", "institutional", "private"),
+                ),
+                Column("category", "str", required=False, description="Vehicle class, premises category ..."),
+                Column("assessed_value", "decimal", required=False),
+                Column("status", "enum", values=("active", "ceased", "exempt", "pending_verification")),
+                Column("effective_from", "date"),
+                Column("effective_to", "date", required=False),
+            ),
+            ("account_id",),
+            safeguard="Only accounts under a configured head; owner identity verified before any taxpayer signal",
+            account_ref_column="account_id",
+        ),
+        FeedProfile(
+            "revenue_liability",
+            "Revenue head returns, demands, renewals and transactions",
+            "Returns filed, demand notices served, licence expiries and registry transactions per account",
+            (
+                Column("liability_reference", "str"),
+                Column("account_id", "str"),
+                Column("tax_head", "str"),
+                Column("period", "tax_period", description="YYYY-MM, or YYYY for annual heads"),
+                Column("kind", "enum", values=("return", "demand", "renewal_due", "transaction", "levy")),
+                Column(
+                    "status",
+                    "enum",
+                    values=("filed", "accepted", "rejected", "served", "issued", "recorded", "withdrawn"),
+                ),
+                Column(
+                    "event_date", "date", required=False, description="Service, expiry or transaction date"
+                ),
+                Column("filed_at", "datetime", required=False),
+                Column("amount", "decimal", required=False),
+                Column(
+                    "appeal_status", "enum", required=False, values=("none", "appealed", "stayed", "resolved")
+                ),
+            ),
+            ("liability_reference",),
+            safeguard="A demand counts only once served; a transaction only from a system-of-record registry",
+            period_columns=("period",),
+            account_ref_column="account_id",
+        ),
+        FeedProfile(
+            "revenue_payment",
+            "Revenue head payments",
+            "Collections for every revenue head from treasury or the collection platform",
+            (
+                Column("payment_reference", "str"),
+                Column("account_id", "str", required=False),
+                Column("tax_head", "str"),
+                Column("period", "tax_period", required=False),
+                Column("paid_at", "datetime"),
+                Column("amount", "decimal"),
+                Column("reversal_status", "enum", values=("none", "reversed", "reversal_pending")),
+                Column("settlement_status", "enum", required=False, values=("settled", "pending")),
+                Column(
+                    "allocation_status",
+                    "enum",
+                    required=False,
+                    values=("allocated", "unallocated", "suspense"),
+                ),
+            ),
+            ("payment_reference",),
+            safeguard="Reconciliation and reversal handling",
+            period_columns=("period",),
+            account_ref_column="account_id",
+        ),
     ]
 }
 
-SCHEMA_VERSION = "taxrisk-feeds/1.0"
+SCHEMA_VERSION = "taxrisk-feeds/1.1"

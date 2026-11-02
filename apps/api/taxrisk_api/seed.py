@@ -128,7 +128,7 @@ def seed_reference(db: Session, tid: uuid.UUID, pack: Pack) -> None:
     instruments = {i.code: i for i in db.execute(select(LegalInstrument)).scalars()}
     now = datetime.now(UTC)
     for v in pack.legal_versions:
-        spec = legal.OBLIGATION_CODES[v.code]
+        spec = legal.known_codes(pack.tenant_settings())[v.code]
         provision = (
             f"SYNTHETIC placeholder provision under {v.instrument} - replace with authenticated reference"
         )

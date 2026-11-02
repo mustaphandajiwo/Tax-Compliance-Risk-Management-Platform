@@ -479,6 +479,65 @@ class Payment(_Canonical, Base):
     credit_adjustment: Mapped[Decimal] = mapped_column(Money, default=Decimal("0"))
 
 
+class RevenueAccount(_Canonical, Base):
+    """An account under a configured revenue head: an individual, agent, operator, property, premises or
+    vehicle, linked (where known) to the taxpayer register."""
+
+    __tablename__ = "revenue_account"
+    id: Mapped[uuid.UUID] = pk()
+    tenant_id: Mapped[uuid.UUID] = tenant_fk()
+    account_ref: Mapped[str] = mapped_column(String(64), index=True)
+    tax_head: Mapped[str] = mapped_column(String(16), index=True)
+    subject_type: Mapped[str] = mapped_column(String(16))
+    taxpayer_ref: Mapped[str | None] = mapped_column(String(64), index=True)
+    employer_ref: Mapped[str | None] = mapped_column(String(64))
+    display_name: Mapped[str] = mapped_column(String(200))
+    use_class: Mapped[str | None] = mapped_column(String(16))
+    category: Mapped[str | None] = mapped_column(String(64))
+    assessed_value: Mapped[Decimal | None] = mapped_column(Money)
+    area_code: Mapped[str | None] = mapped_column(String(16))
+    status: Mapped[str] = mapped_column(String(32))
+    effective_from: Mapped[date | None] = mapped_column(Date)
+    effective_to: Mapped[date | None] = mapped_column(Date)
+
+
+class RevenueLiability(_Canonical, Base):
+    """A return filed, demand served, licence expiry or registry transaction for a revenue-head account."""
+
+    __tablename__ = "revenue_liability"
+    id: Mapped[uuid.UUID] = pk()
+    tenant_id: Mapped[uuid.UUID] = tenant_fk()
+    natural_key: Mapped[str] = mapped_column(String(200), index=True)
+    source_name: Mapped[str] = mapped_column(String(100))
+    liability_ref: Mapped[str] = mapped_column(String(64))
+    account_ref: Mapped[str] = mapped_column(String(64), index=True)
+    tax_head: Mapped[str] = mapped_column(String(16), index=True)
+    period_code: Mapped[str] = mapped_column(String(7), index=True)
+    kind: Mapped[str] = mapped_column(String(16))  # return | demand | renewal_due | transaction | levy
+    status: Mapped[str] = mapped_column(String(16))
+    event_date: Mapped[date | None] = mapped_column(Date)
+    filed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    amount: Mapped[Decimal | None] = mapped_column(Money)
+    appeal_status: Mapped[str] = mapped_column(String(16), default="none")
+
+
+class RevenuePayment(_Canonical, Base):
+    __tablename__ = "revenue_payment"
+    id: Mapped[uuid.UUID] = pk()
+    tenant_id: Mapped[uuid.UUID] = tenant_fk()
+    natural_key: Mapped[str] = mapped_column(String(200), index=True)
+    source_name: Mapped[str] = mapped_column(String(100))
+    payment_reference: Mapped[str] = mapped_column(String(64))
+    account_ref: Mapped[str | None] = mapped_column(String(64), index=True)
+    tax_head: Mapped[str] = mapped_column(String(16), index=True)
+    period_code: Mapped[str | None] = mapped_column(String(7))
+    paid_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    amount: Mapped[Decimal] = mapped_column(Money)
+    reversal_status: Mapped[str] = mapped_column(String(32))
+    settlement_status: Mapped[str] = mapped_column(String(32))
+    allocation_status: Mapped[str] = mapped_column(String(32))
+
+
 class PaymentAllocation(Base):
     __tablename__ = "payment_allocation"
     id: Mapped[uuid.UUID] = pk()

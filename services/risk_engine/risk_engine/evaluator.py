@@ -3,7 +3,7 @@
 ``evaluate`` applies one validated rule to one fact record and returns an
 ``Outcome``. The order of checks is fixed and part of the contract:
 
-1. scope         - wrong fact kind / tax type        -> not_applicable
+1. scope         - wrong fact kind / tax type        -> not_applicable ('*' = any revenue head)
 2. exclusions    - a lawful reason the rule must not apply -> suppressed
 3. eligibility   - False -> not_applicable; unknown -> hold (obligation_unverified)
 4. conditions    - False -> not_triggered
@@ -150,6 +150,8 @@ def _render(template: str, record: dict[str, Any]) -> str:
             return str(record.get("period") or "-")
         if name == "subject_id":
             return str(record.get("subject_id"))
+        if name == "tax_head":
+            return str(record.get("tax_head_name") or record.get("tax_type") or "-")
         v = facts.get(name)
         if v is None:
             return "unknown"
@@ -204,7 +206,7 @@ def evaluate(rule: RuleDefinition, record: dict[str, Any], confidence_floor: flo
         outcome="not_applicable",
         legal_version=record.get("legal_version"),
     )
-    if record.get("kind") != rule.scope.fact_kind or record.get("tax_type") != rule.scope.tax_type:
+    if record.get("kind") != rule.scope.fact_kind or rule.scope.tax_type not in ("*", record.get("tax_type")):
         out.reasons.append("out_of_scope")
         return out
 

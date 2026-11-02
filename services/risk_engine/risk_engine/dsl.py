@@ -267,7 +267,7 @@ def validate_rule(raw: dict[str, Any]) -> RuleDefinition:
     if rule.treatment not in TREATMENTS:
         errors.append(f"treatment: '{rule.treatment}' is not in the treatment catalogue")
     for name in TEMPLATE_FIELD_RE.findall(rule.explanation):
-        if name not in FACT_SCHEMA[kind] and name not in ("period", "subject_id"):
+        if name not in FACT_SCHEMA[kind] and name not in ("period", "subject_id", "tax_head"):
             errors.append(f"explanation: placeholder '{{{name}}}' is not a declared fact")
     if rule.signal_class != "data_quality" and not rule.exclusions and rule.domain != "data_quality":
         errors.append("exclusions: taxpayer-facing rules must declare at least one exclusion")
