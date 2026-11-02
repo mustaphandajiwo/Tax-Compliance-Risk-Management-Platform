@@ -16,6 +16,7 @@ const NAV: { group: string; items: NavItem[] }[] = [
   {
     group: "Operations",
     items: [
+      { href: "/cycle", label: "Compliance Cycle", perms: ["dashboard:read"] },
       { href: "/dashboard", label: "Compliance Overview", perms: ["dashboard:read"] },
       { href: "/taxpayers", label: "Taxpayer Intelligence", perms: ["taxpayers:read"] },
       { href: "/risks", label: "Risk Register", perms: ["risks:read"] },

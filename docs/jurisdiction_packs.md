@@ -28,6 +28,8 @@ legal version citing a missing instrument, a missing obligation parameter, or du
 | `data_sources[]` | Source name, feed types, owner, system-of-record flag, external flag, freshness SLA, data-sharing basis |
 | `instruments[]` | Legal instruments (code, title, authority, jurisdiction, status, note) |
 | `legal_versions[]` | Effective-dated obligation parameters per instrument, for example `due_day_of_following_month` |
+| `tax_heads[]` | Revenue heads beyond PAYE: code, name, obligation pattern, subject type, `indicates_income`, revenue codes (see `docs/revenue_heads.md`) |
+| `property_regime` | `land_use_charge` (one property head) or `none`. `tenement_rate` is reserved for a later customisation |
 | `tax_scope[]` | Workstreams in or out of scope (`pilot_primary`, `secondary_next`, `next`, `future`, `excluded`) |
 | `retention[]` | Retention period and legal basis per data class |
 | `fixture` | Place names for synthetic employers and the demo users (roles, unit, area scope, purposes) |

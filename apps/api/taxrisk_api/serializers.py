@@ -18,11 +18,13 @@ from .models import (
     EvidencePacket,
     FindingEvent,
     InputSnapshot,
+    RevenueAccount,
     RiskEvidence,
     RiskFinding,
     RiskSignal,
     RuleDefinitionRow,
     RuleVersion,
+    Taxpayer,
 )
 from .services import cases as case_service
 
@@ -41,6 +43,58 @@ def employer_names(db: Session, refs: set[str | None]) -> dict[str, str]:
             select(Employer).where(Employer.is_current, Employer.source_employer_id.in_(refs_clean))
         ).scalars()
     }
+
+
+def subject_names(db: Session, findings: list[RiskFinding]) -> dict[str, str]:
+    """Display names for every finding subject: employers, revenue-head accounts and taxpayers."""
+    names = employer_names(db, {f.employer_ref for f in findings})
+    accounts = {f.subject_id for f in findings if f.subject_type == "account"}
+    taxpayers = {f.subject_id for f in findings if f.subject_type == "taxpayer"}
+    if accounts:
+        for a in db.execute(
+            select(RevenueAccount).where(RevenueAccount.is_current, RevenueAccount.account_ref.in_(accounts))
+        ).scalars():
+            names[a.account_ref] = a.display_name
+    if taxpayers:
+        for t in db.execute(
+            select(Taxpayer).where(Taxpayer.is_current, Taxpayer.source_taxpayer_id.in_(taxpayers))
+        ).scalars():
+            names[t.source_taxpayer_id] = t.display_name
+    return names
+
+
+def head_names(db: Session) -> dict[str, str]:
+    from .services.tenancy import settings_of
+
+    out = {"PAYE": "Pay As You Earn (employers)"}
+    out.update({h["code"]: h["name"] for h in settings_of(db).get("tax_heads", [])})
+    return out
+
+
+FINDING_STAGE = {
+    "candidate": "assess",
+    "validated": "assess",
+    "review_required": "assess",
+    "approved_for_treatment": "treat",
+    "treated": "implement",
+    "outcome_pending": "implement",
+}
+CASE_STAGE = {
+    "pending_approval": "treat",
+    "approved": "implement",
+    "in_progress": "implement",
+    "awaiting_response": "implement",
+    "outcome_recorded": "evaluate",
+    "closed": "evaluate",
+    "rejected": "evaluate",
+}
+
+
+def cycle_stage(finding_status: str, case_stage: str | None = None) -> str:
+    """Where a finding sits in the compliance cycle: assess -> treat -> implement -> evaluate."""
+    if case_stage is not None:
+        return CASE_STAGE.get(case_stage, "implement")
+    return FINDING_STAGE.get(finding_status, "evaluate")
 
 
 def rule_titles(db: Session) -> dict[str, str]:
@@ -72,9 +126,10 @@ def finding_summary(
         "domain": f.domain,
         "signal_class": f.signal_class,
         "subject": {"type": f.subject_type, "id": f.subject_id, "employer_ref": f.employer_ref},
-        "employer_name": names.get(f.employer_ref or ""),
+        "employer_name": names.get(f.subject_id) or names.get(f.employer_ref or ""),
         "area": f.area_code,
         "tax_type": f.tax_type,
+        "cycle_stage": cycle_stage(f.status, case.stage if case else None),
         "tax_period": f.period_code,
         "status": f.status,
         "indicators": {"likelihood": f.likelihood, "consequence": f.consequence, "confidence": f.confidence},
@@ -100,7 +155,7 @@ def finding_summary(
 
 
 def finding_detail(db: Session, f: RiskFinding) -> dict[str, Any]:
-    names = employer_names(db, {f.employer_ref})
+    names = subject_names(db, [f])
     case = active_cases(db, [f.id]).get(f.id)
     out = finding_summary(f, names, rule_titles(db), case)
     rv = db.get(RuleVersion, f.rule_version_id)
@@ -193,6 +248,8 @@ def case_out(
 ) -> dict[str, Any]:
     f = f or db.get(RiskFinding, c.finding_id)
     names = names if names is not None else employer_names(db, {c.employer_ref})
+    if f is not None and f.subject_id not in names and f.subject_type in ("account", "taxpayer"):
+        names = {**names, **subject_names(db, [f])}
     t = TREATMENTS.get(c.treatment)
     now = datetime.now(UTC)
     return {
@@ -202,7 +259,10 @@ def case_out(
         "finding_ref": f.finding_ref if f else None,
         "rule_code": f.rule_code if f else None,
         "employer_ref": c.employer_ref,
-        "employer_name": names.get(c.employer_ref or ""),
+        "employer_name": (names.get(f.subject_id) if f else None) or names.get(c.employer_ref or ""),
+        "subject_id": f.subject_id if f else None,
+        "tax_type": f.tax_type if f else None,
+        "cycle_stage": cycle_stage(f.status if f else "closed", c.stage),
         "area": f.area_code if f else None,
         "tax_period": f.period_code if f else None,
         "treatment": c.treatment,

@@ -452,6 +452,10 @@
             "title": "Created By",
             "type": "string"
           },
+          "cycle_stage": {
+            "title": "Cycle Stage",
+            "type": "string"
+          },
           "due_at": {
             "anyOf": [
               {
@@ -571,6 +575,17 @@
             "title": "Stage",
             "type": "string"
           },
+          "subject_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Subject Id"
+          },
           "tax_period": {
             "anyOf": [
               {
@@ -581,6 +596,17 @@
               }
             ],
             "title": "Tax Period"
+          },
+          "tax_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tax Type"
           },
           "treatment": {
             "title": "Treatment",
@@ -610,6 +636,7 @@
           "rule_code",
           "employer_ref",
           "employer_name",
+          "cycle_stage",
           "area",
           "tax_period",
           "treatment",
@@ -692,6 +719,10 @@
           },
           "created_by": {
             "title": "Created By",
+            "type": "string"
+          },
+          "cycle_stage": {
+            "title": "Cycle Stage",
             "type": "string"
           },
           "due_at": {
@@ -795,6 +826,17 @@
             "title": "Stage",
             "type": "string"
           },
+          "subject_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Subject Id"
+          },
           "tax_period": {
             "anyOf": [
               {
@@ -805,6 +847,17 @@
               }
             ],
             "title": "Tax Period"
+          },
+          "tax_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tax Type"
           },
           "treatment": {
             "title": "Treatment",
@@ -834,6 +887,7 @@
           "rule_code",
           "employer_ref",
           "employer_name",
+          "cycle_stage",
           "area",
           "tax_period",
           "treatment",
@@ -1159,6 +1213,10 @@
             "title": "Created At",
             "type": "string"
           },
+          "cycle_stage": {
+            "title": "Cycle Stage",
+            "type": "string"
+          },
           "domain": {
             "title": "Domain",
             "type": "string"
@@ -1429,6 +1487,7 @@
           "employer_name",
           "area",
           "tax_type",
+          "cycle_stage",
           "tax_period",
           "status",
           "indicators",
@@ -1537,6 +1596,10 @@
           },
           "created_at": {
             "title": "Created At",
+            "type": "string"
+          },
+          "cycle_stage": {
+            "title": "Cycle Stage",
             "type": "string"
           },
           "domain": {
@@ -1708,6 +1771,7 @@
           "employer_name",
           "area",
           "tax_type",
+          "cycle_stage",
           "tax_period",
           "status",
           "indicators",
@@ -1975,7 +2039,7 @@
             "type": "boolean"
           },
           "jurisdiction": {
-            "default": "NG-NI",
+            "default": "",
             "title": "Jurisdiction",
             "type": "string"
           },
@@ -5052,6 +5116,118 @@
         "summary": "Webhook",
         "tags": [
           "integrations"
+        ]
+      }
+    },
+    "/api/v1/cycle": {
+      "get": {
+        "description": "The compliance cycle measured from live data: identify, assess, analyse, treat, implement, evaluate.",
+        "operationId": "compliance_cycle_api_v1_cycle_get",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Compliance Cycle Api V1 Cycle Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Too Many Requests"
+          }
+        },
+        "summary": "Compliance Cycle",
+        "tags": [
+          "insights"
         ]
       }
     },
@@ -9141,8 +9317,24 @@
                   "type": "null"
                 }
               ],
-              "default": "PAYE",
               "title": "Tax Type"
+            }
+          },
+          {
+            "in": "query",
+            "name": "stage",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "pattern": "^(assess|treat|implement|evaluate)$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Stage"
             }
           },
           {

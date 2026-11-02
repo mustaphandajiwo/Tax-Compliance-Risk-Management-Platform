@@ -138,9 +138,13 @@ function FindingView({ f, onChanged }: { f: FindingDetail; onChanged: (next?: Fi
                     {f.employer_name ?? f.subject.employer_ref} ({f.subject.employer_ref})
                   </Link>
                 ) : (
-                  `${f.subject.type}:${f.subject.id}`
+                  <>
+                    {f.employer_name ?? f.subject.id} <span className="muted small">({f.subject.type} {f.subject.id})</span>
+                  </>
                 ),
               ],
+              ["Tax type", f.tax_type],
+              ["Cycle stage", humanize(f.cycle_stage)],
               [labels.area, f.area ?? "—"],
               ["Rule", `${f.rule.id} v${f.rule.version} · ${humanize(f.domain)} · ${humanize(f.signal_class)}`],
               ["Source date (snapshot as at)", fmtDateTime(f.snapshot.as_of as string | null)],

@@ -337,6 +337,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/cycle": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Compliance Cycle
+         * @description The compliance cycle measured from live data: identify, assess, analyse, treat, implement, evaluate.
+         */
+        get: operations["compliance_cycle_api_v1_cycle_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/dashboard/summary": {
         parameters: {
             query?: never;
@@ -1430,6 +1450,8 @@ export interface components {
             created_at: string;
             /** Created By */
             created_by: string;
+            /** Cycle Stage */
+            cycle_stage: string;
             /** Due At */
             due_at: string | null;
             /** Employer Name */
@@ -1463,8 +1485,12 @@ export interface components {
             rule_code: string | null;
             /** Stage */
             stage: string;
+            /** Subject Id */
+            subject_id?: string | null;
             /** Tax Period */
             tax_period: string | null;
+            /** Tax Type */
+            tax_type?: string | null;
             /** Treatment */
             treatment: string;
             /** Treatment Label */
@@ -1490,6 +1516,8 @@ export interface components {
             created_at: string;
             /** Created By */
             created_by: string;
+            /** Cycle Stage */
+            cycle_stage: string;
             /** Due At */
             due_at: string | null;
             /** Employer Name */
@@ -1518,8 +1546,12 @@ export interface components {
             rule_code: string | null;
             /** Stage */
             stage: string;
+            /** Subject Id */
+            subject_id?: string | null;
             /** Tax Period */
             tax_period: string | null;
+            /** Tax Type */
+            tax_type?: string | null;
             /** Treatment */
             treatment: string;
             /** Treatment Label */
@@ -1638,6 +1670,8 @@ export interface components {
             } | null;
             /** Created At */
             created_at: string;
+            /** Cycle Stage */
+            cycle_stage: string;
             /** Domain */
             domain: string;
             /** Employer Name */
@@ -1757,6 +1791,8 @@ export interface components {
             } | null;
             /** Created At */
             created_at: string;
+            /** Cycle Stage */
+            cycle_stage: string;
             /** Domain */
             domain: string;
             /** Employer Name */
@@ -1909,7 +1945,7 @@ export interface components {
             is_synthetic: boolean;
             /**
              * Jurisdiction
-             * @default NG-NI
+             * @default
              */
             jurisdiction: string;
             /** Parameters */
@@ -3822,6 +3858,93 @@ export interface operations {
             path: {
                 code: string;
             };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too Many Requests */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    compliance_cycle_api_v1_cycle_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
             cookie?: never;
         };
         requestBody?: never;
@@ -6768,6 +6891,7 @@ export interface operations {
         parameters: {
             query?: {
                 tax_type?: string | null;
+                stage?: string | null;
                 area?: string | null;
                 status?: string | null;
                 rule?: string | null;

@@ -163,13 +163,21 @@ function CaseQueue() {
                         <code>{c.rule_code}</code>
                       </div>
                     </td>
-                    <td>{c.employer_name ?? c.employer_ref ?? "—"}</td>
+                    <td>
+                      {c.employer_name ?? c.employer_ref ?? c.subject_id ?? "—"}
+                      {c.tax_type && (
+                        <div className="small muted">
+                          <code>{c.tax_type}</code>
+                        </div>
+                      )}
+                    </td>
                     <td className="nowrap">
                       {c.area ?? "—"} · {c.tax_period ?? "—"}
                     </td>
                     <td>{c.treatment_label ?? humanize(c.treatment)}</td>
                     <td>
                       <StatusBadge status={c.stage} />
+                      <div className="small muted">Cycle: {humanize(c.cycle_stage)}</div>
                       {c.outcome && <div className="small">{humanize(c.outcome)}</div>}
                     </td>
                     <td>{c.assigned_to ?? <span className="muted">Unassigned</span>}</td>

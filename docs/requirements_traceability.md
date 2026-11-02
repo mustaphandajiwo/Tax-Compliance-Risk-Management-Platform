@@ -38,6 +38,14 @@ stated limitation; **Not built** = outside this delivery (reason given).
 | FR-023 | P2 | Drift / fairness / geographic bias monitoring | Not built (R2); backtests report distribution by area | — |
 | FR-024 | P0 | Access logs, tamper-evident events, retention/deletion | Partial: hash-chained append-only audit, sensitive-read events, JSON access logs, retention policy register. **Automated deletion job not built** | `audit.py`, `retention_policy` |
 
+## Extensions beyond the PRD
+
+| Area | Status | Where / evidence |
+|---|---|---|
+| All state revenue heads (PIT direct assessment, WHT, CGT, stamp duties, land use charge, business premises, motor vehicle licences, development levy, gaming, market levies) | Done | `docs/revenue_heads.md`; `tests/unit/test_revenue_heads.py`; golden fixture |
+| Land use charge as the property regime; tenement rates reserved for later | Done | Pack validation test |
+| Compliance cycle embedded and measured (six stages, behaviour segments, by tax type) | Done | `docs/compliance_cycle.md`; `/cycle`; `tests/e2e/cycle.spec.ts` |
+
 ## PRD section 15 acceptance tests
 
 | Acceptance test | Test |
@@ -73,7 +81,7 @@ stated limitation; **Not built** = outside this delivery (reason given).
 
 | Criterion | Status |
 |---|---|
-| 12 PAYE-led rules on a documented synthetic fixture, reproducible | Done: 129/129 golden findings; reproduce endpoint |
+| 12 PAYE-led rules on a documented synthetic fixture, reproducible | Done: 160/160 golden findings (129 PAYE + 31 other revenue heads); reproduce endpoint |
 | Invalid/ambiguous IDs and mismatched references -> data-quality queue | Done |
 | Legal reviewer approves obligations and effective dates before activation | Done (synthetic approvals in demo, enforced by the rule approval step) |
 | Case assignment, approval, suppression, override and audit logs | Done |
@@ -85,7 +93,7 @@ stated limitation; **Not built** = outside this delivery (reason given).
 
 1. `uv run taxrisk demo`; start API and web; sign in as **risk.analyst** and open **Data Imports** to see
    the 10 batches, 3 quarantined rows and source freshness.
-2. **Risk Register**: 129 findings. Filter `hold=data_hold` to see the 10 hard-stop items with no score.
+2. **Risk Register**: 160 findings across 11 tax types. Filter `hold=data_hold` to see the 13 hard-stop items with no score.
 3. Open a FIL-001 finding: trigger, evidence references, legal version, exclusions checked; press
    *Reproduce score*.
 4. Sign in as **compliance.officer**, open a case on that finding; try to approve it (refused).

@@ -325,3 +325,37 @@ details[open] > summary { margin-bottom: var(--ng-space-2); }
 .big-number { font-size: var(--ng-text-xl); }
 .panel.filters { flex-direction: row; }
 table.data tbody th[scope="row"] { white-space: nowrap; }
+
+/* Compliance cycle */
+.cycle-layout { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 24rem), 1fr)); gap: var(--ng-space-4); align-items: start; }
+.cycle-ring-panel { align-items: center; }
+.cycle-ring { width: 100%; max-width: 22rem; height: auto; display: block; margin: 0 auto; }
+.cycle-arc { cursor: pointer; }
+.cycle-arc path { fill: var(--ng-tone-info-bg); stroke: var(--ng-tone-info-border); stroke-width: 1; }
+.cycle-arc .cycle-arrow { fill: none; stroke: var(--ng-color-ink-muted); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+.cycle-arc:hover path { fill: var(--ng-tone-neutral-bg); }
+.cycle-arc.is-selected path { fill: var(--ng-color-accent); stroke: var(--ng-color-accent); }
+.cycle-arc.is-selected .cycle-arrow { fill: none; stroke: var(--ng-color-ink-muted); }
+.cycle-arc__label { font-size: 11px; font-weight: 700; fill: var(--ng-tone-info-fg); pointer-events: none; }
+.cycle-arc__value { font-size: 14px; font-variant-numeric: tabular-nums; fill: var(--ng-tone-info-fg); pointer-events: none; }
+.cycle-arc.is-selected .cycle-arc__label, .cycle-arc.is-selected .cycle-arc__value { fill: var(--ng-color-accent-ink); }
+.cycle-centre__title { font-size: 16px; font-weight: 700; fill: var(--ng-color-ink); }
+.cycle-centre__note { font-size: 10px; fill: var(--ng-color-ink-muted); }
+.cycle-steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr)); gap: var(--ng-space-2); width: 100%; }
+.cycle-step { width: 100%; display: grid; grid-template-columns: auto 1fr auto; gap: var(--ng-space-2); align-items: center; text-align: left; padding: var(--ng-space-2); border: 1px solid var(--ng-color-border); border-radius: var(--ng-radius); background: var(--ng-color-surface); color: var(--ng-color-ink); font: inherit; font-size: var(--ng-text-sm); cursor: pointer; min-height: 2.75rem; }
+.cycle-step:hover { background: var(--ng-color-surface-alt); }
+.cycle-step.is-selected { border-color: var(--ng-color-accent); box-shadow: inset 0 0 0 1px var(--ng-color-accent); }
+.cycle-step__n { display: inline-grid; place-items: center; width: 1.5rem; height: 1.5rem; border-radius: 50%; background: var(--ng-tone-info-bg); color: var(--ng-tone-info-fg); font-weight: 700; font-size: var(--ng-text-xs); }
+.cycle-step.is-selected .cycle-step__n { background: var(--ng-color-accent); color: var(--ng-color-accent-ink); }
+.cycle-step__value { font-variant-numeric: tabular-nums; font-weight: 700; }
+table.data.compact th, table.data.compact td { padding: var(--ng-space-1) var(--ng-space-2); }
+table.data.compact tbody th[scope="row"] { white-space: normal; font-weight: 400; }
+.segment-bar { display: flex; height: 1rem; border-radius: var(--ng-radius); overflow: hidden; border: 1px solid var(--ng-color-border); }
+.segment-bar__part { display: block; min-width: 2px; }
+.seg-dot { display: inline-block; width: 0.75rem; height: 0.75rem; border-radius: 2px; vertical-align: -1px; }
+.seg-compliant { background: var(--ng-tone-success-fg); }
+.seg-occasional { background: var(--ng-tone-info-border); }
+.seg-struggling { background: var(--ng-tone-warning-border); }
+.seg-outside { background: var(--ng-tone-neutral-fg); }
+.seg-persistent { background: var(--ng-tone-danger-fg); }
+.seg-unclear { background: var(--ng-tone-neutral-border); }

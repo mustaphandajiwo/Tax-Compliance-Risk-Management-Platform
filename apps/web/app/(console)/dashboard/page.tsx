@@ -64,7 +64,7 @@ function Dashboard() {
             ))}
           </select>
         </Field>
-        <Field label="Tax category" htmlFor="f-tax" hint="PAYE is the only workstream in the MVP.">
+        <Field label="Tax category" htmlFor="f-tax" hint="Detailed PAYE indicators; every tax type is on the Compliance Cycle page.">
           <select id="f-tax" value="PAYE" disabled>
             <option value="PAYE">PAYE (employer)</option>
           </select>

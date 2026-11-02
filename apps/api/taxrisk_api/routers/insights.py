@@ -34,7 +34,7 @@ from ..models import (
 from ..schemas import ProgrammeCreate
 from ..security.auth import Principal, declared_purpose, get_db, require
 from ..security.rbac import PURPOSES, ROLES
-from ..services import analytics, programmes
+from ..services import analytics, cycle, programmes
 
 router = APIRouter(prefix="/api/v1", tags=["insights"])
 
@@ -56,6 +56,14 @@ def dashboard(
     out = analytics.summary(db, period, area)
     out["method_note"] = METHOD_NOTE
     return out
+
+
+@router.get("/cycle")
+def compliance_cycle(
+    principal: Principal = Depends(require("dashboard:read")), db: Session = Depends(get_db)
+) -> dict:
+    """The compliance cycle measured from live data: identify, assess, analyse, treat, implement, evaluate."""
+    return cycle.summary(db, principal)
 
 
 @router.get("/analytics/compliance")
@@ -349,6 +357,13 @@ def reference(
             for k, t in TREATMENTS.items()
         },
         "approved_templates": [{"code": k, "text": v} for k, v in sorted(templates.items())],
+        "tax_heads": [
+            {"code": "PAYE", "name": "Pay As You Earn (employers)", "pattern": "monthly_return_payment"},
+            *[
+                {"code": h["code"], "name": h["name"], "pattern": h["pattern"]}
+                for h in ((tenant.settings if tenant else {}) or {}).get("tax_heads", [])
+            ],
+        ],
         "users": [
             {"username": u.username, "display_name": u.display_name, "roles": u.roles, "unit": u.unit}
             for u in db.execute(select(AppUser).where(AppUser.active).order_by(AppUser.username)).scalars()

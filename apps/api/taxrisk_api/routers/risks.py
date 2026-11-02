@@ -3,18 +3,18 @@ from __future__ import annotations
 import uuid
 
 from fastapi import APIRouter, Depends, Header, Query
-from sqlalchemy import func, or_, select
+from sqlalchemy import and_, func, or_, select
 from sqlalchemy.orm import Session
 
-from risk_engine.states import OPEN_FINDING_STATES
+from risk_engine.states import OPEN_FINDING_STATES, TERMINAL_FINDING_STATES
 
 from .. import audit
 from ..errors import not_found
 from ..idempotency import run_once
-from ..models import RiskFinding
+from ..models import CaseRecord, RiskFinding
 from ..schemas import FindingDetail, FindingPage, OverrideRequest, ReviewRequest
 from ..security.auth import Principal, get_db, require
-from ..serializers import active_cases, employer_names, finding_detail, finding_summary, rule_titles
+from ..serializers import active_cases, finding_detail, finding_summary, rule_titles, subject_names
 from ..services import evaluation, findings
 
 router = APIRouter(prefix="/api/v1/risks", tags=["risk register"])
@@ -33,9 +33,50 @@ def load(db: Session, principal: Principal, finding_id: uuid.UUID) -> RiskFindin
     return f
 
 
+def _stage_filter(stmt, stage: str):  # type: ignore[no-untyped-def]
+    """Findings at one stage of the compliance cycle (same mapping as serializers.cycle_stage)."""
+
+    def with_case(*stages: str):  # type: ignore[no-untyped-def]
+        return select(CaseRecord.finding_id).where(CaseRecord.stage.in_(stages))
+
+    live = ("pending_approval", "approved", "in_progress", "awaiting_response", "outcome_recorded")
+    if stage == "assess":
+        return stmt.where(
+            RiskFinding.status.in_(["candidate", "validated", "review_required"]),
+            RiskFinding.id.notin_(with_case(*live)),
+        )
+    if stage == "treat":
+        return stmt.where(
+            or_(
+                RiskFinding.id.in_(with_case("pending_approval")),
+                and_(
+                    RiskFinding.status == "approved_for_treatment",
+                    RiskFinding.id.notin_(with_case(*live)),
+                ),
+            )
+        )
+    if stage == "implement":
+        return stmt.where(
+            or_(
+                RiskFinding.id.in_(with_case("approved", "in_progress", "awaiting_response")),
+                and_(
+                    RiskFinding.status.in_(["treated", "outcome_pending"]),
+                    RiskFinding.id.notin_(with_case(*live)),
+                ),
+            )
+        )
+    return stmt.where(
+        or_(
+            RiskFinding.status.in_(sorted(TERMINAL_FINDING_STATES)),
+            RiskFinding.id.in_(with_case("outcome_recorded")),
+        )
+    )
+
+
 @router.get("", response_model=FindingPage)
 def list_risks(
-    tax_type: str | None = "PAYE",
+    tax_type: str | None = None,
+    stage: str | None = Query(None, pattern="^(assess|treat|implement|evaluate)$"),
     area: str | None = None,
     status: str | None = None,
     rule: str | None = None,
@@ -56,9 +97,11 @@ def list_risks(
         stmt = stmt.where(RiskFinding.tax_type == tax_type)
     if area:
         stmt = stmt.where(RiskFinding.area_code == area)
+    if stage:
+        stmt = _stage_filter(stmt, stage)
     if status:
         stmt = stmt.where(RiskFinding.status.in_(status.split(",")))
-    elif open_only:
+    elif open_only and stage != "evaluate":
         stmt = stmt.where(RiskFinding.status.in_(OPEN_FINDING_STATES))
     if rule:
         stmt = stmt.where(RiskFinding.rule_code.in_(rule.split(",")))
@@ -104,7 +147,7 @@ def list_risks(
             .limit(page_size)
         ).scalars()
     )
-    names = employer_names(db, {f.employer_ref for f in rows})
+    names = subject_names(db, rows)
     titles = rule_titles(db)
     cases = active_cases(db, [f.id for f in rows])
     return {

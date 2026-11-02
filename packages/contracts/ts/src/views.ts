@@ -68,6 +68,66 @@ export interface Reference {
   purposes: Record<string, string>;
   treatments: Record<string, { label: string; human_gate: string; outward: boolean; approver_roles: string[] }>;
   users: { username: string; display_name: string; roles: string[]; unit: string | null }[];
+  tax_heads?: { code: string; name: string; pattern: string }[];
+}
+
+// --- compliance cycle ------------------------------------------------------------------------
+
+export type CycleStageKey = "identify" | "assess" | "analyse" | "treat" | "implement" | "evaluate";
+
+export interface CycleMetric {
+  label: string;
+  value: number | null;
+  unit?: "rate";
+  note?: string;
+}
+
+export interface CycleStage {
+  key: CycleStageKey;
+  label: string;
+  purpose: string;
+  link: string;
+  headline: { value: number; label: string };
+  metrics: CycleMetric[];
+  note: string;
+}
+
+export interface CycleSegment {
+  key: string;
+  label: string;
+  count: number;
+  share: number | null;
+  strategy: string;
+}
+
+export interface CycleRate {
+  value: number | null;
+  denominator: number;
+}
+
+export interface CycleTaxType {
+  tax_type: string;
+  name: string;
+  accounts: number;
+  open_findings: number;
+  held: number;
+  assess: number;
+  treat: number;
+  implement: number;
+  on_time_filing: CycleRate;
+  on_time_payment: CycleRate;
+}
+
+export interface CycleSummary {
+  generated_at: string;
+  as_of: string | null;
+  window: [string, string] | null;
+  stages: CycleStage[];
+  segments: CycleSegment[];
+  by_tax_type: CycleTaxType[];
+  precision: { rule: string; confirmed: number; not_substantiated: number; precision: number | null }[];
+  synthetic_data: boolean;
+  method_note: string;
 }
 
 // --- taxpayers ------------------------------------------------------------------------------

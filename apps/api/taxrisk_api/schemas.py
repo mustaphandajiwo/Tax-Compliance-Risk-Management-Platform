@@ -212,6 +212,7 @@ class FindingSummary(Out):
     employer_name: str | None
     area: str | None
     tax_type: str
+    cycle_stage: str
     tax_period: str | None
     status: str
     indicators: Indicators
@@ -330,6 +331,9 @@ class CaseOut(Out):
     rule_code: str | None
     employer_ref: str | None
     employer_name: str | None
+    subject_id: str | None = None
+    tax_type: str | None = None
+    cycle_stage: str
     area: str | None
     tax_period: str | None
     treatment: str

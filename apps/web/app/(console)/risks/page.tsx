@@ -3,7 +3,7 @@
 import type { FindingPage } from "@taxrisk/contracts";
 import { RISK_LABEL, RiskIndicator, StatusBadge, consequenceText } from "@taxrisk/design";
 import Link from "next/link";
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { AsyncBlock, Field, PageHeader, Pager, RequirePermission } from "@/components/ui";
 import { api, unwrap } from "@/lib/api";
 import { BANDS, FINDING_STATES, HOLD_FILTERS, SIGNAL_CLASSES } from "@/lib/constants";
@@ -13,6 +13,8 @@ import { useLabels } from "@/lib/auth";
 
 interface Filters {
   q: string;
+  tax_type: string;
+  stage: string;
   area: string;
   status: string;
   rule: string;
@@ -22,7 +24,14 @@ interface Filters {
   hold: string;
 }
 
-const EMPTY: Filters = { q: "", area: "", status: "", rule: "", signal_class: "", band: "", period: "", hold: "" };
+const STAGES = [
+  { value: "assess", label: "Assess and prioritise" },
+  { value: "treat", label: "Decide treatment" },
+  { value: "implement", label: "Implement and engage" },
+  { value: "evaluate", label: "Monitor and evaluate" },
+];
+
+const EMPTY: Filters = { q: "", tax_type: "", stage: "", area: "", status: "", rule: "", signal_class: "", band: "", period: "", hold: "" };
 const PAGE_SIZE = 50;
 
 export default function RisksPage() {
@@ -40,17 +49,28 @@ function RiskRegister() {
   const [filters, setFilters] = useState<Filters>(EMPTY);
   const [page, setPage] = useState(1);
 
+  // Deep links from the Compliance Cycle page: /risks?stage=treat&tax_type=LUC
+  useEffect(() => {
+    const qs = new URLSearchParams(window.location.search);
+    const linked = { stage: qs.get("stage") ?? "", tax_type: qs.get("tax_type") ?? "" };
+    if (linked.stage || linked.tax_type) {
+      setDraft((d) => ({ ...d, ...linked }));
+      setFilters((f) => ({ ...f, ...linked }));
+    }
+  }, []);
+
   const list = useAsync(
     () =>
       unwrap<FindingPage>(
         api.GET("/api/v1/risks", {
           params: {
             query: {
-              tax_type: "PAYE",
+              tax_type: filters.tax_type || undefined,
+              stage: (filters.stage || undefined) as "assess" | "treat" | "implement" | "evaluate" | undefined,
               q: filters.q || undefined,
               area: filters.area || undefined,
               status: filters.status || undefined,
-              open_only: filters.status ? undefined : true,
+              open_only: filters.status || filters.stage === "evaluate" ? undefined : true,
               rule: filters.rule.trim().toUpperCase() || undefined,
               signal_class: filters.signal_class || undefined,
               band: filters.band || undefined,
@@ -76,7 +96,7 @@ function RiskRegister() {
   return (
     <>
       <PageHeader
-        eyebrow="PAYE"
+        eyebrow="All tax types"
         title="Risk Register"
         description={
           <>
@@ -90,8 +110,23 @@ function RiskRegister() {
           <input id="r-q" type="search" value={draft.q} onChange={set("q")} />
         </Field>
         <Field label="Tax type" htmlFor="r-tax">
-          <select id="r-tax" value="PAYE" disabled>
-            <option>PAYE</option>
+          <select id="r-tax" value={draft.tax_type} onChange={set("tax_type")}>
+            <option value="">All tax types</option>
+            {(ref?.tax_heads ?? []).map((h) => (
+              <option key={h.code} value={h.code}>
+                {h.name}
+              </option>
+            ))}
+          </select>
+        </Field>
+        <Field label="Cycle stage" htmlFor="r-stage">
+          <select id="r-stage" value={draft.stage} onChange={set("stage")}>
+            <option value="">Any stage</option>
+            {STAGES.map((st) => (
+              <option key={st.value} value={st.value}>
+                {st.label}
+              </option>
+            ))}
           </select>
         </Field>
         <Field label={labels.area} htmlFor="r-area">
@@ -137,8 +172,8 @@ function RiskRegister() {
             ))}
           </select>
         </Field>
-        <Field label="Tax period" htmlFor="r-period" hint="YYYY-MM">
-          <input id="r-period" type="text" pattern="\d{4}-\d{2}" value={draft.period} onChange={set("period")} size={8} />
+        <Field label="Tax period" htmlFor="r-period" hint="YYYY-MM, or YYYY for annual heads">
+          <input id="r-period" type="text" pattern="\d{4}(-\d{2})?" value={draft.period} onChange={set("period")} size={8} />
         </Field>
         <Field label="Holds" htmlFor="r-hold">
           <select id="r-hold" value={draft.hold} onChange={set("hold")}>
@@ -182,6 +217,7 @@ function RiskRegister() {
                 <thead>
                   <tr>
                     <th scope="col">Rule ID</th>
+                    <th scope="col">Tax type</th>
                     <th scope="col">Finding</th>
                     <th scope="col">Subject / employer</th>
                     <th scope="col">{labels.area}</th>
@@ -208,6 +244,9 @@ function RiskRegister() {
                         <code>{f.rule.id}</code>
                         <span className="muted small"> v{f.rule.version}</span>
                       </td>
+                      <td className="nowrap">
+                        <code>{f.tax_type}</code>
+                      </td>
                       <th scope="row">
                         <Link href={`/risks/${f.finding_id}`}>{f.finding_ref}</Link>
                         <div className="small muted" style={{ fontWeight: 400 }}>
@@ -218,9 +257,9 @@ function RiskRegister() {
                         {f.subject.employer_ref ? (
                           <Link href={`/taxpayers/${encodeURIComponent(f.subject.employer_ref)}`}>{f.employer_name ?? f.subject.employer_ref}</Link>
                         ) : (
-                          <code>{f.subject.id}</code>
+                          <span>{f.employer_name ?? <code>{f.subject.id}</code>}</span>
                         )}
-                        {f.employer_name && <div className="small muted">{f.subject.employer_ref}</div>}
+                        {f.employer_name && <div className="small muted">{f.subject.employer_ref ?? f.subject.id}</div>}
                       </td>
                       <td>{f.area ?? "—"}</td>
                       <td className="nowrap">{f.tax_period ?? "—"}</td>
@@ -254,6 +293,9 @@ function RiskRegister() {
                       </td>
                       <td>
                         <StatusBadge status={f.status} />
+                        <div className="small muted" data-testid="cycle-stage">
+                          {STAGES.find((st) => st.value === f.cycle_stage)?.label ?? f.cycle_stage}
+                        </div>
                       </td>
                       <td>
                         <div className="small">{humanize(f.treatment)}</div>
