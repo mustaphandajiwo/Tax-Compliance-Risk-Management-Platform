@@ -1,7 +1,7 @@
 [project]
-name = "ngsirs-crm"
+name = "taxrisk"
 version = "0.1.0"
-description = "NGSIRS Compliance Risk Management Platform - API, risk engine and importer"
+description = "Tax Compliance Risk Platform - API, risk engine and importer"
 requires-python = ">=3.12"
 dependencies = [
   "fastapi>=0.115",
@@ -34,7 +34,7 @@ dev = [
 ]
 
 [project.scripts]
-ngsirs = "ngsirs_api.cli:main"
+taxrisk = "taxrisk_api.cli:main"
 
 [build-system]
 requires = ["hatchling"]
@@ -42,7 +42,7 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = [
-  "apps/api/ngsirs_api",
+  "apps/api/taxrisk_api",
   "services/risk_engine/risk_engine",
   "services/importer/importer",
 ]
@@ -68,7 +68,7 @@ ignore = ["S101", "B008", "S311"]
 python_version = "3.12"
 ignore_missing_imports = true
 check_untyped_defs = true
-files = ["services/risk_engine/risk_engine", "services/importer/importer", "apps/api/ngsirs_api"]
+files = ["services/risk_engine/risk_engine", "services/importer/importer", "apps/api/taxrisk_api"]
 mypy_path = ["services/risk_engine", "services/importer", "apps/api"]
 explicit_package_bases = true
 
@@ -76,7 +76,7 @@ explicit_package_bases = true
 dev-mode-dirs = ["apps/api", "services/risk_engine", "services/importer"]
 
 [tool.ruff.lint.isort]
-known-first-party = ["ngsirs_api", "risk_engine", "importer"]
+known-first-party = ["taxrisk_api", "risk_engine", "importer"]
 
 [tool.ruff.lint.pycodestyle]
 max-line-length = 120

@@ -1,7 +1,7 @@
 "use client";
 
-import type { DevUser } from "@ngsirs/contracts";
-import { StateMessage } from "@ngsirs/design";
+import type { Branding, DevUser } from "@taxrisk/contracts";
+import { StateMessage } from "@taxrisk/design";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, type FormEvent } from "react";
 import { SyntheticBanner, Wordmark } from "@/components/AppShell";
@@ -22,6 +22,7 @@ export default function LoginPage() {
   const { signIn, status } = useAuth();
   const router = useRouter();
   const users = useAsync(() => unwrap<DevUser[]>(api.GET("/api/v1/auth/dev-users")), []);
+  const brand = useAsync(() => unwrap<Branding>(api.GET("/api/v1/auth/branding")), []);
   const [username, setUsername] = useState("");
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<ApiError | null>(null);
@@ -48,14 +49,20 @@ export default function LoginPage() {
     <div className="shell">
       <SyntheticBanner environment="demo" synthetic />
       <header className="topbar">
-        <Wordmark />
+        <Wordmark authority={brand.data?.authority_name} />
       </header>
       <main id="main" className="login">
         <h1>Sign in</h1>
+        {brand.data?.fictional_authority && (
+          <p className="muted">
+            {brand.data.authority_name} is a fictional revenue authority used for demonstrations. Each real authority is
+            configured through its own jurisdiction pack.
+          </p>
+        )}
         <StateMessage state="info" title="SYNTHETIC DEMO — development sign-in">
           <p className="m0">
             Choose a synthetic user to explore the console with that role&apos;s permissions. This shortcut exists only in
-            demo and test environments; production uses the NGSIRS identity provider (OIDC). No real taxpayer data is
+            demo and test environments; production uses the authority&apos;s identity provider (OIDC) with multi-factor authentication. No real taxpayer data is
             present.
           </p>
         </StateMessage>

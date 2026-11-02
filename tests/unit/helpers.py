@@ -58,15 +58,15 @@ def employer_period(
     return {
         "kind": "employer_period",
         "subject_type": "employer",
-        "subject_id": "NGS-DEMO-EMP-0001",
+        "subject_id": "DEMO-EMP-0001",
         "period": period,
         "tax_type": "PAYE",
         "facts": facts,
         "quality": quality,
         "history": history or {"filing": [], "payment": []},
         "evidence": {
-            "_subject": ["src:employer:NGS-DEMO-EMP-0001"],
-            "accepted_filing_count": ["coverage:ngsirs_paye_return:2026-06"],
+            "_subject": ["src:employer:DEMO-EMP-0001"],
+            "accepted_filing_count": ["coverage:paye_return:2026-06"],
         },
     }
 
@@ -80,7 +80,7 @@ def assessment(**overrides: Any) -> dict:
         "appeal_status": "none",
         "outstanding_amount": 350000.0,
         "assessed_amount": 350000.0,
-        "employer_ref": "NGS-DEMO-EMP-0001",
+        "employer_ref": "DEMO-EMP-0001",
         "legal_hold": False,
         "disputed": False,
     }
@@ -88,7 +88,7 @@ def assessment(**overrides: Any) -> dict:
     return {
         "kind": "assessment",
         "subject_type": "assessment",
-        "subject_id": "NGS-DEMO-ASM-0001",
+        "subject_id": "DEMO-ASM-0001",
         "period": "2026-02",
         "tax_type": "PAYE",
         "facts": facts,
@@ -99,5 +99,5 @@ def assessment(**overrides: Any) -> dict:
             "freshness_sla_days": 7,
             "coverage": {"assessment": True},
         },
-        "evidence": {"outstanding_amount": ["src:assessment:NGS-DEMO-ASM-0001"]},
+        "evidence": {"outstanding_amount": ["src:assessment:DEMO-ASM-0001"]},
     }

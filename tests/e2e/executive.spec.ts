@@ -3,7 +3,7 @@ import { login } from "./helpers";
 
 test("executive sees dashboard metrics with denominators and cannot open the risk register", async ({ page }) => {
   await login(page, "executive.chairman");
-  await expect(page.getByRole("heading", { level: 1, name: "NGSIRS Compliance Overview" })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1, name: "Compliance Overview" })).toBeVisible();
   await expect(page.getByRole("note", { name: "Data notice" })).toContainText("SYNTHETIC DATA");
 
   const filing = page.locator('[data-metric-key="paye_on_time_filing"]');

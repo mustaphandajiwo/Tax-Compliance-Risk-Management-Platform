@@ -29,7 +29,7 @@ HistoryEntry = dict[str, Any]
 
 FactRecord = dict[str, Any]
 """A JSON fact record: kind, subject_type, subject_id, period, tax_type, facts, history, quality, evidence,
-legal_versions, lga_code and (optionally) employer_ref. Plain JSON so it can be frozen into a snapshot."""
+legal_versions, area_code and (optionally) employer_ref. Plain JSON so it can be frozen into a snapshot."""
 
 
 def _f(t: FieldType, desc: str, nullable: bool = False, values: list[str] | None = None) -> FieldSpec:
@@ -59,10 +59,14 @@ FACT_SCHEMA: dict[str, dict[str, FieldSpec]] = {
         "submission_pending": _f("bool", "Submitted but not yet accepted or rejected"),
         "processing_window_open": _f("bool", "A pending submission is still inside the processing window"),
         "rejected_uncorrected": _f("bool", "Latest submission rejected and not corrected"),
-        "declared_payable": _f("number", "Payable declared on the accepted return (NGN)", nullable=True),
+        "declared_payable": _f(
+            "number", "Payable declared on the accepted return (authority currency)", nullable=True
+        ),
         "paid_allocated_total": _f("number", "Settled, non-reversed remittance allocated to the period"),
         "credits_adjustments_total": _f("number", "Approved credits/adjustments for the period"),
-        "residual_amount": _f("number", "declared_payable - paid - credits (NGN)", nullable=True),
+        "residual_amount": _f(
+            "number", "declared_payable - paid - credits (authority currency)", nullable=True
+        ),
         "settled_payment_count": _f("int", "Settled, non-reversed payments allocated to the period"),
         "first_payment_at": _f("datetime", "Earliest settled remittance timestamp", nullable=True),
         "payment_late_days": _f("int", "Days earliest remittance posted after due date", nullable=True),
@@ -83,8 +87,8 @@ FACT_SCHEMA: dict[str, dict[str, FieldSpec]] = {
         "due_date": _f("date", "Assessment payment due date", nullable=True),
         "due_passed": _f("bool", "Assessment due date has passed"),
         "appeal_status": _f("enum", "Appeal status", values=["none", "appealed", "stayed", "resolved"]),
-        "outstanding_amount": _f("number", "Net valid outstanding amount (NGN)"),
-        "assessed_amount": _f("number", "Assessed amount (NGN)"),
+        "outstanding_amount": _f("number", "Net valid outstanding amount (authority currency)"),
+        "assessed_amount": _f("number", "Assessed amount (authority currency)"),
         "employer_ref": _f("string", "Employer the assessment was raised against"),
         "legal_hold": _f("bool", "Appeal or stay in force"),
         "disputed": _f("bool", "Taxpayer dispute recorded"),
@@ -92,7 +96,7 @@ FACT_SCHEMA: dict[str, dict[str, FieldSpec]] = {
     "taxpayer_pair": {
         "shared_identifier_count": _f("int", "Identifier tokens shared by the two records"),
         "name_similarity": _f("number", "Normalised name-token similarity 0-1"),
-        "same_lga": _f("bool", "Both records are in the same LGA"),
+        "same_area": _f("bool", "Both records are in the same administrative area"),
     },
     "quarantined_record": {
         "feed_type": _f("string", "Feed the record came from"),
@@ -102,7 +106,7 @@ FACT_SCHEMA: dict[str, dict[str, FieldSpec]] = {
     "payment_receipt": {
         "allocation_status": _f("enum", "Allocation status", values=["allocated", "unallocated", "suspense"]),
         "employer_matched": _f("bool", "Payment reference resolves to a known employer"),
-        "amount": _f("number", "Receipt amount (NGN)"),
+        "amount": _f("number", "Receipt amount (authority currency)"),
         "age_days": _f("int", "Days since receipt posted"),
     },
 }

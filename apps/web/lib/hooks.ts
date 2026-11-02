@@ -1,6 +1,6 @@
 "use client";
 
-import type { Reference } from "@ngsirs/contracts";
+import type { Reference } from "@taxrisk/contracts";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { api, ApiError, unwrap } from "./api";
 
@@ -91,7 +91,7 @@ export function useMutation<A extends unknown[], T>(fn: (...args: A) => Promise<
 
 let referenceCache: Promise<Reference> | null = null;
 
-/** Reference data (LGAs, purposes, treatments, users); fetched once per page load. */
+/** Reference data (areas, purposes, treatments, users); fetched once per page load. */
 export function useReference(): Reference | null {
   const [ref, setRef] = useState<Reference | null>(null);
   useEffect(() => {

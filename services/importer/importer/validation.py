@@ -38,8 +38,8 @@ QUARANTINE_REASONS = {
 
 @dataclass
 class ValidationContext:
-    tin_pattern: str = r"^NGS-DEMO-TIN-\d{6}$"
-    known_lgas: set[str] | None = None
+    tin_pattern: str = r"^DEMO-TIN-\d{6}$"
+    known_areas: set[str] | None = None
     known_employers: set[str] | None = None
     tz: tzinfo = WAT
 
@@ -197,21 +197,25 @@ def validate_rows(
                 messages.append(f"invalid_value:{col.name}: {exc}")
                 values[col.name] = None
 
-        if ctx.known_lgas is not None and values.get("lga_code") and values["lga_code"] not in ctx.known_lgas:
-            messages.append(f"unverified_lga: {values['lga_code']}")
+        if (
+            ctx.known_areas is not None
+            and values.get("area_code")
+            and values["area_code"] not in ctx.known_areas
+        ):
+            messages.append(f"unverified_area: {values['area_code']}")
         employer_ref = values.get(profile.employer_ref_column) if profile.employer_ref_column else None
         if (
             ctx.known_employers is not None
             and employer_ref
-            and feed_type != "ngsirs_employer"
+            and feed_type != "employer"
             and employer_ref not in ctx.known_employers
         ):
-            if feed_type == "ngsirs_payment":
+            if feed_type == "payment":
                 messages.append("unmatched_employer: payment reference does not resolve to a known employer")
             else:
                 reasons.append("unknown_employer")
         if (
-            feed_type == "ngsirs_paye_return"
+            feed_type == "paye_return"
             and values.get("status") == "accepted"
             and not values.get("accepted_at")
         ):

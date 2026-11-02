@@ -6,8 +6,8 @@
 A rule code is a permanent identifier that appears in findings, cases, evidence packets and audit events,
 so it must never carry two meanings.
 
-**Decision.** The 12-rule NGSIRS pilot pack (Tech Spec section 23) keeps its codes, because it is the
-NGSIRS-specific PAYE set and the fixture contract is built on it. Every PRD rule whose code would collide
+**Decision.** The 12-rule PAYE pilot pack (Tech Spec section 23) keeps its codes, because it is the
+PAYE set the fixture contract is built on. Every PRD rule whose code would collide
 is renumbered. The source of each entry is recorded in `services/risk_engine/risk_engine/catalogue.py`
 (`prd_code`) and shown in Rule Configuration.
 
@@ -24,7 +24,7 @@ is renumbered. The source of each entry is recorded in `services/risk_engine/ris
 | PAY-004 | Remittance lower than verified declared payable | taxpayer risk | Payment engagement | PRD PAY-004 |
 | PAY-005 | Unallocated or unmatched PAYE receipt | data quality | Treasury reconciliation | PRD PAY-006 |
 | PAY-006 | Unresolved confirmed assessment balance | debt recovery | Reconciliation / lawful debt process | PRD PAY-001 |
-| DAT-001 | Duplicate NGSIRS taxpayer identities | data quality | Identity review | PRD REG-002 |
+| DAT-001 | Duplicate taxpayer identities | data quality | Identity review | PRD REG-002 |
 | DAT-002 | Missing or invalid period identifier | data quality | Internal correction | new |
 | DAT-003 | Source payment/return conflict | data quality | Source reconciliation | PRD DAT-003 |
 
@@ -72,4 +72,4 @@ Each rule lists named predicates; the evaluator applies them in a fixed order:
 
 All thresholds in the pilot rules (tolerance NGN 1,000, consequence bands, 6-period windows, 7-day
 staleness, 0.98 match confidence) are **proposed pilot values** that require distributional testing in
-shadow mode and NGSIRS approval (PRD section 11).
+shadow mode and the authority's approval (PRD section 11).

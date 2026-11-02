@@ -1,11 +1,11 @@
 "use client";
 
-import type { LegalInstrument, LegalObligations, LegalResolve, LegalVersion } from "@ngsirs/contracts";
-import { StateMessage, StatusBadge } from "@ngsirs/design";
+import type { LegalInstrument, LegalObligations, LegalResolve, LegalVersion } from "@taxrisk/contracts";
+import { StateMessage, StatusBadge } from "@taxrisk/design";
 import { useState, type FormEvent } from "react";
 import { AsyncBlock, ErrorNotice, Field, Hash, KeyValues, PageHeader, RequirePermission, Section } from "@/components/ui";
 import { api, unwrap } from "@/lib/api";
-import { useAuth } from "@/lib/auth";
+import { useAuth, useLabels } from "@/lib/auth";
 import { useAsync, useMutation } from "@/lib/hooks";
 import { fmtDate, fmtDateTime, humanize } from "@/lib/format";
 
@@ -30,7 +30,7 @@ function LegalLibrary() {
       />
       <p className="notice-strong" role="note">
         {obligations.data?.notice ??
-          "All parameters are SYNTHETIC placeholders pending NGSIRS legal confirmation from authenticated texts. No rate or deadline is taken from internet sources."}
+          "All parameters are SYNTHETIC placeholders pending confirmation by the authority's legal officers from authenticated texts. No rate or deadline is taken from internet sources."}
       </p>
 
       <AsyncBlock state={obligations} what="obligation versions">
@@ -202,6 +202,7 @@ function Resolver({ codes }: { codes: string[] }) {
 }
 
 function DraftVersion({ obligations, instruments, onDone }: { obligations: LegalObligations; instruments: LegalInstrument[]; onDone: () => void }) {
+  const labels = useLabels();
   const codes = Object.keys(obligations.codes);
   const [code, setCode] = useState(codes[0] ?? "");
   const [version, setVersion] = useState("");
@@ -236,7 +237,7 @@ function DraftVersion({ obligations, instruments, onDone }: { obligations: Legal
   }
 
   return (
-    <Section title="Draft a legal version" description="Drafts are synthetic until NGSIRS legal officers confirm them. A different legal approver must approve (maker-checker).">
+    <Section title="Draft a legal version" description={`Drafts are synthetic until ${labels.authority} legal officers confirm them. A different legal approver must approve (maker-checker).`}>
       <form className="stack-sm" onSubmit={submit}>
         <div className="form-grid">
           <Field label="Obligation code" htmlFor="ld-code" required>

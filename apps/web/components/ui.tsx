@@ -1,6 +1,6 @@
 "use client";
 
-import { StateMessage } from "@ngsirs/design";
+import { StateMessage } from "@taxrisk/design";
 import { useId, type ReactNode } from "react";
 import type { ApiError } from "@/lib/api";
 import { useAuth } from "@/lib/auth";

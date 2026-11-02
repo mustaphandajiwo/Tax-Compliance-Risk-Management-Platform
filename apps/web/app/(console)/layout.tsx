@@ -2,7 +2,7 @@
 
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, type ReactNode } from "react";
-import { StateMessage } from "@ngsirs/design";
+import { StateMessage } from "@taxrisk/design";
 import { AppShell } from "@/components/AppShell";
 import { ErrorNotice } from "@/components/ui";
 import { useAuth } from "@/lib/auth";

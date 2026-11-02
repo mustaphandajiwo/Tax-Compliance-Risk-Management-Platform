@@ -1,12 +1,12 @@
 "use client";
 
-import type { BatchApproveResult, CaseOut } from "@ngsirs/contracts";
-import { StateMessage, StatusBadge } from "@ngsirs/design";
+import type { BatchApproveResult, CaseOut } from "@taxrisk/contracts";
+import { StateMessage, StatusBadge } from "@taxrisk/design";
 import Link from "next/link";
 import { useState } from "react";
 import { AsyncBlock, ErrorNotice, Field, PageHeader, RequirePermission, Section } from "@/components/ui";
 import { api, unwrap } from "@/lib/api";
-import { useAuth } from "@/lib/auth";
+import { useAuth, useLabels } from "@/lib/auth";
 import { CASE_STAGES, OUTWARD_BLOCKERS } from "@/lib/constants";
 import { useAsync, useMutation } from "@/lib/hooks";
 import { fmtDate, fmtDateTime, humanize } from "@/lib/format";
@@ -20,6 +20,7 @@ export default function CasesPage() {
 }
 
 function CaseQueue() {
+  const labels = useLabels();
   const { can, me } = useAuth();
   const [stage, setStage] = useState("");
   const [mine, setMine] = useState(false);
@@ -128,7 +129,7 @@ function CaseQueue() {
                   <th scope="col">Case</th>
                   <th scope="col">Finding / rule</th>
                   <th scope="col">Employer</th>
-                  <th scope="col">LGA · Period</th>
+                  <th scope="col">{`${labels.area} · Period`}</th>
                   <th scope="col">Treatment</th>
                   <th scope="col">Stage</th>
                   <th scope="col">Assigned to</th>
@@ -164,7 +165,7 @@ function CaseQueue() {
                     </td>
                     <td>{c.employer_name ?? c.employer_ref ?? "—"}</td>
                     <td className="nowrap">
-                      {c.lga ?? "—"} · {c.tax_period ?? "—"}
+                      {c.area ?? "—"} · {c.tax_period ?? "—"}
                     </td>
                     <td>{c.treatment_label ?? humanize(c.treatment)}</td>
                     <td>

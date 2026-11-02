@@ -33,7 +33,7 @@ def test_rls_enabled_and_forced_on_every_tenant_table(world: World) -> None:
             )
         }
         policies = {r[0] for r in conn.execute("SELECT tablename FROM pg_policies WHERE schemaname='public'")}
-        bypass = conn.execute("SELECT rolbypassrls FROM pg_roles WHERE rolname='ngsirs_app'").fetchone()[0]
+        bypass = conn.execute("SELECT rolbypassrls FROM pg_roles WHERE rolname='taxrisk_app'").fetchone()[0]
     assert tables, "expected tenant tables"
     missing = sorted(t for t in tables if t not in policies or flags[t] != (True, True))
     assert missing == [], f"tables without forced RLS: {missing}"
@@ -41,17 +41,17 @@ def test_rls_enabled_and_forced_on_every_tenant_table(world: World) -> None:
 
 
 def test_database_session_cannot_see_other_tenant_rows(world: World) -> None:
-    from ngsirs_api.db import new_session
-    from ngsirs_api.models import Employer, IngestBatch, Taxpayer
+    from taxrisk_api.db import new_session
+    from taxrisk_api.models import Employer, IngestBatch, Taxpayer
 
     with new_session(world.other) as db:
         other_count = db.execute(select(func.count()).select_from(Employer)).scalar_one()
         assert other_count > 0
         tenants = set(db.execute(select(Employer.tenant_id)).scalars())
         assert tenants == {world.other}
-    with new_session(world.ngsirs) as db:
-        assert set(db.execute(select(Taxpayer.tenant_id)).scalars()) == {world.ngsirs}
-        assert set(db.execute(select(IngestBatch.tenant_id)).scalars()) == {world.ngsirs}
+    with new_session(world.authority) as db:
+        assert set(db.execute(select(Taxpayer.tenant_id)).scalars()) == {world.authority}
+        assert set(db.execute(select(IngestBatch.tenant_id)).scalars()) == {world.authority}
     with new_session(None) as db:  # no tenant bound: nothing visible
         assert db.execute(select(func.count()).select_from(Employer)).scalar_one() == 0
 
@@ -59,11 +59,11 @@ def test_database_session_cannot_see_other_tenant_rows(world: World) -> None:
 def test_database_rejects_writes_into_another_tenant(world: World) -> None:
     from sqlalchemy.exc import DBAPIError
 
-    from ngsirs_api.db import new_session
-    from ngsirs_api.models import Lga
+    from taxrisk_api.db import new_session
+    from taxrisk_api.models import AdminArea
 
-    with new_session(world.ngsirs) as db, pytest.raises(DBAPIError):
-        db.add(Lga(tenant_id=world.other, code="ZZZ", name="Injected", verified=False, pilot=False))
+    with new_session(world.authority) as db, pytest.raises(DBAPIError):
+        db.add(AdminArea(tenant_id=world.other, code="ZZZ", name="Injected", verified=False, pilot=False))
         db.flush()
 
 
@@ -73,7 +73,7 @@ def test_api_cannot_retrieve_other_tenant_records(client: TestClient, auth: dict
     r = client.get(f"/api/v1/risks/{ngs_finding['finding_id']}", headers=other)
     assert r.status_code == 404 and r.json()["error"]["code"] == "not_found"  # no existence leak
     assert client.get("/api/v1/risks", headers=other).json()["total"] == 0
-    ref = ngs_finding["subject"]["employer_ref"] or "NGS-DEMO-EMP-0001"
+    ref = ngs_finding["subject"]["employer_ref"] or "DEMO-EMP-0001"
     other_view = client.get(f"/api/v1/taxpayers/{ref}", headers=other)
     # The isolation org loaded the same synthetic register, so the ref may exist there - but it must be its own row.
     if other_view.status_code == 200:
@@ -83,13 +83,13 @@ def test_api_cannot_retrieve_other_tenant_records(client: TestClient, auth: dict
 
 def test_forged_tenant_claim_does_not_cross_tenants(client: TestClient, auth: dict, world: World) -> None:
     # A token claiming the NGSIRS tenant code but carrying the other tenant's id is scoped by the id.
-    forged = token_for(world.other, "NGSIRS", ["compliance_manager"], "forged")
+    forged = token_for(world.other, "DEMO", ["compliance_manager"], "forged")
     assert client.get("/api/v1/risks", headers=forged).json()["total"] == 0
 
 
 def test_scheduled_job_is_tenant_scoped(world: World) -> None:
-    from ngsirs_api.db import tenant_session
-    from ngsirs_api.models import EvaluationRun
+    from taxrisk_api.db import tenant_session
+    from taxrisk_api.models import EvaluationRun
 
     with tenant_session(world.other) as db:
         assert db.execute(select(func.count()).select_from(EvaluationRun)).scalar_one() == 0
@@ -101,10 +101,10 @@ def test_scheduled_job_is_tenant_scoped(world: World) -> None:
 def test_requests_without_or_with_bad_tokens_are_rejected(client: TestClient, world: World) -> None:
     assert client.get("/api/v1/risks").status_code == 401
     assert client.get("/api/v1/risks", headers={"Authorization": "Bearer nope"}).status_code == 401
-    expired = token_for(world.ngsirs, "NGSIRS", ["compliance_manager"], ttl=-120)
+    expired = token_for(world.authority, "DEMO", ["compliance_manager"], ttl=-120)
     r = client.get("/api/v1/risks", headers=expired)
     assert r.status_code == 401 and r.json()["error"]["code"] == "token_expired"
-    norole = token_for(world.ngsirs, "NGSIRS", ["not_a_role"])
+    norole = token_for(world.authority, "DEMO", ["not_a_role"])
     assert client.get("/api/v1/risks", headers=norole).status_code == 403
 
 
@@ -115,15 +115,15 @@ def test_tampered_token_rejected(client: TestClient, auth: dict) -> None:
 
 
 def test_mfa_enforced_when_required(monkeypatch: pytest.MonkeyPatch, world: World) -> None:
-    from ngsirs_api.errors import ApiError
-    from ngsirs_api.security import auth as auth_mod
+    from taxrisk_api.errors import ApiError
+    from taxrisk_api.security import auth as auth_mod
 
     settings = auth_mod.get_settings()
     monkeypatch.setattr(settings, "require_mfa", True)
     claims = {
         "sub": "x",
-        "tenant_id": str(world.ngsirs),
-        "tenant": "NGSIRS",
+        "tenant_id": str(world.authority),
+        "tenant": "DEMO",
         "roles": ["compliance_officer"],
         "amr": ["pwd"],
     }
@@ -135,15 +135,15 @@ def test_mfa_enforced_when_required(monkeypatch: pytest.MonkeyPatch, world: Worl
 
 
 def test_production_refuses_demo_configuration(monkeypatch: pytest.MonkeyPatch) -> None:
-    from ngsirs_api import config
+    from taxrisk_api import config
 
-    monkeypatch.setenv("NGSIRS_ENVIRONMENT", "production")
+    monkeypatch.setenv("TAXRISK_ENVIRONMENT", "production")
     config.get_settings.cache_clear()
     try:
         with pytest.raises(RuntimeError):
             config.get_settings()
     finally:
-        monkeypatch.setenv("NGSIRS_ENVIRONMENT", "test")
+        monkeypatch.setenv("TAXRISK_ENVIRONMENT", "test")
         config.get_settings.cache_clear()
 
 
@@ -182,12 +182,12 @@ def test_role_matrix(
     assert r.status_code == expected if expected != 200 else r.status_code in (200, 201), (user, path, r.text)
 
 
-def test_lga_scoped_officer_sees_only_assigned_lgas(client: TestClient, auth: dict) -> None:
+def test_area_scoped_officer_sees_only_assigned_areas(client: TestClient, auth: dict) -> None:
     scoped = findings(client, auth["field"], open_only=False)
-    assert scoped and {f["lga"] for f in scoped} <= {"CHA", "BOS"}
+    assert scoped and {f["area"] for f in scoped} <= {"CEN", "NTH"}
     everything = findings(client, auth["officer"], open_only=False)
     assert len(everything) > len(scoped)
-    outside = next(f for f in everything if f["lga"] not in ("CHA", "BOS"))
+    outside = next(f for f in everything if f["area"] not in ("CEN", "NTH"))
     assert client.get(f"/api/v1/risks/{outside['finding_id']}", headers=auth["field"]).status_code == 404
 
 
@@ -199,7 +199,7 @@ def test_purpose_required_for_identifier_reveal(client: TestClient, auth: dict, 
         client.post(url, headers={**auth["steward"], "X-Purpose": "management_reporting"}).status_code == 403
     )
     r = client.post(url, headers={**auth["steward"], "X-Purpose": "data_quality"})
-    assert r.status_code == 200 and r.json()["identifiers"][0]["value"].startswith("NGS-DEMO-TIN-")
+    assert r.status_code == 200 and r.json()["identifiers"][0]["value"].startswith("DEMO-TIN-")
     assert client.post(url, headers={**auth["officer"], "X-Purpose": "case_review"}).status_code == 403
     events = client.get(
         "/api/v1/audit-events", headers=auth["audit"], params={"event_type": "taxpayer.identifier_revealed"}
@@ -208,13 +208,13 @@ def test_purpose_required_for_identifier_reveal(client: TestClient, auth: dict, 
 
 
 def test_identifiers_are_encrypted_and_tokenised_at_rest(world: World) -> None:
-    from ngsirs_api.db import new_session
-    from ngsirs_api.models import TaxpayerIdentifier
+    from taxrisk_api.db import new_session
+    from taxrisk_api.models import TaxpayerIdentifier
 
-    with new_session(world.ngsirs) as db:
+    with new_session(world.authority) as db:
         ident = db.execute(select(TaxpayerIdentifier)).scalars().first()
         assert ident is not None
-        assert b"NGS-DEMO-TIN" not in ident.encrypted_value
+        assert b"DEMO-TIN" not in ident.encrypted_value
         assert len(ident.token) == 64 and ident.masked.startswith("*")
 
 
@@ -224,20 +224,20 @@ def test_identifiers_are_encrypted_and_tokenised_at_rest(world: World) -> None:
 def test_audit_events_are_append_only_for_the_application(world: World) -> None:
     from sqlalchemy.exc import DBAPIError
 
-    from ngsirs_api.db import new_session
+    from taxrisk_api.db import new_session
 
-    with new_session(world.ngsirs) as db, pytest.raises(DBAPIError):
+    with new_session(world.authority) as db, pytest.raises(DBAPIError):
         db.execute(text("UPDATE audit_event SET actor_id = 'someone-else'"))
-    with new_session(world.ngsirs) as db, pytest.raises(DBAPIError):
+    with new_session(world.authority) as db, pytest.raises(DBAPIError):
         db.execute(text("DELETE FROM audit_event"))
 
 
 def test_approved_rule_version_is_immutable(world: World) -> None:
     from sqlalchemy.exc import DBAPIError
 
-    from ngsirs_api.db import new_session
+    from taxrisk_api.db import new_session
 
-    with new_session(world.ngsirs) as db, pytest.raises(DBAPIError) as exc:
+    with new_session(world.authority) as db, pytest.raises(DBAPIError) as exc:
         db.execute(text("UPDATE rule_version SET expression_json = '{}'::jsonb WHERE status = 'active'"))
     assert "immutable" in str(exc.value)
 
@@ -249,11 +249,12 @@ def test_audit_chain_detects_tampering(client: TestClient, auth: dict, world: Wo
         # A superuser bypassing the application's controls edits history...
         conn.execute("ALTER TABLE audit_event DISABLE TRIGGER audit_event_append_only")
         seq, original = conn.execute(
-            "SELECT seq, actor_id FROM audit_event WHERE tenant_id = %s ORDER BY seq LIMIT 1", (world.ngsirs,)
+            "SELECT seq, actor_id FROM audit_event WHERE tenant_id = %s ORDER BY seq LIMIT 1",
+            (world.authority,),
         ).fetchone()
         conn.execute(
             "UPDATE audit_event SET actor_id = 'intruder' WHERE tenant_id = %s AND seq = %s",
-            (world.ngsirs, seq),
+            (world.authority, seq),
         )
         try:
             result = client.get("/api/v1/audit-events/verify", headers=auth["audit"]).json()
@@ -261,7 +262,7 @@ def test_audit_chain_detects_tampering(client: TestClient, auth: dict, world: Wo
         finally:
             conn.execute(
                 "UPDATE audit_event SET actor_id = %s WHERE tenant_id = %s AND seq = %s",
-                (original, world.ngsirs, seq),
+                (original, world.authority, seq),
             )
             conn.execute("ALTER TABLE audit_event ENABLE TRIGGER audit_event_append_only")
     assert client.get("/api/v1/audit-events/verify", headers=auth["audit"]).json()["valid"] is True

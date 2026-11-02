@@ -2,7 +2,7 @@
 
 Revision ID: 0001
 Revises:
-Create Date: 2026-10-28 03:26:00.067260
+Create Date: 2026-11-02 14:07:26.275214
 """
 
 import sqlalchemy as sa
@@ -31,6 +31,22 @@ def upgrade() -> None:
         sa.UniqueConstraint("code"),
     )
     op.create_table(
+        "admin_area",
+        sa.Column("id", sa.UUID(), nullable=False),
+        sa.Column("tenant_id", sa.UUID(), nullable=False),
+        sa.Column("code", sa.String(length=16), nullable=False),
+        sa.Column("name", sa.String(length=100), nullable=False),
+        sa.Column("verified", sa.Boolean(), nullable=False),
+        sa.Column("pilot", sa.Boolean(), nullable=False),
+        sa.ForeignKeyConstraint(
+            ["tenant_id"],
+            ["tenant.id"],
+        ),
+        sa.PrimaryKeyConstraint("id"),
+        sa.UniqueConstraint("tenant_id", "code"),
+    )
+    op.create_index(op.f("ix_admin_area_tenant_id"), "admin_area", ["tenant_id"], unique=False)
+    op.create_table(
         "app_user",
         sa.Column("id", sa.UUID(), nullable=False),
         sa.Column("tenant_id", sa.UUID(), nullable=False),
@@ -38,7 +54,7 @@ def upgrade() -> None:
         sa.Column("display_name", sa.String(length=200), nullable=False),
         sa.Column("roles", sa.ARRAY(sa.String()), nullable=False),
         sa.Column("unit", sa.String(length=100), nullable=True),
-        sa.Column("lga_scope", sa.ARRAY(sa.String()), nullable=True),
+        sa.Column("area_scope", sa.ARRAY(sa.String()), nullable=True),
         sa.Column("allowed_purposes", sa.ARRAY(sa.String()), nullable=False),
         sa.Column("active", sa.Boolean(), nullable=False),
         sa.Column("is_synthetic", sa.Boolean(), nullable=False),
@@ -141,7 +157,7 @@ def upgrade() -> None:
         sa.Column("activity_from", sa.Date(), nullable=True),
         sa.Column("activity_to", sa.Date(), nullable=True),
         sa.Column("office_code", sa.String(length=32), nullable=True),
-        sa.Column("lga_code", sa.String(length=16), nullable=True),
+        sa.Column("area_code", sa.String(length=16), nullable=True),
         sa.Column("sector", sa.String(length=64), nullable=True),
         sa.Column("segment", sa.String(length=32), nullable=True),
         sa.Column("status", sa.String(length=32), nullable=False),
@@ -269,22 +285,6 @@ def upgrade() -> None:
         sa.UniqueConstraint("tenant_id", "code"),
     )
     op.create_index(op.f("ix_legal_instrument_tenant_id"), "legal_instrument", ["tenant_id"], unique=False)
-    op.create_table(
-        "lga",
-        sa.Column("id", sa.UUID(), nullable=False),
-        sa.Column("tenant_id", sa.UUID(), nullable=False),
-        sa.Column("code", sa.String(length=16), nullable=False),
-        sa.Column("name", sa.String(length=100), nullable=False),
-        sa.Column("verified", sa.Boolean(), nullable=False),
-        sa.Column("pilot", sa.Boolean(), nullable=False),
-        sa.ForeignKeyConstraint(
-            ["tenant_id"],
-            ["tenant.id"],
-        ),
-        sa.PrimaryKeyConstraint("id"),
-        sa.UniqueConstraint("tenant_id", "code"),
-    )
-    op.create_index(op.f("ix_lga_tenant_id"), "lga", ["tenant_id"], unique=False)
     op.create_table(
         "payment",
         sa.Column("id", sa.UUID(), nullable=False),
@@ -480,7 +480,7 @@ def upgrade() -> None:
         sa.Column("tenant_id", sa.UUID(), nullable=False),
         sa.Column("code", sa.String(length=32), nullable=False),
         sa.Column("name", sa.String(length=200), nullable=False),
-        sa.Column("lga_code", sa.String(length=16), nullable=False),
+        sa.Column("area_code", sa.String(length=16), nullable=False),
         sa.ForeignKeyConstraint(
             ["tenant_id"],
             ["tenant.id"],
@@ -500,7 +500,7 @@ def upgrade() -> None:
         sa.Column("name_token", sa.String(length=64), nullable=False),
         sa.Column("display_name", sa.String(length=200), nullable=False),
         sa.Column("jurisdiction_code", sa.String(length=16), nullable=False),
-        sa.Column("lga_code", sa.String(length=16), nullable=True),
+        sa.Column("area_code", sa.String(length=16), nullable=True),
         sa.Column("sector", sa.String(length=64), nullable=True),
         sa.Column("effective_from", sa.Date(), nullable=True),
         sa.Column("effective_to", sa.Date(), nullable=True),
@@ -518,6 +518,37 @@ def upgrade() -> None:
     op.create_index(op.f("ix_taxpayer_is_current"), "taxpayer", ["is_current"], unique=False)
     op.create_index(op.f("ix_taxpayer_source_taxpayer_id"), "taxpayer", ["source_taxpayer_id"], unique=False)
     op.create_index(op.f("ix_taxpayer_tenant_id"), "taxpayer", ["tenant_id"], unique=False)
+    op.create_table(
+        "connector",
+        sa.Column("id", sa.UUID(), nullable=False),
+        sa.Column("tenant_id", sa.UUID(), nullable=False),
+        sa.Column("code", sa.String(length=64), nullable=False),
+        sa.Column("name", sa.String(length=200), nullable=False),
+        sa.Column("source_id", sa.UUID(), nullable=False),
+        sa.Column("mode", sa.String(length=20), nullable=False),
+        sa.Column("base_url", sa.String(length=500), nullable=True),
+        sa.Column("auth_type", sa.String(length=32), nullable=False),
+        sa.Column("secret_env", sa.String(length=100), nullable=True),
+        sa.Column("webhook_secret_env", sa.String(length=100), nullable=True),
+        sa.Column("config", postgresql.JSONB(astext_type=sa.Text()), nullable=False),
+        sa.Column("state", postgresql.JSONB(astext_type=sa.Text()), nullable=False),
+        sa.Column("schedule_minutes", sa.Integer(), nullable=False),
+        sa.Column("enabled", sa.Boolean(), nullable=False),
+        sa.Column("last_run_at", sa.DateTime(timezone=True), nullable=True),
+        sa.Column("last_status", sa.String(length=32), nullable=True),
+        sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=False),
+        sa.ForeignKeyConstraint(
+            ["source_id"],
+            ["data_source.id"],
+        ),
+        sa.ForeignKeyConstraint(
+            ["tenant_id"],
+            ["tenant.id"],
+        ),
+        sa.PrimaryKeyConstraint("id"),
+        sa.UniqueConstraint("tenant_id", "code"),
+    )
+    op.create_index(op.f("ix_connector_tenant_id"), "connector", ["tenant_id"], unique=False)
     op.create_table(
         "evaluation_run",
         sa.Column("id", sa.UUID(), nullable=False),
@@ -567,7 +598,7 @@ def upgrade() -> None:
         sa.Column("ingested_at", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=False),
         sa.Column("coverage_from", sa.String(length=7), nullable=True),
         sa.Column("coverage_to", sa.String(length=7), nullable=True),
-        sa.Column("coverage_lga", sa.String(length=16), nullable=True),
+        sa.Column("coverage_area", sa.String(length=16), nullable=True),
         sa.Column("qa_status", sa.String(length=20), nullable=False),
         sa.Column("row_count", sa.Integer(), nullable=False),
         sa.Column("accepted_count", sa.Integer(), nullable=False),
@@ -716,6 +747,55 @@ def upgrade() -> None:
     )
     op.create_index(op.f("ix_taxpayer_identifier_token"), "taxpayer_identifier", ["token"], unique=False)
     op.create_table(
+        "connector_event",
+        sa.Column("id", sa.UUID(), nullable=False),
+        sa.Column("tenant_id", sa.UUID(), nullable=False),
+        sa.Column("connector_id", sa.UUID(), nullable=False),
+        sa.Column("event_id", sa.String(length=200), nullable=False),
+        sa.Column("batch_id", sa.UUID(), nullable=True),
+        sa.Column("received_at", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=False),
+        sa.ForeignKeyConstraint(
+            ["connector_id"],
+            ["connector.id"],
+        ),
+        sa.ForeignKeyConstraint(
+            ["tenant_id"],
+            ["tenant.id"],
+        ),
+        sa.PrimaryKeyConstraint("id"),
+        sa.UniqueConstraint("tenant_id", "connector_id", "event_id"),
+    )
+    op.create_index(op.f("ix_connector_event_tenant_id"), "connector_event", ["tenant_id"], unique=False)
+    op.create_table(
+        "connector_run",
+        sa.Column("id", sa.UUID(), nullable=False),
+        sa.Column("tenant_id", sa.UUID(), nullable=False),
+        sa.Column("connector_id", sa.UUID(), nullable=False),
+        sa.Column("trigger", sa.String(length=20), nullable=False),
+        sa.Column("feed_type", sa.String(length=40), nullable=False),
+        sa.Column("status", sa.String(length=20), nullable=False),
+        sa.Column("cursor_from", sa.String(length=100), nullable=True),
+        sa.Column("cursor_to", sa.String(length=100), nullable=True),
+        sa.Column("pages", sa.Integer(), nullable=False),
+        sa.Column("records_received", sa.Integer(), nullable=False),
+        sa.Column("records_filtered", sa.Integer(), nullable=False),
+        sa.Column("batch_id", sa.UUID(), nullable=True),
+        sa.Column("error", sa.Text(), nullable=True),
+        sa.Column("started_at", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=False),
+        sa.Column("finished_at", sa.DateTime(timezone=True), nullable=True),
+        sa.ForeignKeyConstraint(
+            ["connector_id"],
+            ["connector.id"],
+        ),
+        sa.ForeignKeyConstraint(
+            ["tenant_id"],
+            ["tenant.id"],
+        ),
+        sa.PrimaryKeyConstraint("id"),
+    )
+    op.create_index(op.f("ix_connector_run_connector_id"), "connector_run", ["connector_id"], unique=False)
+    op.create_index(op.f("ix_connector_run_tenant_id"), "connector_run", ["tenant_id"], unique=False)
+    op.create_table(
         "period_schedule",
         sa.Column("id", sa.UUID(), nullable=False),
         sa.Column("tenant_id", sa.UUID(), nullable=False),
@@ -757,7 +837,7 @@ def upgrade() -> None:
         sa.Column("subject_id", sa.String(length=100), nullable=False),
         sa.Column("employer_id", sa.UUID(), nullable=True),
         sa.Column("employer_ref", sa.String(length=64), nullable=True),
-        sa.Column("lga_code", sa.String(length=16), nullable=True),
+        sa.Column("area_code", sa.String(length=16), nullable=True),
         sa.Column("period_code", sa.String(length=7), nullable=True),
         sa.Column("likelihood", sa.Integer(), nullable=True),
         sa.Column("consequence", sa.Integer(), nullable=True),
@@ -808,10 +888,10 @@ def upgrade() -> None:
         sa.PrimaryKeyConstraint("id"),
         sa.UniqueConstraint("finding_ref"),
     )
+    op.create_index(op.f("ix_risk_finding_area_code"), "risk_finding", ["area_code"], unique=False)
     op.create_index(op.f("ix_risk_finding_employer_id"), "risk_finding", ["employer_id"], unique=False)
     op.create_index(op.f("ix_risk_finding_employer_ref"), "risk_finding", ["employer_ref"], unique=False)
     op.create_index(op.f("ix_risk_finding_finding_key"), "risk_finding", ["finding_key"], unique=False)
-    op.create_index(op.f("ix_risk_finding_lga_code"), "risk_finding", ["lga_code"], unique=False)
     op.create_index(op.f("ix_risk_finding_period_code"), "risk_finding", ["period_code"], unique=False)
     op.create_index(op.f("ix_risk_finding_rule_code"), "risk_finding", ["rule_code"], unique=False)
     op.create_index(op.f("ix_risk_finding_signal_class"), "risk_finding", ["signal_class"], unique=False)
@@ -855,7 +935,7 @@ def upgrade() -> None:
         sa.Column("tenant_id", sa.UUID(), nullable=False),
         sa.Column("feed_type", sa.String(length=40), nullable=False),
         sa.Column("period_code", sa.String(length=7), nullable=False),
-        sa.Column("scope_lga", sa.String(length=16), nullable=True),
+        sa.Column("scope_area", sa.String(length=16), nullable=True),
         sa.Column("batch_id", sa.UUID(), nullable=False),
         sa.Column("complete", sa.Boolean(), nullable=False),
         sa.Column("reconciled", sa.Boolean(), nullable=False),
@@ -1093,13 +1173,18 @@ def downgrade() -> None:
     op.drop_index(op.f("ix_risk_finding_signal_class"), table_name="risk_finding")
     op.drop_index(op.f("ix_risk_finding_rule_code"), table_name="risk_finding")
     op.drop_index(op.f("ix_risk_finding_period_code"), table_name="risk_finding")
-    op.drop_index(op.f("ix_risk_finding_lga_code"), table_name="risk_finding")
     op.drop_index(op.f("ix_risk_finding_finding_key"), table_name="risk_finding")
     op.drop_index(op.f("ix_risk_finding_employer_ref"), table_name="risk_finding")
     op.drop_index(op.f("ix_risk_finding_employer_id"), table_name="risk_finding")
+    op.drop_index(op.f("ix_risk_finding_area_code"), table_name="risk_finding")
     op.drop_table("risk_finding")
     op.drop_index(op.f("ix_period_schedule_tenant_id"), table_name="period_schedule")
     op.drop_table("period_schedule")
+    op.drop_index(op.f("ix_connector_run_tenant_id"), table_name="connector_run")
+    op.drop_index(op.f("ix_connector_run_connector_id"), table_name="connector_run")
+    op.drop_table("connector_run")
+    op.drop_index(op.f("ix_connector_event_tenant_id"), table_name="connector_event")
+    op.drop_table("connector_event")
     op.drop_index(op.f("ix_taxpayer_identifier_token"), table_name="taxpayer_identifier")
     op.drop_index(op.f("ix_taxpayer_identifier_tenant_id"), table_name="taxpayer_identifier")
     op.drop_index(op.f("ix_taxpayer_identifier_taxpayer_id"), table_name="taxpayer_identifier")
@@ -1122,6 +1207,8 @@ def downgrade() -> None:
     op.drop_table("ingest_batch")
     op.drop_index(op.f("ix_evaluation_run_tenant_id"), table_name="evaluation_run")
     op.drop_table("evaluation_run")
+    op.drop_index(op.f("ix_connector_tenant_id"), table_name="connector")
+    op.drop_table("connector")
     op.drop_index(op.f("ix_taxpayer_tenant_id"), table_name="taxpayer")
     op.drop_index(op.f("ix_taxpayer_source_taxpayer_id"), table_name="taxpayer")
     op.drop_index(op.f("ix_taxpayer_is_current"), table_name="taxpayer")
@@ -1157,8 +1244,6 @@ def downgrade() -> None:
     op.drop_index(op.f("ix_payment_employer_id"), table_name="payment")
     op.drop_index(op.f("ix_payment_batch_id"), table_name="payment")
     op.drop_table("payment")
-    op.drop_index(op.f("ix_lga_tenant_id"), table_name="lga")
-    op.drop_table("lga")
     op.drop_index(op.f("ix_legal_instrument_tenant_id"), table_name="legal_instrument")
     op.drop_table("legal_instrument")
     op.drop_index(op.f("ix_input_snapshot_tenant_id"), table_name="input_snapshot")
@@ -1194,5 +1279,7 @@ def downgrade() -> None:
     op.drop_table("assessment")
     op.drop_index(op.f("ix_app_user_tenant_id"), table_name="app_user")
     op.drop_table("app_user")
+    op.drop_index(op.f("ix_admin_area_tenant_id"), table_name="admin_area")
+    op.drop_table("admin_area")
     op.drop_table("tenant")
     op.execute("DROP SEQUENCE IF EXISTS ingest_batch_seq")

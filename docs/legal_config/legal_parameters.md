@@ -1,10 +1,10 @@
 # Legal configuration (SYNTHETIC placeholders)
 
-**Nothing in this file or in the seeded legal library is a statement of Niger State or federal law.**
-PRD section 19: the Niger State Tax Administration and Consolidation Law 2023 (as amended), applicable
-Niger State schedules and revenue instruments, the Nigeria Tax Act 2025, the Nigeria Tax Administration Act
-2025 and the June 2026 transition guidance must be reviewed by NGSIRS legal officers before any rule is
-activated. No rate or deadline may be taken from an internet FAQ.
+**Nothing in this file or in any seeded legal library is a statement of law.** Each jurisdiction pack lists
+the instruments relevant to its authority (the fictional `demo` pack uses neutral names; the `ng-niger`
+example lists the Niger State Tax Administration and Consolidation Law 2023, the Nigeria Tax Act 2025, the
+Nigeria Tax Administration Act 2025 and the transition guidance). The authority's legal officers must review
+every parameter before any rule is activated. No rate or deadline may be taken from an internet FAQ.
 
 ## How legal configuration works
 
@@ -44,7 +44,7 @@ period-specific resolution (scenario `legal_transition`).
    legal version exists).
 5. A shadow evaluation is reviewed before any case workflow is opened (PRD section 16, Gate B/C).
 
-## Open decisions for NGSIRS (PRD section 17)
+## Open decisions for each adopting authority
 
 - System of record for taxpayer IDs, returns, payments and assessments (seeded sources are placeholders).
 - Legally correct PAYE employer return schedules and historical transitions.

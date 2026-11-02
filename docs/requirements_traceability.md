@@ -3,6 +3,12 @@
 Status legend: **Done** = implemented and covered by an automated test; **Partial** = implemented with a
 stated limitation; **Not built** = outside this delivery (reason given).
 
+> **Deliberate departure from the PRD.** The PRD scoped the product to a single state revenue service and
+> required that no other authority appear in the UI or seed data. The product is now authority-neutral:
+> authority-specific facts live in jurisdiction packs (`docs/jurisdiction_packs.md`). Each installation still
+> runs one authority. The original authority is kept as the `ng-niger` example pack, and the default demo
+> uses a fictional authority, so the single-authority requirement still holds per deployment.
+
 ## Functional requirements (PRD section 8)
 
 | ID | Pri | Requirement | Status | Where / evidence |
@@ -29,7 +35,7 @@ stated limitation; **Not built** = outside this delivery (reason given).
 | FR-020 | P1 | State config without code change | Done | Legal versions, rules, tenant settings (thresholds, templates) |
 | FR-021 | P2 | AI summarisation | Not built (R2; PRD forbids external AI in MVP) | — |
 | FR-022 | P2 | Campaigns with comparison groups | Partial: deterministic comparison cohorts + diff-in-diff | `programmes` |
-| FR-023 | P2 | Drift / fairness / geographic bias monitoring | Not built (R2); backtests report LGA distribution | — |
+| FR-023 | P2 | Drift / fairness / geographic bias monitoring | Not built (R2); backtests report distribution by area | — |
 | FR-024 | P0 | Access logs, tamper-evident events, retention/deletion | Partial: hash-chained append-only audit, sensitive-read events, JSON access logs, retention policy register. **Automated deletion job not built** | `audit.py`, `retention_policy` |
 
 ## PRD section 15 acceptance tests
@@ -77,7 +83,7 @@ stated limitation; **Not built** = outside this delivery (reason given).
 
 ## Walkthrough (synthetic demo)
 
-1. `uv run ngsirs demo`; start API and web; sign in as **risk.analyst** and open **Data Imports** to see
+1. `uv run taxrisk demo`; start API and web; sign in as **risk.analyst** and open **Data Imports** to see
    the 10 batches, 3 quarantined rows and source freshness.
 2. **Risk Register**: 129 findings. Filter `hold=data_hold` to see the 10 hard-stop items with no score.
 3. Open a FIL-001 finding: trigger, evidence references, legal version, exclusions checked; press

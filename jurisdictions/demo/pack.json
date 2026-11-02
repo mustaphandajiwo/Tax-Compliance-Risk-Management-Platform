@@ -1,0 +1,440 @@
+{
+  "code": "DEMO",
+  "name": "Demo State Revenue Service",
+  "short_name": "DSRS",
+  "description": "A fictional revenue authority used for demonstrations. Nothing here describes a real authority, taxpayer or law.",
+  "fictional": true,
+  "country": "XX",
+  "jurisdiction": "XX-DEMO",
+  "timezone": "Africa/Lagos",
+  "currency": "NGN",
+  "locale": "en-NG",
+  "area_label": "District",
+  "area_label_plural": "Districts",
+  "tin_pattern": "^DEMO-TIN-\\d{6}$",
+  "settings": {
+    "operating_mode": "operational",
+    "confidence_floor": 0.9,
+    "processing_window_days": 5,
+    "identity": {
+      "probabilistic_threshold": 0.98,
+      "approved_by": "seed:data.governance (SYNTHETIC)"
+    }
+  },
+  "approved_templates": {
+    "PAYE_RETURN_REMINDER_V1": "SYNTHETIC TEMPLATE: Reminder that the PAYE employer return for {period} is outstanding. If you have filed, please share your acknowledgement.",
+    "PAYE_ASSISTANCE_OFFER_V1": "SYNTHETIC TEMPLATE: The Revenue Service can help you file PAYE returns on time.",
+    "PAYE_PAYMENT_ENGAGEMENT_V1": "SYNTHETIC TEMPLATE: Our records do not yet show a PAYE remittance for {period}. If you have paid, please send the payment reference."
+  },
+  "areas": [
+    {
+      "code": "CEN",
+      "name": "Central",
+      "pilot": true
+    },
+    {
+      "code": "NTH",
+      "name": "Northgate",
+      "pilot": true
+    },
+    {
+      "code": "RIV",
+      "name": "Riverside",
+      "pilot": false
+    },
+    {
+      "code": "HIL",
+      "name": "Hillcrest",
+      "pilot": false
+    },
+    {
+      "code": "LAK",
+      "name": "Lakeview",
+      "pilot": false
+    },
+    {
+      "code": "MKT",
+      "name": "Market Town",
+      "pilot": false
+    },
+    {
+      "code": "EST",
+      "name": "Eastfield",
+      "pilot": false
+    },
+    {
+      "code": "WST",
+      "name": "Westbrook",
+      "pilot": false
+    },
+    {
+      "code": "SAV",
+      "name": "Savannah Plains",
+      "pilot": false
+    },
+    {
+      "code": "KRA",
+      "name": "Kara Hills",
+      "pilot": false
+    },
+    {
+      "code": "GRN",
+      "name": "Greenvale",
+      "pilot": false
+    },
+    {
+      "code": "PRT",
+      "name": "Port Hall",
+      "pilot": false
+    }
+  ],
+  "data_sources": [
+    {
+      "name": "registration_system",
+      "feed_types": [
+        "taxpayer",
+        "employer",
+        "obligation",
+        "extension"
+      ],
+      "owner": "Revenue Service taxpayer & employer registration system"
+    },
+    {
+      "name": "etax_portal",
+      "feed_types": [
+        "paye_return"
+      ],
+      "owner": "Revenue Service e-tax filing portal"
+    },
+    {
+      "name": "legacy_register",
+      "feed_types": [
+        "paye_return"
+      ],
+      "owner": "Legacy manual returns register (office capture)",
+      "system_of_record": false
+    },
+    {
+      "name": "treasury",
+      "feed_types": [
+        "payment"
+      ],
+      "owner": "Revenue Service treasury / collection reconciliation"
+    },
+    {
+      "name": "bank_feed",
+      "feed_types": [
+        "payment"
+      ],
+      "owner": "Collecting bank settlement feed",
+      "system_of_record": false
+    },
+    {
+      "name": "assessment_ledger",
+      "feed_types": [
+        "assessment"
+      ],
+      "owner": "Revenue Service assessment ledger"
+    },
+    {
+      "name": "external_business_licensing",
+      "feed_types": [
+        "employer"
+      ],
+      "owner": "External business licensing extract (NOT AUTHORISED)",
+      "system_of_record": false,
+      "external": true,
+      "enabled": false,
+      "data_sharing_basis": ""
+    }
+  ],
+  "data_sharing_basis": "Internal Revenue Service system (SYNTHETIC demo data)",
+  "instruments": [
+    {
+      "code": "PRIOR-PAYE-LAW",
+      "title": "Previously applicable PAYE law (for tax periods before 1 January 2026)",
+      "authority": "National / State",
+      "jurisdiction": "XX",
+      "status": "pending_legal_confirmation",
+      "note": "Placeholder showing how a change of law is handled: older periods resolve to the earlier version."
+    },
+    {
+      "code": "TAX-ADMIN-ACT",
+      "title": "National tax administration act (placeholder)",
+      "authority": "National",
+      "jurisdiction": "XX",
+      "status": "pending_legal_confirmation",
+      "note": "Replace with the authority's authenticated statute and provision references."
+    },
+    {
+      "code": "STATE-REVENUE-LAW",
+      "title": "State revenue administration law (placeholder)",
+      "authority": "State",
+      "jurisdiction": "XX-DEMO",
+      "status": "pending_legal_confirmation",
+      "note": "Replace with the authority's own revenue law and amendment history."
+    }
+  ],
+  "legal_versions": [
+    {
+      "code": "PAYE_EMPLOYER_MONTHLY_RETURN",
+      "version": "2020.1-SYN",
+      "instrument": "PRIOR-PAYE-LAW",
+      "effective_from": "2020-01-01",
+      "effective_to": "2025-12-31",
+      "parameters": {
+        "due_day_of_following_month": 10
+      }
+    },
+    {
+      "code": "PAYE_EMPLOYER_MONTHLY_RETURN",
+      "version": "2026.1-SYN",
+      "instrument": "TAX-ADMIN-ACT",
+      "effective_from": "2026-01-01",
+      "effective_to": null,
+      "parameters": {
+        "due_day_of_following_month": 15
+      }
+    },
+    {
+      "code": "PAYE_EMPLOYER_REMITTANCE",
+      "version": "2020.1-SYN",
+      "instrument": "PRIOR-PAYE-LAW",
+      "effective_from": "2020-01-01",
+      "effective_to": "2025-12-31",
+      "parameters": {
+        "due_day_of_following_month": 10
+      }
+    },
+    {
+      "code": "PAYE_EMPLOYER_REMITTANCE",
+      "version": "2026.1-SYN",
+      "instrument": "TAX-ADMIN-ACT",
+      "effective_from": "2026-01-01",
+      "effective_to": null,
+      "parameters": {
+        "due_day_of_following_month": 10
+      }
+    },
+    {
+      "code": "PAYE_ASSESSMENT",
+      "version": "2020.1-SYN",
+      "instrument": "PRIOR-PAYE-LAW",
+      "effective_from": "2020-01-01",
+      "effective_to": "2025-12-31",
+      "parameters": {
+        "payment_days_after_service": 30
+      }
+    },
+    {
+      "code": "PAYE_ASSESSMENT",
+      "version": "2026.1-SYN",
+      "instrument": "TAX-ADMIN-ACT",
+      "effective_from": "2026-01-01",
+      "effective_to": null,
+      "parameters": {
+        "payment_days_after_service": 30
+      }
+    }
+  ],
+  "tax_scope": [
+    {
+      "workstream": "Employer PAYE",
+      "status": "pilot_primary",
+      "treatment": "Monthly remittance, employer returns, annual obligations and reconciliation",
+      "condition": "Per-period obligation verification and approved legal versions"
+    },
+    {
+      "workstream": "Individual income tax / direct assessment",
+      "status": "secondary_next",
+      "treatment": "Return obligations, outstanding liabilities",
+      "condition": "Residence and jurisdiction verification"
+    },
+    {
+      "workstream": "Withholding tax relating to individuals",
+      "status": "next",
+      "treatment": "Filing, payment, reconciliation",
+      "condition": "Confirm the authority's legal competence, payer obligation and period"
+    },
+    {
+      "workstream": "Local fees, levies, business premises, motor vehicle",
+      "status": "future",
+      "treatment": "Not automatically classed as income tax",
+      "condition": "Separate statutory instrument and owner for each rule"
+    },
+    {
+      "workstream": "Property / land-related charges",
+      "status": "future",
+      "treatment": "Only where the authority has the legal and administrative mandate",
+      "condition": "Do not assume every property tax is administered by the authority"
+    },
+    {
+      "workstream": "National taxes administered by another agency (e.g. company income tax, VAT)",
+      "status": "excluded",
+      "treatment": "Excluded from assessment and enforcement engines",
+      "condition": "Contextual only when formally authorised"
+    }
+  ],
+  "retention": [
+    {
+      "data_class": "raw_source_files",
+      "retain_days": 2555,
+      "legal_basis": "Tax records retention (placeholder: confirm the statutory period with the authority's legal team)"
+    },
+    {
+      "data_class": "findings_and_cases",
+      "retain_days": 2555,
+      "legal_basis": "Compliance decision records (placeholder)"
+    },
+    {
+      "data_class": "audit_events",
+      "retain_days": 3650,
+      "legal_basis": "Accountability; tamper-evident chain (placeholder)"
+    },
+    {
+      "data_class": "access_logs",
+      "retain_days": 730,
+      "legal_basis": "Security monitoring (placeholder)"
+    }
+  ],
+  "fixture": {
+    "places": [
+      "Central",
+      "Northgate",
+      "Riverside",
+      "Hillcrest",
+      "Lakeview",
+      "Market Town",
+      "Eastfield",
+      "Westbrook",
+      "Savannah",
+      "Kara",
+      "Greenvale",
+      "Port Hall",
+      "Old Quarter",
+      "Station Road",
+      "Unity Estate",
+      "Harbour",
+      "Ridgeway",
+      "Palm Grove",
+      "Canal Side",
+      "Airport Road",
+      "Garden City",
+      "New Layout",
+      "Hilltop",
+      "Bridge End",
+      "Sunrise",
+      "Crossroads",
+      "Valley View",
+      "Kingsway",
+      "Cedar Park",
+      "Lakeshore"
+    ],
+    "users": [
+      {
+        "username": "platform.admin",
+        "display_name": "Demo Platform Administrator",
+        "roles": "platform_admin",
+        "unit": "ICT",
+        "area_scope": "",
+        "purposes": "data_quality"
+      },
+      {
+        "username": "legal.approver",
+        "display_name": "Demo Legal Approver",
+        "roles": "legal_approver",
+        "unit": "Legal",
+        "area_scope": "",
+        "purposes": "audit;case_review"
+      },
+      {
+        "username": "risk.analyst",
+        "display_name": "Demo Risk Analyst",
+        "roles": "risk_analyst",
+        "unit": "PAYE Compliance",
+        "area_scope": "",
+        "purposes": "case_review;desk_review;management_reporting"
+      },
+      {
+        "username": "risk.analyst2",
+        "display_name": "Demo Risk Analyst Two",
+        "roles": "risk_analyst",
+        "unit": "PAYE Compliance",
+        "area_scope": "",
+        "purposes": "case_review;desk_review"
+      },
+      {
+        "username": "compliance.manager",
+        "display_name": "Demo Head of Compliance",
+        "roles": "compliance_manager",
+        "unit": "Compliance Directorate",
+        "area_scope": "",
+        "purposes": "case_review;desk_review;management_reporting;audit"
+      },
+      {
+        "username": "compliance.manager2",
+        "display_name": "Demo Deputy Head of Compliance",
+        "roles": "compliance_manager",
+        "unit": "Compliance Directorate",
+        "area_scope": "",
+        "purposes": "case_review;desk_review;management_reporting"
+      },
+      {
+        "username": "compliance.officer",
+        "display_name": "Demo PAYE Compliance Officer",
+        "roles": "compliance_officer",
+        "unit": "PAYE Unit",
+        "area_scope": "",
+        "purposes": "case_review"
+      },
+      {
+        "username": "taxpayer.services",
+        "display_name": "Demo Taxpayer Service Officer",
+        "roles": "compliance_officer",
+        "unit": "Taxpayer Services",
+        "area_scope": "",
+        "purposes": "case_review"
+      },
+      {
+        "username": "audit.officer",
+        "display_name": "Demo Audit Manager",
+        "roles": "audit_officer",
+        "unit": "Audit",
+        "area_scope": "",
+        "purposes": "audit;desk_review;case_review"
+      },
+      {
+        "username": "data.steward",
+        "display_name": "Demo Data Steward",
+        "roles": "data_steward",
+        "unit": "Data Administration",
+        "area_scope": "",
+        "purposes": "data_quality"
+      },
+      {
+        "username": "data.steward2",
+        "display_name": "Demo Data Steward Two",
+        "roles": "data_steward",
+        "unit": "Data Administration",
+        "area_scope": "",
+        "purposes": "data_quality"
+      },
+      {
+        "username": "executive.chairman",
+        "display_name": "Demo Executive Chairman (viewer)",
+        "roles": "executive_viewer",
+        "unit": "Office of the Executive Chairman",
+        "area_scope": "",
+        "purposes": "management_reporting"
+      },
+      {
+        "username": "field.officer.central",
+        "display_name": "Demo Field Officer (Central)",
+        "roles": "compliance_officer",
+        "unit": "Central Field Office",
+        "area_scope": "CEN;NTH",
+        "purposes": "case_review"
+      }
+    ]
+  }
+}

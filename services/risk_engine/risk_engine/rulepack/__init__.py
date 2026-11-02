@@ -1,4 +1,4 @@
-"""Bundled NGSIRS pilot rule pack (12 deterministic PAYE-led rules)."""
+"""Bundled PAYE pilot rule pack (12 deterministic PAYE-led rules)."""
 
 from __future__ import annotations
 
@@ -8,7 +8,7 @@ from typing import Any
 
 from ..dsl import RuleDefinition, validate_rule
 
-PILOT_PACK = "ngsirs_pilot_v1.json"
+PILOT_PACK = "paye_pilot_v1.json"
 
 
 def load_pilot_pack_raw() -> list[dict[str, Any]]:

@@ -1,8 +1,9 @@
 "use client";
 
-import type { Me } from "@ngsirs/contracts";
+import type { Me } from "@taxrisk/contracts";
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { api, ApiError, getToken, setToken, setUnauthorizedHandler, unwrap } from "./api";
+import { configureLocale } from "./format";
 
 type Status = "loading" | "signed_out" | "ready" | "error";
 
@@ -26,6 +27,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const loadMe = useCallback(async () => {
     try {
       const m = await unwrap<Me>(api.GET("/api/v1/me"));
+      configureLocale({ locale: m.locale, currency: m.currency, timeZone: m.timezone });
       setMe(m);
       setError(null);
       setStatus("ready");
@@ -87,6 +89,19 @@ export function useAuth(): AuthState {
   const ctx = useContext(AuthContext);
   if (!ctx) throw new Error("useAuth must be used inside AuthProvider");
   return ctx;
+}
+
+/** Labels that differ between authorities (from the jurisdiction pack). */
+export function useLabels() {
+  const { me } = useAuth();
+  return {
+    area: me?.area_label ?? "Area",
+    areas: me?.area_label_plural ?? "Areas",
+    authority: me?.authority_name ?? "Revenue authority",
+    authorityShort: me?.authority_short_name ?? "",
+    product: me?.product_name ?? "Tax Compliance Risk Platform",
+    fictional: me?.fictional_authority ?? false,
+  };
 }
 
 /** Signed-in user; only call inside the console layout, which guarantees a session. */

@@ -1,7 +1,7 @@
 "use client";
 
-import type { EvaluationRunOut, RuleDetail, RuleListItem, RuleLanguage, RunReproduceResult } from "@ngsirs/contracts";
-import { StateMessage, StatusBadge } from "@ngsirs/design";
+import type { EvaluationRunOut, RuleDetail, RuleListItem, RuleLanguage, RunReproduceResult } from "@taxrisk/contracts";
+import { StateMessage, StatusBadge } from "@taxrisk/design";
 import { useState } from "react";
 import { RuleDetailPanel } from "./RuleDetailPanel";
 import { Tabs } from "@/components/Tabs";

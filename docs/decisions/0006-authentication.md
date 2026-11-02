@@ -5,7 +5,7 @@
 ## Decision
 - OIDC bearer tokens (RS256) verified against the IdP JWKS (Keycloak realm provided in `infra/keycloak`).
   Required claims: `sub`, `tenant` (and optionally `tenant_id`), `roles`, `purposes`; `amr` must include
-  `mfa` when `NGSIRS_REQUIRE_MFA=true`.
+  `mfa` when `TAXRISK_REQUIRE_MFA=true`.
 - Demo/test environments may use a built-in development issuer that signs with a local key and goes
   through the same verification. Production refuses to start with the dev issuer, demo keys, no JWKS or MFA
   disabled.

@@ -1,6 +1,6 @@
 /**
  * Response shapes for endpoints whose OpenAPI schema is an open object (`{[key: string]: unknown}`).
- * Derived from apps/api/ngsirs_api/routers/*.py and serializers.py. Keep in step with the API until
+ * Derived from apps/api/taxrisk_api/routers/*.py and serializers.py. Keep in step with the API until
  * those routes declare a response_model, then delete the matching type and use the generated one.
  */
 import type { components } from "./schema";
@@ -15,7 +15,7 @@ export interface Metric {
   denominator: number | null;
   window: string;
   completeness: number | null;
-  unit: "rate" | "NGN" | "days" | string;
+  unit: "rate" | "days" | string; // money metrics use the ISO currency code, e.g. "NGN"
   caveats: string[];
 }
 
@@ -31,11 +31,11 @@ export interface SourceFreshness {
 export interface DashboardSummary {
   generated_at: string;
   synthetic_data: boolean;
-  filters: { period: string | null; lga: string | null; tax_type: string };
+  filters: { period: string | null; area: string | null; tax_type: string };
   run: { id: string; as_of: string; rule_set_hash: string; periods: [string, string] } | null;
   metrics: Metric[];
   trend: { period: string; filing: Metric; remittance: Metric }[];
-  by_lga: { lga: string; name: string; filing: Metric }[];
+  by_area: { area: string; name: string; filing: Metric }[];
   findings: {
     open?: number;
     by_class?: Record<string, number>;
@@ -54,7 +54,7 @@ export interface DashboardSummary {
   method_note: string;
 }
 
-export interface Lga {
+export interface AdminArea {
   code: string;
   name: string;
   verified: boolean;
@@ -62,8 +62,8 @@ export interface Lga {
 }
 
 export interface Reference {
-  lgas: Lga[];
-  offices: { code: string; name: string; lga: string }[];
+  areas: AdminArea[];
+  offices: { code: string; name: string; area: string }[];
   roles: Record<string, string>;
   purposes: Record<string, string>;
   treatments: Record<string, { label: string; human_gate: string; outward: boolean; approver_roles: string[] }>;
@@ -75,7 +75,7 @@ export interface Reference {
 export interface TaxpayerSearchItem {
   employer_ref: string;
   name: string;
-  lga: string | null;
+  area: string | null;
   sector: string | null;
   segment: string | null;
   status: string;
@@ -112,7 +112,7 @@ export interface Taxpayer360 {
   employer: {
     ref: string;
     name: string;
-    lga: string | null;
+    area: string | null;
     office: string | null;
     sector: string | null;
     segment: string | null;
@@ -127,7 +127,7 @@ export interface Taxpayer360 {
     type: string;
     status: string;
     jurisdiction: string | null;
-    lga: string | null;
+    area: string | null;
     identifiers: { type: string; masked: string; verification: string }[];
   } | null;
   identity: {
@@ -265,7 +265,7 @@ export interface IdentityMatchItem {
   id: string;
   employer_ref: string | null;
   employer_name: string | null;
-  employer_lga: string | null;
+  employer_area: string | null;
   candidate_taxpayer: string | null;
   candidate_name: string | null;
   match_type: string;
@@ -367,7 +367,7 @@ export interface BacktestSide {
   data_holds: number;
   suppressed: number;
   bands: Record<string, number>;
-  by_lga: Record<string, number>;
+  by_area: Record<string, number>;
 }
 
 export interface BacktestResult {

@@ -1,7 +1,7 @@
 "use client";
 
-import type { CaseDetail, EvidencePacketResult, FindingDetail, FindingOutcome } from "@ngsirs/contracts";
-import { RISK_LABEL, RiskIndicator, StateMessage, StatusBadge } from "@ngsirs/design";
+import type { CaseDetail, EvidencePacketResult, FindingDetail, FindingOutcome } from "@taxrisk/contracts";
+import { RISK_LABEL, RiskIndicator, StateMessage, StatusBadge } from "@taxrisk/design";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useState } from "react";

@@ -3,9 +3,9 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   // Workspace packages ship TypeScript/TSX source; Next compiles them.
-  transpilePackages: ["@ngsirs/contracts", "@ngsirs/design"],
+  transpilePackages: ["@taxrisk/contracts", "@taxrisk/design"],
   poweredByHeader: false,
-  // No telemetry, analytics or remote assets: the console only talks to the NGSIRS API.
+  // No telemetry, analytics or remote assets: the console only talks to the platform API.
   images: { unoptimized: true },
   async headers() {
     return [

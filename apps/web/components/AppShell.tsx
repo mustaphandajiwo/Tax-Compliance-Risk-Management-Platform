@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
-import { useAuth } from "@/lib/auth";
+import { useAuth, useLabels } from "@/lib/auth";
 import { humanize } from "@/lib/format";
 
 interface NavItem {
@@ -48,17 +48,19 @@ export function SyntheticBanner({ environment, synthetic }: { environment?: stri
   );
 }
 
-export function Wordmark() {
+export function Wordmark({ authority }: { authority?: string | null }) {
+  const labels = useLabels();
   return (
     <div className="wordmark">
-      <span className="wordmark__name">NGSIRS Compliance Risk Management Platform</span>
-      <span className="wordmark__owner">Niger State Internal Revenue Service</span>
+      <span className="wordmark__name">{labels.product}</span>
+      <span className="wordmark__owner">{authority ?? labels.authority}</span>
     </div>
   );
 }
 
 export function AppShell({ children }: { children: ReactNode }) {
   const { me, can, signOut } = useAuth();
+  const labels = useLabels();
   const pathname = usePathname();
   const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -78,7 +80,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             <span className="topbar__name">{me?.display_name}</span>
             <span className="topbar__roles">
               {me?.roles.map(humanize).join(", ")}
-              {me && me.lga_scope.length > 0 && ` · LGA scope: ${me.lga_scope.join(", ")}`}
+              {me && me.area_scope.length > 0 && ` · ${labels.area} scope: ${me.area_scope.join(", ")}`}
               {me && ` · Mode: ${humanize(me.operating_mode)}`}
             </span>
           </span>
@@ -132,8 +134,8 @@ export function AppShell({ children }: { children: ReactNode }) {
         </main>
       </div>
       <footer className="footer">
-        Operations console for internal NGSIRS use. Outputs are risk indicators for human review, never tax
-        assessments or enforcement decisions.
+        Operations console for internal use by {labels.authority}. Outputs are risk indicators for human review,
+        never tax assessments or enforcement decisions.
       </footer>
     </div>
   );

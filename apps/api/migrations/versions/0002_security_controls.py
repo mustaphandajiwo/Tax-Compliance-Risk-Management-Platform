@@ -25,7 +25,7 @@ TENANT_TABLES = [
     "identity_match",
     "input_snapshot",
     "legal_instrument",
-    "lga",
+    "admin_area",
     "payment",
     "programme",
     "retention_policy",
@@ -51,8 +51,18 @@ TENANT_TABLES = [
     "risk_evidence",
     "case_action",
     "evidence_packet",
+    "connector",
+    "connector_run",
+    "connector_event",
 ]
-APPEND_ONLY = ["audit_event", "finding_event", "case_action", "risk_evidence", "evidence_packet"]
+APPEND_ONLY = [
+    "audit_event",
+    "finding_event",
+    "case_action",
+    "risk_evidence",
+    "evidence_packet",
+    "connector_event",
+]
 TENANT_EXPR = "NULLIF(current_setting('app.tenant_id', true), '')::uuid"
 
 
@@ -142,12 +152,12 @@ def upgrade() -> None:
         "FOR EACH ROW EXECUTE FUNCTION protect_approved_legal_version()"
     )
 
-    op.execute("GRANT USAGE ON SCHEMA public TO ngsirs_app")
-    op.execute("GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO ngsirs_app")
-    op.execute("GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO ngsirs_app")
-    op.execute("GRANT EXECUTE ON FUNCTION app_resolve_tenant(text) TO ngsirs_app")
+    op.execute("GRANT USAGE ON SCHEMA public TO taxrisk_app")
+    op.execute("GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO taxrisk_app")
+    op.execute("GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO taxrisk_app")
+    op.execute("GRANT EXECUTE ON FUNCTION app_resolve_tenant(text) TO taxrisk_app")
     for table in APPEND_ONLY:
-        op.execute(f"REVOKE UPDATE, DELETE, TRUNCATE ON {table} FROM ngsirs_app")
+        op.execute(f"REVOKE UPDATE, DELETE, TRUNCATE ON {table} FROM taxrisk_app")
 
 
 def downgrade() -> None:

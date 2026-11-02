@@ -372,7 +372,7 @@ def test_legal_versions_need_independent_approval(client: TestClient, auth: dict
     body = {
         "code": "PAYE_EMPLOYER_MONTHLY_RETURN",
         "version": "2030.1-SYN",
-        "instrument_code": "NS-TACL-2023",
+        "instrument_code": "STATE-REVENUE-LAW",
         "provision_ref": "SYNTHETIC test provision",
         "effective_from": "2030-01-01",
         "parameters": {"due_day_of_following_month": 12},
@@ -403,10 +403,10 @@ def test_programme_cohorts_and_evaluation(client: TestClient, auth: dict) -> Non
         headers=auth["analyst"],
         json={
             "code": "PAYE-MINNA-T1",
-            "name": "Minna reminders",
+            "name": "Central district reminders",
             "objective": "Improve on-time PAYE filing",
-            "population": {"lga_codes": ["CHA", "BOS"]},
-            "denominator_definition": "Obligated Minna employers",
+            "population": {"area_codes": ["CEN", "NTH"]},
+            "denominator_definition": "Obligated employers in the pilot districts",
             "baseline_from": "2025-09",
             "baseline_to": "2026-02",
             "evaluation_from": "2026-03",
@@ -426,7 +426,7 @@ def test_programme_cohorts_and_evaluation(client: TestClient, auth: dict) -> Non
 
 
 def test_report_export_requires_permission_and_purpose(client: TestClient, auth: dict) -> None:
-    url = "/api/v1/reports/compliance_by_lga"
+    url = "/api/v1/reports/compliance_by_area"
     assert client.get(url, headers=auth["exec"], params={"format": "csv"}).status_code == 403
     r = client.get(
         url, headers={**auth["exec"], "X-Purpose": "management_reporting"}, params={"format": "csv"}

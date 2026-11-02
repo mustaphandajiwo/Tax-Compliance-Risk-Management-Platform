@@ -22,8 +22,8 @@ def _upload(client: TestClient, headers: dict, name: str, content: bytes, **form
         headers=headers,
         files={"file": (name, content, "text/csv")},
         data={
-            "source": "ngsirs_etax_portal",
-            "feed_type": "ngsirs_paye_return",
+            "source": "etax_portal",
+            "feed_type": "paye_return",
             "extracted_at": "2026-09-30T14:00:00+01:00",
             **form,
         },
@@ -39,7 +39,7 @@ def test_external_source_without_legal_basis_is_refused(client: TestClient, auth
         files={"file": ("e.csv", b"x\n1\n", "text/csv")},
         data={
             "source": "external_business_licensing",
-            "feed_type": "ngsirs_employer",
+            "feed_type": "employer",
             "extracted_at": "2026-09-30T14:00:00+01:00",
         },
     )
@@ -54,7 +54,7 @@ def test_invalid_file_is_rejected_with_reasons(client: TestClient, auth: dict) -
 
 def test_rollback_and_reimport_of_late_batch(client: TestClient, auth: dict, world: World) -> None:
     batches = client.get(
-        "/api/v1/imports", headers=auth["steward"], params={"feed_type": "ngsirs_paye_return"}
+        "/api/v1/imports", headers=auth["steward"], params={"feed_type": "paye_return"}
     ).json()
     late = next(b for b in batches if b["file_name"] == "paye_returns_late.csv")
     refs = world.scenarios["late_ingest"]

@@ -23,18 +23,20 @@ def _admin(sql: str) -> None:
 def database() -> Iterator[None]:
     _admin((REPO / "infra" / "db" / "init.sql").read_text())
     _admin(f"DROP DATABASE IF EXISTS {TEST_DB} WITH (FORCE)")
-    _admin(f"CREATE DATABASE {TEST_DB} OWNER ngsirs_owner")
-    from ngsirs_api.cli import migrate
+    _admin(f"CREATE DATABASE {TEST_DB} OWNER taxrisk_owner")
+    from taxrisk_api.cli import migrate
 
     migrate()
     yield
 
 
 class World:
-    """Handles to the seeded NGSIRS tenant and the isolation-test organisation."""
+    """Handles to the seeded authority tenant and the isolation-test organisation."""
 
-    def __init__(self, ngsirs: uuid.UUID, other: uuid.UUID, manifest: dict[str, Any], golden: dict[str, Any]):
-        self.ngsirs = ngsirs
+    def __init__(
+        self, authority: uuid.UUID, other: uuid.UUID, manifest: dict[str, Any], golden: dict[str, Any]
+    ):
+        self.authority = authority
         self.other = other
         self.manifest = manifest
         self.golden = golden
@@ -47,34 +49,35 @@ class World:
 
 @pytest.fixture(scope="session")
 def world(database: None) -> World:
-    from ngsirs_api import cli
-    from ngsirs_api.db import tenant_session
-    from ngsirs_api.models import Tenant
-    from ngsirs_api.seed import bootstrap_tenant, seed_all, seed_reference
+    from taxrisk_api import cli
+    from taxrisk_api.db import tenant_session
+    from taxrisk_api.jurisdiction import load_pack
+    from taxrisk_api.models import Tenant
+    from taxrisk_api.seed import bootstrap_tenant, seed_all, seed_reference
 
-    ngsirs = seed_all(FIXTURES / "users.csv")
-    loads = cli.load_fixtures(ngsirs)
+    authority = seed_all()
+    loads = cli.load_fixtures(authority)
     assert all(r["status"] == "committed" for r in loads), loads
     manifest = json.loads((FIXTURES / "manifest.json").read_text())
     cli.evaluate(
-        ngsirs, datetime.fromisoformat(manifest["as_of"]), manifest["period_from"], manifest["period_to"]
+        authority, datetime.fromisoformat(manifest["as_of"]), manifest["period_from"], manifest["period_to"]
     )
-    golden = cli.compare_golden(ngsirs)
+    golden = cli.compare_golden(authority)
 
     other = bootstrap_tenant(
         "ISOLATION-TEST-ORG", "Isolation test organisation (tests only)", is_test_only=True
     )
     with tenant_session(other) as db:
-        seed_reference(db, other)
+        seed_reference(db, other, load_pack("demo"))
         t = db.execute(select(Tenant)).scalar_one()
         assert t.is_test_only
     cli.load_fixtures(other)
-    return World(ngsirs, other, manifest, golden)
+    return World(authority, other, manifest, golden)
 
 
 @pytest.fixture(scope="session")
 def client(world: World) -> Iterator[TestClient]:
-    from ngsirs_api.main import app
+    from taxrisk_api.main import app
 
     with TestClient(app) as c:
         yield c
@@ -92,7 +95,7 @@ USERS = {
     "audit": "audit.officer",
     "exec": "executive.chairman",
     "admin": "platform.admin",
-    "field": "field.officer.minna",
+    "field": "field.officer.central",
     "services": "taxpayer.services",
 }
 
@@ -115,7 +118,7 @@ def token_for(
     purposes: list[str] | None = None,
     ttl: int | None = None,
 ) -> dict[str, str]:
-    from ngsirs_api.security.auth import issue_dev_token
+    from taxrisk_api.security.auth import issue_dev_token
 
     tok = issue_dev_token(username, username, tenant_id, tenant_code, roles, purposes or [], [], ttl=ttl)
     return {"Authorization": f"Bearer {tok}"}

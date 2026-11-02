@@ -1,11 +1,11 @@
 "use client";
 
-import type { BacktestResult, RuleDetail, RuleDiff, RuleVersion, ValidationReport } from "@ngsirs/contracts";
-import { StateMessage, StatusBadge } from "@ngsirs/design";
+import type { BacktestResult, RuleDetail, RuleDiff, RuleVersion, ValidationReport } from "@taxrisk/contracts";
+import { StateMessage, StatusBadge } from "@taxrisk/design";
 import { useEffect, useState } from "react";
 import { ErrorNotice, Field, Hash, JsonView, KeyValues, Section } from "@/components/ui";
 import { api, unwrap } from "@/lib/api";
-import { useAuth } from "@/lib/auth";
+import { useAuth, useLabels } from "@/lib/auth";
 import { useMutation } from "@/lib/hooks";
 import { fmtDateTime, humanize } from "@/lib/format";
 
@@ -236,6 +236,7 @@ function VersionCard({ v, isActive, onChanged }: { v: RuleVersion; isActive: boo
 }
 
 function BacktestView({ b }: { b: BacktestResult }) {
+  const labels = useLabels();
   const sides = [
     { label: `Candidate ${b.rule}`, s: b.candidate },
     ...(b.active ? [{ label: `Active ${b.compared_with ?? ""}`, s: b.active }] : []),
@@ -253,7 +254,7 @@ function BacktestView({ b }: { b: BacktestResult }) {
               <th scope="col" className="num">Data holds</th>
               <th scope="col" className="num">Suppressed</th>
               <th scope="col">Bands</th>
-              <th scope="col">By LGA</th>
+              <th scope="col">{`By ${labels.area}`}</th>
             </tr>
           </thead>
           <tbody>
@@ -265,7 +266,7 @@ function BacktestView({ b }: { b: BacktestResult }) {
                 <td className="num">{s.data_holds}</td>
                 <td className="num">{s.suppressed}</td>
                 <td className="small">{Object.entries(s.bands).map(([k, n]) => `${humanize(k)} ${n}`).join(", ") || "—"}</td>
-                <td className="small">{Object.entries(s.by_lga).map(([k, n]) => `${k} ${n}`).join(", ") || "—"}</td>
+                <td className="small">{Object.entries(s.by_area).map(([k, n]) => `${k} ${n}`).join(", ") || "—"}</td>
               </tr>
             ))}
           </tbody>

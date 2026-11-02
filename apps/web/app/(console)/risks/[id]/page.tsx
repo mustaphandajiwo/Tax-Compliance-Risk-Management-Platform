@@ -1,14 +1,14 @@
 "use client";
 
-import type { CaseDetail, FindingDetail, ReproduceResult, ReviewDecision } from "@ngsirs/contracts";
-import { RISK_LABEL, RiskIndicator, StateMessage, StatusBadge } from "@ngsirs/design";
+import type { CaseDetail, FindingDetail, ReproduceResult, ReviewDecision } from "@taxrisk/contracts";
+import { RISK_LABEL, RiskIndicator, StateMessage, StatusBadge } from "@taxrisk/design";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { useAsync, useMutation, useReference, useReloadOnConflict } from "@/lib/hooks";
 import { AsyncBlock, ErrorNotice, Field, Hash, JsonView, KeyValues, PageHeader, RequirePermission, Section, Yes } from "@/components/ui";
 import { api, idempotencyKey, unwrap } from "@/lib/api";
-import { useAuth } from "@/lib/auth";
+import { useAuth, useLabels } from "@/lib/auth";
 import { REVIEW_DECISIONS } from "@/lib/constants";
 import { fmtConfidence, fmtDateTime, humanize } from "@/lib/format";
 
@@ -34,6 +34,7 @@ function RiskDetail() {
 }
 
 function FindingView({ f, onChanged }: { f: FindingDetail; onChanged: (next?: FindingDetail) => void }) {
+  const labels = useLabels();
   const { can } = useAuth();
   const obligationRefs = f.evidence_refs.filter((r) => r.startsWith("src:obligation"));
   const obligationRef = typeof f.rule_definition.obligation_ref === "string" ? f.rule_definition.obligation_ref : null;
@@ -140,7 +141,7 @@ function FindingView({ f, onChanged }: { f: FindingDetail; onChanged: (next?: Fi
                   `${f.subject.type}:${f.subject.id}`
                 ),
               ],
-              ["LGA", f.lga ?? "—"],
+              [labels.area, f.area ?? "—"],
               ["Rule", `${f.rule.id} v${f.rule.version} · ${humanize(f.domain)} · ${humanize(f.signal_class)}`],
               ["Source date (snapshot as at)", fmtDateTime(f.snapshot.as_of as string | null)],
               ["Proposed treatment", humanize(f.treatment)],

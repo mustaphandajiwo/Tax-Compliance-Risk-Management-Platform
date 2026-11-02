@@ -1,8 +1,8 @@
 {
-  "name": "@ngsirs/design",
+  "name": "@taxrisk/design",
   "version": "1.0.0",
   "private": true,
-  "description": "NGSIRS console design tokens (CSS custom properties) and shared presentational components",
+  "description": "Console design tokens (CSS custom properties) and shared presentational components",
   "type": "module",
   "main": "src/index.ts",
   "types": "src/index.ts",

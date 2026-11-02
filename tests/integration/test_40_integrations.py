@@ -19,21 +19,21 @@ CODE = "COLLECTION-PLATFORM"
 
 
 def _pull(world: World):  # type: ignore[no-untyped-def]
-    from ngsirs_api.db import tenant_session
-    from ngsirs_api.services import integrations
+    from taxrisk_api.db import tenant_session
+    from taxrisk_api.services import integrations
 
-    with tenant_session(world.ngsirs) as db:
+    with tenant_session(world.authority) as db:
         run = integrations.run_pull(
-            db, integrations.get_connector(db, CODE), "ngsirs_payment", trigger="manual", transport=TRANSPORT
+            db, integrations.get_connector(db, CODE), "payment", trigger="manual", transport=TRANSPORT
         )
         return integrations.run_payload(run)
 
 
 def test_pull_fails_safely_without_credentials(world: World, monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.delenv("NGSIRS_COLLECTION_API_KEY", raising=False)
+    monkeypatch.delenv("TAXRISK_COLLECTION_API_KEY", raising=False)
     run = _pull(world)
     assert run["status"] == "failed" and "not configured" in run["error"] and run["batch_id"] is None
-    monkeypatch.setenv("NGSIRS_COLLECTION_API_KEY", "wrong-key")
+    monkeypatch.setenv("TAXRISK_COLLECTION_API_KEY", "wrong-key")
     run = _pull(world)
     assert run["status"] == "failed" and "HTTP 401" in run["error"]
     assert "wrong-key" not in run["error"]  # credentials never echoed
@@ -42,17 +42,17 @@ def test_pull_fails_safely_without_credentials(world: World, monkeypatch: pytest
 def test_pull_pages_filters_dedupes_validates_and_commits(
     world: World, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    from ngsirs_api.db import tenant_session
-    from ngsirs_api.models import Connector, IngestBatch, Payment, SourceRecord
+    from taxrisk_api.db import tenant_session
+    from taxrisk_api.models import Connector, IngestBatch, Payment, SourceRecord
 
-    monkeypatch.setenv("NGSIRS_COLLECTION_API_KEY", mock.API_KEY)
+    monkeypatch.setenv("TAXRISK_COLLECTION_API_KEY", mock.API_KEY)
     run = _pull(world)
     total = len(mock.TRANSACTIONS)
     assert run["status"] == "succeeded", run
     assert run["records_received"] == total and run["pages"] == math.ceil(total / 25)
     assert run["records_filtered"] == 1  # BUSINESS_PREMISES is outside the PAYE pilot
     assert run["cursor_to"] == max(t["updated_at"] for t in mock.TRANSACTIONS)
-    with tenant_session(world.ngsirs) as db:
+    with tenant_session(world.authority) as db:
         batch = db.get(IngestBatch, run["batch_id"])
         assert (
             batch.qa_status == "committed" and batch.coverage_from is None
@@ -82,7 +82,7 @@ def test_pull_pages_filters_dedupes_validates_and_commits(
             db.execute(select(Payment).where(Payment.payment_reference == "CP-2026-09-BPL1")).first() is None
         )
         c = db.execute(select(Connector).where(Connector.code == CODE)).scalar_one()
-        assert c.state["ngsirs_payment"]["cursor"] == run["cursor_to"] and c.last_status == "succeeded"
+        assert c.state["payment"]["cursor"] == run["cursor_to"] and c.last_status == "succeeded"
 
     again = _pull(world)
     assert (
@@ -95,11 +95,7 @@ def test_pull_pages_filters_dedupes_validates_and_commits(
 def test_connector_api_and_permissions(client: TestClient, auth: dict) -> None:
     listed = client.get("/api/v1/connectors", headers=auth["steward"]).json()
     c = next(x for x in listed if x["code"] == CODE)
-    assert (
-        c["source"] == "ngsirs_collection_platform"
-        and "config" in c
-        and "secret" not in str(c["config"]).lower()
-    )
+    assert c["source"] == "collection_platform" and "config" in c and "secret" not in str(c["config"]).lower()
     detail = client.get(f"/api/v1/connectors/{CODE}", headers=auth["steward"]).json()
     assert detail["runs"] and {r["trigger"] for r in detail["runs"]} >= {"manual"}
     assert client.post(f"/api/v1/connectors/{CODE}/run", headers=auth["officer"]).status_code == 403
@@ -107,7 +103,7 @@ def test_connector_api_and_permissions(client: TestClient, auth: dict) -> None:
 
 
 def test_webhook_signature_replay_and_freshness(client: TestClient, monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setenv("NGSIRS_COLLECTION_WEBHOOK_SECRET", mock.WEBHOOK_SECRET)
+    monkeypatch.setenv("TAXRISK_COLLECTION_WEBHOOK_SECRET", mock.WEBHOOK_SECRET)
     tx = {**mock.TRANSACTIONS[0], "transaction_ref": "CP-WH-0001", "updated_at": "2026-10-20T10:00:00+01:00"}
     url = f"/api/v1/connectors/{CODE}/webhook"
     body, headers = mock.signed_webhook([tx], "evt-0001")
@@ -126,7 +122,7 @@ def test_webhook_signature_replay_and_freshness(client: TestClient, monkeypatch:
 
 
 def test_push_api_for_machine_clients(client: TestClient, auth: dict, world: World) -> None:
-    svc = token_for(world.ngsirs, "NGSIRS", ["integration_client"], "etax-portal-client")
+    svc = token_for(world.authority, "DEMO", ["integration_client"], "etax-portal-client")
     record = {
         "payment_reference": "PUSH-0001",
         "employer_id": world.scenarios["clean"][0],
@@ -138,8 +134,8 @@ def test_push_api_for_machine_clients(client: TestClient, auth: dict, world: Wor
         "settlement_status": "settled",
         "allocation_status": "allocated",
     }
-    body = {"source": "ngsirs_treasury", "extracted_at": "2026-10-27T12:00:00+01:00", "records": [record]}
-    url = "/api/v1/ingest/ngsirs_payment"
+    body = {"source": "treasury", "extracted_at": "2026-10-27T12:00:00+01:00", "records": [record]}
+    url = "/api/v1/ingest/payment"
     r = client.post(url, headers={**svc, "Idempotency-Key": "push-1"}, json=body)
     assert r.status_code == 201 and r.json()["qa_status"] == "committed", r.text
     again = client.post(url, headers={**svc, "Idempotency-Key": "push-1"}, json=body)

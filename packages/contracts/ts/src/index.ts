@@ -1,5 +1,5 @@
 /**
- * Typed client for the NGSIRS Compliance Risk Management Platform API.
+ * Typed client for the Tax Compliance Risk Platform API.
  *
  * `schema.ts` is generated from ../openapi.json by `pnpm gen:api`; never edit it by hand.
  * `views.ts` holds hand-written shapes for endpoints whose OpenAPI response is an open object
@@ -14,6 +14,7 @@ export * from "./views";
 export type Schemas = components["schemas"];
 export type Me = Schemas["Me"];
 export type DevUser = Schemas["DevUser"];
+export type Branding = Schemas["Branding"];
 export type FindingSummary = Schemas["FindingSummary"];
 export type FindingDetail = Schemas["FindingDetail"];
 export type FindingPage = Schemas["FindingPage"];

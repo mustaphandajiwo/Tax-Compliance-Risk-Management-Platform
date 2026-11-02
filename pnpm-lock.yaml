@@ -10,10 +10,10 @@ importers:
 
   apps/web:
     dependencies:
-      '@ngsirs/contracts':
+      '@taxrisk/contracts':
         specifier: workspace:*
         version: link:../../packages/contracts/ts
-      '@ngsirs/design':
+      '@taxrisk/design':
         specifier: workspace:*
         version: link:../../packages/design
       next:

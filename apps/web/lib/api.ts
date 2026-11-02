@@ -1,8 +1,8 @@
-import { createApiClient, type ErrorBody } from "@ngsirs/contracts";
+import { createApiClient, type ErrorBody } from "@taxrisk/contracts";
 
 export const API_URL = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000").replace(/\/$/, "");
 
-const TOKEN_KEY = "ngsirs.token";
+const TOKEN_KEY = "taxrisk.token";
 
 export function getToken(): string | null {
   if (typeof window === "undefined") return null;
@@ -66,7 +66,7 @@ export function setUnauthorizedHandler(fn: (() => void) | null) {
 
 /**
  * Resolve an openapi-fetch call to its data or throw an ApiError.
- * `T` lets callers narrow open-object responses to the hand-written view types in @ngsirs/contracts.
+ * `T` lets callers narrow open-object responses to the hand-written view types in @taxrisk/contracts.
  */
 export async function unwrap<T>(call: Promise<FetchResult<unknown>>): Promise<T> {
   let result: FetchResult<unknown>;

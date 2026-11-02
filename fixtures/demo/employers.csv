@@ -1,0 +1,146 @@
+source_employer_id,linked_taxpayer_id,employer_name,activity_from,activity_to,office_id,area_code,sector,segment,status
+DEMO-EMP-0001,DEMO-TP-0001,Hilltop Ceramics Demo Ltd,2019-01-01,,OFF-SAV,SAV,retail,small,active
+DEMO-EMP-0002,DEMO-TP-0002,Valley View Hotels Demo Ltd,2019-01-01,,OFF-CEN,CEN,retail,medium,active
+DEMO-EMP-0003,DEMO-TP-0003,Canal Side Supermarket Demo Ltd,2019-01-01,,OFF-HIL,HIL,retail,small,active
+DEMO-EMP-0004,DEMO-TP-0004,Port Hall Supermarket Demo Ltd,2019-01-01,,OFF-NTH,NTH,agriculture,large,active
+DEMO-EMP-0005,DEMO-TP-0005,Valley View Hardware Demo Ltd,2019-01-01,,OFF-CEN,CEN,manufacturing,large,active
+DEMO-EMP-0006,DEMO-TP-0006,Lakeview Microfinance Demo Ltd,2019-01-01,,OFF-NTH,NTH,services,small,active
+DEMO-EMP-0007,DEMO-TP-0007,Harbour Clinic Demo Ltd,2019-01-01,,OFF-HIL,HIL,agriculture,medium,active
+DEMO-EMP-0008,DEMO-TP-0008,Hilltop Foods Demo Ltd,2019-01-01,,OFF-LAK,LAK,services,large,active
+DEMO-EMP-0009,DEMO-TP-0009,Sunrise Construction Demo Ltd,2019-01-01,,OFF-NTH,NTH,manufacturing,large,active
+DEMO-EMP-0010,DEMO-TP-0010,Kara Engineering Demo Ltd,2019-01-01,,OFF-SAV,SAV,services,large,active
+DEMO-EMP-0011,DEMO-TP-0011,Ridgeway Foods Demo Ltd,2019-01-01,,OFF-RIV,RIV,services,medium,active
+DEMO-EMP-0012,DEMO-TP-0012,Old Quarter Ceramics Demo Ltd,2019-01-01,,OFF-LAK,LAK,education,medium,active
+DEMO-EMP-0013,DEMO-TP-0013,New Layout Water Demo Ltd,2019-01-01,,OFF-PRT,PRT,construction,small,active
+DEMO-EMP-0014,DEMO-TP-0014,Central Foods Demo Ltd,2019-01-01,,OFF-CEN,CEN,services,medium,active
+DEMO-EMP-0015,DEMO-TP-0015,Crossroads Hardware Demo Ltd,2019-01-01,,OFF-CEN,CEN,manufacturing,small,active
+DEMO-EMP-0016,DEMO-TP-0016,Eastfield Foods Demo Ltd,2019-01-01,,OFF-NTH,NTH,construction,medium,active
+DEMO-EMP-0017,DEMO-TP-0017,Savannah Microfinance Demo Ltd,2019-01-01,,OFF-KRA,KRA,education,large,active
+DEMO-EMP-0018,DEMO-TP-0018,Greenvale Logistics Demo Ltd,2019-01-01,,OFF-HIL,HIL,retail,small,active
+DEMO-EMP-0019,DEMO-TP-0019,Eastfield Pharmacy Demo Ltd,2019-01-01,,OFF-CEN,CEN,construction,medium,active
+DEMO-EMP-0020,DEMO-TP-0020,Ridgeway Solar Demo Ltd,2019-01-01,,OFF-PRT,PRT,retail,large,active
+DEMO-EMP-0021,DEMO-TP-0021,Canal Side Poultry Demo Ltd,2019-01-01,,OFF-CEN,CEN,health,small,active
+DEMO-EMP-0022,DEMO-TP-0022,New Layout Schools Demo Ltd,2019-01-01,,OFF-HIL,HIL,manufacturing,large,active
+DEMO-EMP-0023,DEMO-TP-0023,Bridge End Furniture Demo Ltd,2019-01-01,,OFF-GRN,GRN,health,medium,active
+DEMO-EMP-0024,DEMO-TP-0024,Harbour Fisheries Demo Ltd,2019-01-01,,OFF-CEN,CEN,health,large,active
+DEMO-EMP-0025,DEMO-TP-0025,Kingsway Hardware Demo Ltd,2019-01-01,,OFF-NTH,NTH,health,small,active
+DEMO-EMP-0026,DEMO-TP-0026,Northgate Motors Demo Ltd,2019-01-01,,OFF-SAV,SAV,education,medium,active
+DEMO-EMP-0027,DEMO-TP-0027,Ridgeway Motors Demo Ltd,2019-01-01,,OFF-NTH,NTH,construction,medium,active
+DEMO-EMP-0028,DEMO-TP-0028,Kara Fisheries Demo Ltd,2019-01-01,,OFF-NTH,NTH,manufacturing,large,active
+DEMO-EMP-0029,DEMO-TP-0029,Old Quarter Water Demo Ltd,2019-01-01,,OFF-NTH,NTH,construction,medium,active
+DEMO-EMP-0030,DEMO-TP-0030,Ridgeway Microfinance Demo Ltd,2019-01-01,,OFF-NTH,NTH,agriculture,small,active
+DEMO-EMP-0031,DEMO-TP-0031,Bridge End Transport Demo Ltd,2019-01-01,,OFF-NTH,NTH,manufacturing,medium,active
+DEMO-EMP-0032,DEMO-TP-0032,New Layout Hotels Demo Ltd,2019-01-01,,OFF-SAV,SAV,retail,small,active
+DEMO-EMP-0033,DEMO-TP-0033,Unity Estate Furniture Demo Ltd,2019-01-01,,OFF-MKT,MKT,finance,medium,active
+DEMO-EMP-0034,DEMO-TP-0034,Lakeview Fisheries Demo Ltd,2019-01-01,,OFF-LAK,LAK,services,small,active
+DEMO-EMP-0035,DEMO-TP-0035,Savannah Hotels Demo Ltd,2019-01-01,,OFF-NTH,NTH,agriculture,large,active
+DEMO-EMP-0036,DEMO-TP-0036,Kingsway Bakery Demo Ltd,2019-01-01,,OFF-SAV,SAV,finance,large,active
+DEMO-EMP-0037,DEMO-TP-0037,Valley View Water Demo Ltd,2019-01-01,,OFF-LAK,LAK,retail,small,active
+DEMO-EMP-0038,DEMO-TP-0038,Crossroads Motors Demo Ltd,2019-01-01,,OFF-KRA,KRA,agriculture,small,active
+DEMO-EMP-0039,DEMO-TP-0039,Cedar Park Rice Mills Demo Ltd,2019-01-01,,OFF-NTH,NTH,retail,medium,active
+DEMO-EMP-0040,DEMO-TP-0040,Savannah Transport Demo Ltd,2019-01-01,,OFF-NTH,NTH,health,large,active
+DEMO-EMP-0041,DEMO-TP-0041,Central Hotels Demo Ltd,2019-01-01,,OFF-PRT,PRT,construction,large,active
+DEMO-EMP-0042,DEMO-TP-0042,Kingsway Hotels Demo Ltd,2019-01-01,,OFF-KRA,KRA,retail,medium,active
+DEMO-EMP-0043,DEMO-TP-0043,Greenvale Schools Demo Ltd,2019-01-01,,OFF-CEN,CEN,services,medium,active
+DEMO-EMP-0044,DEMO-TP-0044,Market Town Pharmacy Demo Ltd,2019-01-01,,OFF-NTH,NTH,retail,medium,active
+DEMO-EMP-0045,DEMO-TP-0045,Ridgeway Fisheries Demo Ltd,2019-01-01,,OFF-NTH,NTH,services,large,active
+DEMO-EMP-0046,DEMO-TP-0046,Sunrise Poultry Demo Ltd,2019-01-01,,OFF-CEN,CEN,services,small,active
+DEMO-EMP-0047,DEMO-TP-0047,Valley View Transport Demo Ltd,2019-01-01,,OFF-CEN,CEN,services,large,active
+DEMO-EMP-0048,DEMO-TP-0048,Unity Estate Foods Demo Ltd,2019-01-01,,OFF-WST,WST,finance,medium,active
+DEMO-EMP-0049,DEMO-TP-0049,Hilltop Clinic Demo Ltd,2019-01-01,,OFF-KRA,KRA,manufacturing,large,active
+DEMO-EMP-0050,DEMO-TP-0050,New Layout Microfinance Demo Ltd,2019-01-01,,OFF-PRT,PRT,services,large,active
+DEMO-EMP-0051,DEMO-TP-0051,Central Microfinance Demo Ltd,2019-01-01,,OFF-CEN,CEN,agriculture,small,active
+DEMO-EMP-0052,DEMO-TP-0052,Eastfield Poultry Demo Ltd,2019-01-01,,OFF-HIL,HIL,finance,small,active
+DEMO-EMP-0053,DEMO-TP-0053,Harbour Rice Mills Demo Ltd,2019-01-01,,OFF-NTH,NTH,education,medium,active
+DEMO-EMP-0054,DEMO-TP-0054,Station Road Logistics Demo Ltd,2019-01-01,,OFF-LAK,LAK,health,small,active
+DEMO-EMP-0055,DEMO-TP-0055,Cedar Park Bakery Demo Ltd,2019-01-01,,OFF-NTH,NTH,services,small,active
+DEMO-EMP-0056,DEMO-TP-0056,Kara Rice Mills Demo Ltd,2019-01-01,,OFF-HIL,HIL,education,small,active
+DEMO-EMP-0057,DEMO-TP-0057,Sunrise Foods Demo Ltd,2019-01-01,,OFF-SAV,SAV,finance,large,active
+DEMO-EMP-0058,DEMO-TP-0058,Sunrise Motors Demo Ltd,2019-01-01,,OFF-EST,EST,retail,large,active
+DEMO-EMP-0059,DEMO-TP-0059,Lakeshore Printing Demo Ltd,2019-01-01,,OFF-NTH,NTH,health,medium,active
+DEMO-EMP-0060,DEMO-TP-0060,Crossroads Poultry Demo Ltd,2019-01-01,,OFF-CEN,CEN,retail,large,active
+DEMO-EMP-0061,DEMO-TP-0061,Kara Logistics Demo Ltd,2019-01-01,,OFF-NTH,NTH,education,small,active
+DEMO-EMP-0062,DEMO-TP-0062,Greenvale Ceramics Demo Ltd,2019-01-01,,OFF-CEN,CEN,services,large,active
+DEMO-EMP-0063,DEMO-TP-0063,Airport Road Motors Demo Ltd,2019-01-01,,OFF-HIL,HIL,agriculture,small,active
+DEMO-EMP-0064,DEMO-TP-0064,Market Town Transport Demo Ltd,2019-01-01,,OFF-GRN,GRN,construction,medium,active
+DEMO-EMP-0065,DEMO-TP-0065,Palm Grove Water Demo Ltd,2019-01-01,,OFF-NTH,NTH,services,small,active
+DEMO-EMP-0066,DEMO-TP-0066,Port Hall Schools Demo Ltd,2019-01-01,,OFF-NTH,NTH,services,large,active
+DEMO-EMP-0067,DEMO-TP-0067,Market Town Motors Demo Ltd,2019-01-01,,OFF-WST,WST,retail,large,active
+DEMO-EMP-0068,DEMO-TP-0068,Central Printing Demo Ltd,2019-01-01,,OFF-NTH,NTH,construction,large,active
+DEMO-EMP-0069,DEMO-TP-0069,Crossroads Ceramics Demo Ltd,2019-01-01,,OFF-PRT,PRT,construction,large,active
+DEMO-EMP-0070,DEMO-TP-0070,Northgate Poultry Demo Ltd,2019-01-01,,OFF-CEN,CEN,retail,large,active
+DEMO-EMP-0071,DEMO-TP-0071,Central Pharmacy Demo Ltd,2019-01-01,,OFF-RIV,RIV,construction,medium,active
+DEMO-EMP-0072,DEMO-TP-0072,Northgate Engineering Demo Ltd,2019-01-01,,OFF-KRA,KRA,retail,medium,active
+DEMO-EMP-0073,DEMO-TP-0073,Unity Estate Logistics Demo Ltd,2019-01-01,,OFF-SAV,SAV,services,small,active
+DEMO-EMP-0074,DEMO-TP-0074,Greenvale Furniture Demo Ltd,2019-01-01,,OFF-PRT,PRT,manufacturing,large,active
+DEMO-EMP-0075,DEMO-TP-0075,Central Poultry Demo Ltd,2019-01-01,,OFF-MKT,MKT,manufacturing,medium,active
+DEMO-EMP-0076,DEMO-TP-0076,Northgate Ceramics Demo Ltd,2019-01-01,,OFF-NTH,NTH,services,small,active
+DEMO-EMP-0077,DEMO-TP-0077,Airport Road Transport Demo Ltd,2019-01-01,,OFF-EST,EST,education,small,active
+DEMO-EMP-0078,DEMO-TP-0078,Unity Estate Motors Demo Ltd,2019-01-01,,OFF-CEN,CEN,manufacturing,large,active
+DEMO-EMP-0079,DEMO-TP-0079,New Layout Solar Demo Ltd,2019-01-01,,OFF-NTH,NTH,retail,large,active
+DEMO-EMP-0080,DEMO-TP-0080,Riverside Bakery Demo Ltd,2019-01-01,,OFF-HIL,HIL,education,medium,active
+DEMO-EMP-0081,DEMO-TP-0081,Valley View Motors 81 Demo Ltd,2019-01-01,,OFF-CEN,CEN,agriculture,large,active
+DEMO-EMP-0082,DEMO-TP-0082,Station Road Hotels Demo Ltd,2019-01-01,,OFF-EST,EST,services,small,active
+DEMO-EMP-0083,DEMO-TP-0083,Ridgeway Transport Demo Ltd,2019-01-01,,OFF-NTH,NTH,education,large,active
+DEMO-EMP-0084,DEMO-TP-0084,Unity Estate Ceramics Demo Ltd,2019-01-01,,OFF-CEN,CEN,retail,large,active
+DEMO-EMP-0085,DEMO-TP-0085,Valley View Pharmacy Demo Ltd,2019-01-01,,OFF-PRT,PRT,health,small,active
+DEMO-EMP-0086,DEMO-TP-0086,Station Road Fisheries Demo Ltd,2019-01-01,,OFF-NTH,NTH,services,large,active
+DEMO-EMP-0087,DEMO-TP-0087,Old Quarter Hotels Demo Ltd,2019-01-01,,OFF-NTH,NTH,services,large,active
+DEMO-EMP-0088,DEMO-TP-0088,Kingsway Engineering Demo Ltd,2019-01-01,,OFF-PRT,PRT,finance,small,active
+DEMO-EMP-0089,DEMO-TP-0089,Cedar Park Engineering Demo Ltd,2019-01-01,,OFF-NTH,NTH,health,medium,active
+DEMO-EMP-0090,DEMO-TP-0090,Unity Estate Pharmacy Demo Ltd,2019-01-01,,OFF-NTH,NTH,manufacturing,medium,active
+DEMO-EMP-0091,DEMO-TP-0091,Garden City Construction Demo Ltd,2019-01-01,,OFF-CEN,CEN,education,large,active
+DEMO-EMP-0092,DEMO-TP-0092,Ridgeway Engineering Demo Ltd,2019-01-01,,OFF-EST,EST,education,large,active
+DEMO-EMP-0093,DEMO-TP-0093,Palm Grove Pharmacy Demo Ltd,2019-01-01,,OFF-CEN,CEN,construction,medium,active
+DEMO-EMP-0094,DEMO-TP-0094,Garden City Foods Demo Ltd,2019-01-01,,OFF-CEN,CEN,construction,small,active
+DEMO-EMP-0095,DEMO-TP-0095,Harbour Poultry Demo Ltd,2019-01-01,,OFF-EST,EST,manufacturing,medium,active
+DEMO-EMP-0096,DEMO-TP-0096,Unity Estate Schools 96 Demo Ltd,2019-01-01,,OFF-CEN,CEN,education,small,active
+DEMO-EMP-0097,DEMO-TP-0097,Savannah Bakery Demo Ltd,2019-01-01,,OFF-CEN,CEN,manufacturing,small,active
+DEMO-EMP-0098,DEMO-TP-0098,Eastfield Furniture Demo Ltd,2019-01-01,,OFF-CEN,CEN,agriculture,small,active
+DEMO-EMP-0099,DEMO-TP-0099,Hilltop Rice Mills Demo Ltd,2019-01-01,,OFF-NTH,NTH,education,small,active
+DEMO-EMP-0100,DEMO-TP-0100,Airport Road Solar Demo Ltd,2019-01-01,,OFF-NTH,NTH,services,small,active
+DEMO-EMP-0101,DEMO-TP-0101,Crossroads Agro Processing Demo Ltd,2019-01-01,,OFF-NTH,NTH,finance,medium,active
+DEMO-EMP-0102,DEMO-TP-0102,Lakeview Bakery Demo Ltd,2019-01-01,,OFF-HIL,HIL,agriculture,small,active
+DEMO-EMP-0103,DEMO-TP-0103,Hillcrest Hardware Demo Ltd,2019-01-01,,OFF-LAK,LAK,health,small,active
+DEMO-EMP-0104,DEMO-TP-0104,Garden City Microfinance Demo Ltd,2019-01-01,,OFF-NTH,NTH,agriculture,small,active
+DEMO-EMP-0105,DEMO-TP-0105,Airport Road Supermarket Demo Ltd,2019-01-01,,OFF-WST,WST,services,medium,active
+DEMO-EMP-0106,DEMO-TP-0106,Market Town Bakery Demo Ltd,2019-01-01,,OFF-CEN,CEN,finance,small,active
+DEMO-EMP-0107,DEMO-TP-0107,Eastfield Printing Demo Ltd,2019-01-01,,OFF-NTH,NTH,agriculture,small,active
+DEMO-EMP-0108,DEMO-TP-0108,Kara Pharmacy Demo Ltd,2019-01-01,,OFF-NTH,NTH,health,large,active
+DEMO-EMP-0109,DEMO-TP-0109,Station Road Supermarket Demo Ltd,2019-01-01,,OFF-GRN,GRN,health,small,active
+DEMO-EMP-0110,DEMO-TP-0110,Hilltop Supermarket Demo Ltd,2019-01-01,,OFF-CEN,CEN,manufacturing,medium,active
+DEMO-EMP-0111,DEMO-TP-0111,Bridge End Foods Demo Ltd,2019-01-01,,OFF-MKT,MKT,education,small,active
+DEMO-EMP-0112,DEMO-TP-0112,Airport Road Clinic Demo Ltd,2019-01-01,,OFF-CEN,CEN,retail,large,active
+DEMO-EMP-0113,DEMO-TP-0113,Port Hall Transport Demo Ltd,2019-01-01,,OFF-RIV,RIV,education,medium,active
+DEMO-EMP-0114,DEMO-TP-0114,Ridgeway Textiles Demo Ltd,2019-01-01,,OFF-HIL,HIL,retail,large,active
+DEMO-EMP-0115,DEMO-TP-0115,Lakeshore Agro Processing Demo Ltd,2019-01-01,,OFF-GRN,GRN,health,large,active
+DEMO-EMP-0116,DEMO-TP-0116,Market Town Hotels Demo Ltd,2019-01-01,,OFF-LAK,LAK,health,small,active
+DEMO-EMP-0117,DEMO-TP-0117,Palm Grove Construction Demo Ltd,2019-01-01,,OFF-CEN,CEN,agriculture,medium,active
+DEMO-EMP-0118,DEMO-TP-0118,Bridge End Water Demo Ltd,2019-01-01,,OFF-CEN,CEN,education,medium,active
+DEMO-EMP-0119,DEMO-TP-0119,Port Hall Logistics Demo Ltd,2019-01-01,,OFF-EST,EST,agriculture,small,active
+DEMO-EMP-0120,DEMO-TP-0120,Old Quarter Printing Demo Ltd,2019-01-01,,OFF-CEN,CEN,education,medium,active
+DEMO-EMP-0121,DEMO-TP-0121,Old Quarter Engineering Demo Ltd,2019-01-01,,OFF-NTH,NTH,education,small,active
+DEMO-EMP-0122,DEMO-TP-0122,New Layout Fisheries Demo Ltd,2019-01-01,,OFF-CEN,CEN,retail,large,active
+DEMO-EMP-0123,DEMO-TP-0123,Riverside Textiles Demo Ltd,2019-01-01,,OFF-EST,EST,retail,small,active
+DEMO-EMP-0124,DEMO-TP-0124,Northgate Hardware Demo Ltd,2019-01-01,,OFF-EST,EST,retail,small,active
+DEMO-EMP-0125,DEMO-TP-0125,Canal Side Textiles Demo Ltd,2019-01-01,,OFF-CEN,CEN,retail,large,active
+DEMO-EMP-0126,,Lakeview Ceramics Demo Ltd,2019-01-01,,OFF-RIV,RIV,services,large,active
+DEMO-EMP-0127,,Hillcrest Printing Demo Ltd,2019-01-01,,OFF-KRA,KRA,health,small,active
+DEMO-EMP-0128,DEMO-TP-0128,Station Road Schools Demo Ltd,2019-01-01,2026-03-31,OFF-CEN,CEN,construction,small,ceased
+DEMO-EMP-0129,DEMO-TP-0129,Unity Estate Hardware Demo Ltd,2019-01-01,2026-03-31,OFF-CEN,CEN,construction,medium,ceased
+DEMO-EMP-0130,DEMO-TP-0130,Hilltop Printing Demo Ltd,2019-01-01,2026-03-31,OFF-WST,WST,agriculture,small,ceased
+DEMO-EMP-0131,DEMO-TP-0131,Sunrise Bakery Demo Ltd,2019-01-01,,OFF-NTH,NTH,retail,small,active
+DEMO-EMP-0132,DEMO-TP-0132,Central Ceramics Demo Ltd,2019-01-01,,OFF-NTH,NTH,agriculture,large,active
+DEMO-EMP-0133,DEMO-TP-0133,Lakeshore Water Demo Ltd,2019-01-01,,OFF-LAK,LAK,finance,small,active
+DEMO-EMP-0134,DEMO-TP-0134,Northgate Textiles Demo Ltd,2019-01-01,,OFF-MKT,MKT,finance,large,active
+DEMO-EMP-0135,DEMO-TP-0135,Hillcrest Logistics Demo Ltd,2019-01-01,,OFF-CEN,CEN,manufacturing,medium,active
+DEMO-EMP-0136,DEMO-TP-0136,Ridgeway Printing Demo Ltd,2019-01-01,,OFF-SAV,SAV,finance,small,active
+DEMO-EMP-0137,DEMO-TP-0137,Hillcrest Bakery Demo Ltd,2019-01-01,,OFF-CEN,CEN,manufacturing,large,active
+DEMO-EMP-0138,DEMO-TP-0138,Canal Side Ceramics Demo Ltd,2019-01-01,,OFF-NTH,NTH,agriculture,large,active
+DEMO-EMP-0139,DEMO-TP-0139,Hillcrest Agro Processing Demo Ltd,2019-01-01,,OFF-PRT,PRT,agriculture,medium,active
+DEMO-EMP-0140,DEMO-TP-0140,Cedar Park Furniture Demo Ltd,2019-01-01,,OFF-SAV,SAV,finance,medium,active
+DEMO-EMP-0141,DEMO-TP-0141,Greenvale Hotels Demo Ltd,2019-01-01,,OFF-WST,WST,finance,medium,active
+DEMO-EMP-0142,DEMO-TP-0142,Bridge End Construction Demo Ltd,2019-01-01,,OFF-CEN,CEN,manufacturing,small,active
+DEMO-EMP-0143,DEMO-TP-0143,Airport Road Engineering Demo Ltd,2019-01-01,,OFF-WST,WST,agriculture,small,active
+DEMO-EMP-0144,DEMO-TP-0144,Hilltop Transport Demo Ltd,2019-01-01,,OFF-MKT,MKT,agriculture,large,active
+DEMO-EMP-0145,DEMO-TP-0145,New Layout Foods Demo Ltd,2019-01-01,,OFF-PRT,PRT,health,medium,active

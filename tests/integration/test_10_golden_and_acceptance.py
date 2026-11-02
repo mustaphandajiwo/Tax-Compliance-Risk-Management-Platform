@@ -20,18 +20,20 @@ def test_golden_fixture_matches_independently_declared_expectations(world: World
 def test_fixture_contract_size(world: World) -> None:
     employers = (FIXTURES / "employers.csv").read_text().strip().splitlines()[1:]
     assert len(employers) >= 120
-    assert any(",CHA," in e or ",BOS," in e for e in employers)  # Minna pilot LGAs present
+    assert any(",CEN," in e or ",NTH," in e for e in employers)  # pilot LGAs present
 
 
 def test_reprocessing_same_batch_and_rules_is_idempotent(world: World) -> None:
-    from ngsirs_api import cli
+    from taxrisk_api import cli
 
-    before = cli.actual_findings(world.ngsirs)
-    loads = cli.load_fixtures(world.ngsirs)
+    before = cli.actual_findings(world.authority)
+    loads = cli.load_fixtures(world.authority)
     assert all(not r["created"] for r in loads)  # same files -> existing batches returned
-    run = cli.evaluate(world.ngsirs, world.as_of, world.manifest["period_from"], world.manifest["period_to"])
+    run = cli.evaluate(
+        world.authority, world.as_of, world.manifest["period_from"], world.manifest["period_to"]
+    )
     assert run["reused"] is True
-    assert cli.actual_findings(world.ngsirs) == before
+    assert cli.actual_findings(world.authority) == before
 
 
 def test_approved_extension_prevents_fil001(client: TestClient, auth: dict, world: World) -> None:
@@ -53,7 +55,7 @@ def test_suspense_payment_flags_treasury_reconciliation_not_non_payment(
     receipts = {f["subject"]["id"]: f for f in findings(client, auth["steward"], rule="PAY-005")}
     for ref in world.scenarios["suspense_receipt"]:
         n = ref.rsplit("-", 1)[1]
-        receipt = receipts[f"NGS-DEMO-PAY-{n}-2026-07"]
+        receipt = receipts[f"DEMO-PAY-{n}-2026-07"]
         assert receipt["signal_class"] == "data_quality" and receipt["treatment"] == "treasury_reconciliation"
         assert receipt["priority_score"] is None
         assert findings(client, auth["officer"], employer=ref, rule="PAY-001") == []

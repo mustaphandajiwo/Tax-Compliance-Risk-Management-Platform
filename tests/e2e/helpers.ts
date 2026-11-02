@@ -41,7 +41,7 @@ export async function login(page: Page, username: string) {
   await page.getByRole("radio", { name: new RegExp(`\\b${username.replace(/\./g, "\\.")}\\b`) }).check();
   await page.getByRole("button", { name: "Sign in" }).click();
   await page.waitForURL(/\/dashboard$/);
-  await expect(page.getByRole("banner")).toContainText("NGSIRS Compliance Risk Management Platform");
+  await expect(page.getByRole("banner")).toContainText("Tax Compliance Risk Platform");
 }
 
 interface FindingRow {

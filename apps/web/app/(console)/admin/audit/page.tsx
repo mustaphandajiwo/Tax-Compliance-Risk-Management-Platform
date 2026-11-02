@@ -1,7 +1,7 @@
 "use client";
 
-import type { AuditPage, AuditVerify } from "@ngsirs/contracts";
-import { StateMessage } from "@ngsirs/design";
+import type { AuditPage, AuditVerify } from "@taxrisk/contracts";
+import { StateMessage } from "@taxrisk/design";
 import { useState, type FormEvent } from "react";
 import { AsyncBlock, ErrorNotice, Field, Hash, PageHeader, Pager, RequirePermission, Section } from "@/components/ui";
 import { api, unwrap } from "@/lib/api";

@@ -55,6 +55,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/auth/branding": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Branding
+         * @description Public: which authority this deployment serves, for the sign-in screen. Contains no tenant data.
+         */
+        get: operations["branding_api_v1_auth_branding_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/auth/dev-token": {
         parameters: {
             query?: never;
@@ -1295,10 +1315,10 @@ export interface components {
         };
         /** Body_create_import_api_v1_imports_post */
         Body_create_import_api_v1_imports_post: {
+            /** Coverage Area */
+            coverage_area?: string | null;
             /** Coverage From */
             coverage_from?: string | null;
-            /** Coverage Lga */
-            coverage_lga?: string | null;
             /** Coverage To */
             coverage_to?: string | null;
             /**
@@ -1317,6 +1337,19 @@ export interface components {
             file: string;
             /** Source */
             source: string;
+        };
+        /** Branding */
+        Branding: {
+            /** Authority Name */
+            authority_name: string;
+            /** Authority Short Name */
+            authority_short_name: string;
+            /** Fictional Authority */
+            fictional_authority: boolean;
+            /** Product Name */
+            product_name: string;
+        } & {
+            [key: string]: unknown;
         };
         /** CaseActionCreate */
         CaseActionCreate: {
@@ -1387,6 +1420,8 @@ export interface components {
             approved_at: string | null;
             /** Approved By */
             approved_by: string | null;
+            /** Area */
+            area: string | null;
             /** Assigned To */
             assigned_to: string | null;
             /** Case Ref */
@@ -1410,8 +1445,6 @@ export interface components {
             id: string;
             /** Legal Hold */
             legal_hold: boolean;
-            /** Lga */
-            lga: string | null;
             /** Outcome */
             outcome: string | null;
             /** Outward Blockers */
@@ -1447,6 +1480,8 @@ export interface components {
             approved_at: string | null;
             /** Approved By */
             approved_by: string | null;
+            /** Area */
+            area: string | null;
             /** Assigned To */
             assigned_to: string | null;
             /** Case Ref */
@@ -1469,8 +1504,6 @@ export interface components {
             id: string;
             /** Legal Hold */
             legal_hold: boolean;
-            /** Lga */
-            lga: string | null;
             /** Outcome */
             outcome: string | null;
             /** Outward Blockers */
@@ -1597,6 +1630,8 @@ export interface components {
             allowed_next_action: string | null;
             /** Alternative Explanations */
             alternative_explanations: string[];
+            /** Area */
+            area: string | null;
             /** Case */
             case: {
                 [key: string]: unknown;
@@ -1640,8 +1675,6 @@ export interface components {
             label: string;
             /** Legal Version */
             legal_version: string | null;
-            /** Lga */
-            lga: string | null;
             /** Matched Conditions */
             matched_conditions: unknown[];
             /** Override */
@@ -1716,6 +1749,8 @@ export interface components {
         FindingSummary: {
             /** Allowed Next Action */
             allowed_next_action: string | null;
+            /** Area */
+            area: string | null;
             /** Case */
             case: {
                 [key: string]: unknown;
@@ -1744,8 +1779,6 @@ export interface components {
              * @default Risk indicator, not finding of evasion
              */
             label: string;
-            /** Lga */
-            lga: string | null;
             /** Priority Band */
             priority_band: string | null;
             /** Priority Note */
@@ -1890,16 +1923,32 @@ export interface components {
         };
         /** Me */
         Me: {
+            /** Area Label */
+            area_label: string;
+            /** Area Label Plural */
+            area_label_plural: string;
+            /** Area Scope */
+            area_scope: string[];
+            /** Authority Name */
+            authority_name: string;
+            /** Authority Short Name */
+            authority_short_name: string;
+            /** Currency */
+            currency: string;
             /** Display Name */
             display_name: string;
             /** Environment */
             environment: string;
-            /** Lga Scope */
-            lga_scope: string[];
+            /** Fictional Authority */
+            fictional_authority: boolean;
+            /** Locale */
+            locale: string;
             /** Operating Mode */
             operating_mode: string;
             /** Permissions */
             permissions: string[];
+            /** Product Name */
+            product_name: string;
             /** Purposes */
             purposes: string[];
             /** Roles */
@@ -1910,6 +1959,8 @@ export interface components {
             tenant: string;
             /** Tenant Name */
             tenant_name: string;
+            /** Timezone */
+            timezone: string;
             /** Username */
             username: string;
         } & {
@@ -1970,10 +2021,10 @@ export interface components {
              * @default true
              */
             commit: boolean;
+            /** Coverage Area */
+            coverage_area?: string | null;
             /** Coverage From */
             coverage_from?: string | null;
-            /** Coverage Lga */
-            coverage_lga?: string | null;
             /** Coverage To */
             coverage_to?: string | null;
             /**
@@ -2272,6 +2323,89 @@ export interface operations {
                     "application/json": {
                         [key: string]: unknown;
                     };
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too Many Requests */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    branding_api_v1_auth_branding_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Branding"];
                 };
             };
             /** @description Bad Request */
@@ -3772,7 +3906,7 @@ export interface operations {
         parameters: {
             query?: {
                 period?: string | null;
-                lga?: string | null;
+                area?: string | null;
                 tax_type?: string;
             };
             header?: {
@@ -6634,7 +6768,7 @@ export interface operations {
         parameters: {
             query?: {
                 tax_type?: string | null;
-                lga?: string | null;
+                area?: string | null;
                 status?: string | null;
                 rule?: string | null;
                 signal_class?: string | null;
@@ -8623,7 +8757,7 @@ export interface operations {
         parameters: {
             query?: {
                 q?: string | null;
-                lga?: string | null;
+                area?: string | null;
                 page?: number;
                 page_size?: number;
             };

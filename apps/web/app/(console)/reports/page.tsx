@@ -1,7 +1,7 @@
 "use client";
 
-import type { ReportListItem, ReportResult } from "@ngsirs/contracts";
-import { StateMessage } from "@ngsirs/design";
+import type { ReportListItem, ReportResult } from "@taxrisk/contracts";
+import { StateMessage } from "@taxrisk/design";
 import { useState } from "react";
 import { PurposeSelect } from "@/components/PurposeSelect";
 import { AsyncBlock, ErrorNotice, Field, PageHeader, RequirePermission, Section } from "@/components/ui";

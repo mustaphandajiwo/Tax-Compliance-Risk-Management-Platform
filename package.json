@@ -1,15 +1,15 @@
 {
-  "name": "ngsirs-crm-platform",
+  "name": "taxrisk-platform",
   "private": true,
-  "description": "NGSIRS Compliance Risk Management Platform - JavaScript workspace (web console, contracts, design)",
+  "description": "Tax Compliance Risk Platform - JavaScript workspace (web console, contracts, design)",
   "packageManager": "pnpm@10.28.0",
   "scripts": {
-    "gen:api": "pnpm --filter @ngsirs/contracts gen:api",
-    "dev": "pnpm --filter @ngsirs/web dev",
-    "build": "pnpm --filter @ngsirs/web build",
-    "start": "pnpm --filter @ngsirs/web start",
-    "lint": "pnpm --filter @ngsirs/web lint",
+    "gen:api": "pnpm --filter @taxrisk/contracts gen:api",
+    "dev": "pnpm --filter @taxrisk/web dev",
+    "build": "pnpm --filter @taxrisk/web build",
+    "start": "pnpm --filter @taxrisk/web start",
+    "lint": "pnpm --filter @taxrisk/web lint",
     "typecheck": "pnpm -r typecheck",
-    "test:e2e": "pnpm --filter @ngsirs/e2e test"
+    "test:e2e": "pnpm --filter @taxrisk/e2e test"
   }
 }

@@ -1,1 +1,1 @@
-CREATE DATABASE ngsirs OWNER ngsirs_owner;
+CREATE DATABASE taxrisk OWNER taxrisk_owner;

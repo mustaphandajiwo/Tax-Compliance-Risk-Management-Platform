@@ -1,4 +1,4 @@
-"""NGSIRS canonical feed profiles (Tech Spec section 23).
+"""Canonical feed profiles.
 
 A profile lists canonical columns, their types and which columns form the
 natural key used for de-duplication and supersession. Source files may use
@@ -46,9 +46,9 @@ FEEDS: dict[str, FeedProfile] = {
     p.feed_type: p
     for p in [
         FeedProfile(
-            "ngsirs_taxpayer",
+            "taxpayer",
             "Taxpayer register",
-            "Registered taxpayers held by NGSIRS",
+            "Registered taxpayers held by the authority",
             (
                 Column("source_taxpayer_id", "str"),
                 Column(
@@ -60,7 +60,7 @@ FEEDS: dict[str, FeedProfile] = {
                 Column("taxpayer_name", "str", description="Synthetic name in demo; tokenised on ingest"),
                 Column("tin", "identifier", description="Tax identification number; encrypted at rest"),
                 Column("jurisdiction", "str"),
-                Column("lga_code", "str", required=False),
+                Column("area_code", "str", required=False),
                 Column("sector", "str", required=False),
                 Column("effective_from", "date", required=False),
                 Column("effective_to", "date", required=False),
@@ -69,7 +69,7 @@ FEEDS: dict[str, FeedProfile] = {
             safeguard="Duplicate review and pseudonymisation",
         ),
         FeedProfile(
-            "ngsirs_employer",
+            "employer",
             "Employer register",
             "PAYE employers and their link to taxpayer records",
             (
@@ -79,7 +79,7 @@ FEEDS: dict[str, FeedProfile] = {
                 Column("activity_from", "date", required=False),
                 Column("activity_to", "date", required=False),
                 Column("office_id", "str", required=False),
-                Column("lga_code", "str", required=False),
+                Column("area_code", "str", required=False),
                 Column("sector", "str", required=False),
                 Column("segment", "enum", required=False, values=("large", "medium", "small", "micro")),
                 Column("status", "enum", values=("active", "inactive", "ceased")),
@@ -89,7 +89,7 @@ FEEDS: dict[str, FeedProfile] = {
             safeguard="Link confidence and business activity evidence",
         ),
         FeedProfile(
-            "ngsirs_obligation",
+            "obligation",
             "Obligation register",
             "Legal-team-approved tax obligations per employer",
             (
@@ -108,7 +108,7 @@ FEEDS: dict[str, FeedProfile] = {
             safeguard="Only legal-team-approved obligations are eligible",
         ),
         FeedProfile(
-            "ngsirs_extension",
+            "extension",
             "Extensions",
             "Approved or pending due-date extensions",
             (
@@ -124,7 +124,7 @@ FEEDS: dict[str, FeedProfile] = {
             period_columns=("period",),
         ),
         FeedProfile(
-            "ngsirs_paye_return",
+            "paye_return",
             "PAYE employer returns",
             "Monthly PAYE returns from filing systems",
             (
@@ -147,7 +147,7 @@ FEEDS: dict[str, FeedProfile] = {
             period_columns=("period",),
         ),
         FeedProfile(
-            "ngsirs_payment",
+            "payment",
             "PAYE payments",
             "Remittances from bank / treasury collection systems",
             (
@@ -174,7 +174,7 @@ FEEDS: dict[str, FeedProfile] = {
             period_columns=("period",),
         ),
         FeedProfile(
-            "ngsirs_assessment",
+            "assessment",
             "Assessments",
             "Served PAYE assessments and balances",
             (
@@ -199,4 +199,4 @@ FEEDS: dict[str, FeedProfile] = {
     ]
 }
 
-SCHEMA_VERSION = "ngsirs-feeds/1.0"
+SCHEMA_VERSION = "taxrisk-feeds/1.0"

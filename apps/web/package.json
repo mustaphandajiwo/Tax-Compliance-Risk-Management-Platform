@@ -1,19 +1,19 @@
 {
-  "name": "@ngsirs/web",
+  "name": "@taxrisk/web",
   "version": "1.0.0",
   "private": true,
-  "description": "NGSIRS Compliance Risk Management Platform - operations console (Milestone D)",
+  "description": "Tax Compliance Risk Platform - operations console",
   "scripts": {
     "dev": "next dev -p 3000",
     "build": "next build",
     "start": "next start -p 3000",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "test:e2e": "pnpm --filter @ngsirs/e2e test"
+    "test:e2e": "pnpm --filter @taxrisk/e2e test"
   },
   "dependencies": {
-    "@ngsirs/contracts": "workspace:*",
-    "@ngsirs/design": "workspace:*",
+    "@taxrisk/contracts": "workspace:*",
+    "@taxrisk/design": "workspace:*",
     "next": "15.5.28",
     "openapi-fetch": "0.17.0",
     "react": "^19.2.0",

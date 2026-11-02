@@ -1,4 +1,4 @@
-import type { FindingOutcome, ReviewDecision } from "@ngsirs/contracts";
+import type { FindingOutcome, ReviewDecision } from "@taxrisk/contracts";
 
 /** Controlled vocabularies mirrored from services/risk_engine/risk_engine/states.py and services/cases.py. */
 export const FINDING_STATES = [

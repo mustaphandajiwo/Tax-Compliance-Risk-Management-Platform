@@ -4,16 +4,18 @@ from __future__ import annotations
 
 import io
 from datetime import UTC, datetime
+from zoneinfo import ZoneInfo
 
 import pytest
 from openpyxl import Workbook
 
 from importer import ParseError, ValidationContext, parse_file, validate_rows
-from ngsirs_api.services.findings import path_to
-from ngsirs_api.services.legal import due_date_for, period_range
 from risk_engine.states import TransitionError, check_case_transition
+from taxrisk_api.jurisdiction import available_packs, load_pack
+from taxrisk_api.services.findings import path_to
+from taxrisk_api.services.legal import due_date_for, period_range
 
-CTX = ValidationContext(known_employers={"NGS-DEMO-EMP-0001"})
+CTX = ValidationContext(known_employers={"DEMO-EMP-0001"})
 PAY_HEADER = (
     "payment_reference,employer_id,tax_type,period,paid_at,amount,reversal_status,settlement_status,"
     "allocation_status,bank_delay_dispute,credit_adjustment\n"
@@ -25,38 +27,32 @@ def _payments(*rows: str) -> tuple[list[str], list[dict[str, str]]]:
 
 
 def test_invalid_period_is_quarantined_not_rejected() -> None:
-    h, rows = _payments(
-        "P1,NGS-DEMO-EMP-0001,PAYE,2026-13,2026-04-08T10:00:00+01:00,100,none,settled,,false,0"
-    )
-    r = validate_rows("ngsirs_payment", h, rows, None, CTX).results[0]
+    h, rows = _payments("P1,DEMO-EMP-0001,PAYE,2026-13,2026-04-08T10:00:00+01:00,100,none,settled,,false,0")
+    r = validate_rows("payment", h, rows, None, CTX).results[0]
     assert r.status == "quarantined" and "invalid_period" in r.reasons
 
 
 def test_unknown_employer_on_payment_is_accepted_as_unmatched() -> None:
-    h, rows = _payments(
-        "P2,NGS-DEMO-EMP-9999,PAYE,2026-03,2026-04-08T10:00:00+01:00,100,none,settled,,false,0"
-    )
-    r = validate_rows("ngsirs_payment", h, rows, None, CTX).results[0]
+    h, rows = _payments("P2,DEMO-EMP-9999,PAYE,2026-03,2026-04-08T10:00:00+01:00,100,none,settled,,false,0")
+    r = validate_rows("payment", h, rows, None, CTX).results[0]
     assert r.status == "accepted" and any(m.startswith("unmatched_employer") for m in r.messages)
 
 
 def test_unparseable_amount_is_rejected() -> None:
-    h, rows = _payments(
-        "P3,NGS-DEMO-EMP-0001,PAYE,2026-03,2026-04-08T10:00:00+01:00,abc,none,settled,,false,0"
-    )
-    assert validate_rows("ngsirs_payment", h, rows, None, CTX).results[0].status == "rejected"
+    h, rows = _payments("P3,DEMO-EMP-0001,PAYE,2026-03,2026-04-08T10:00:00+01:00,abc,none,settled,,false,0")
+    assert validate_rows("payment", h, rows, None, CTX).results[0].status == "rejected"
 
 
 def test_naive_timestamps_are_read_as_west_africa_time() -> None:
-    h, rows = _payments("P4,NGS-DEMO-EMP-0001,PAYE,2026-03,2026-04-08T10:00:00,100,none,settled,,false,0")
-    paid = validate_rows("ngsirs_payment", h, rows, None, CTX).results[0].values["paid_at"]
+    h, rows = _payments("P4,DEMO-EMP-0001,PAYE,2026-03,2026-04-08T10:00:00,100,none,settled,,false,0")
+    paid = validate_rows("payment", h, rows, None, CTX).results[0].values["paid_at"]
     assert paid.astimezone(UTC) == datetime(2026, 4, 8, 9, 0, tzinfo=UTC)
 
 
 def test_duplicates_in_file() -> None:
-    line = "P5,NGS-DEMO-EMP-0001,PAYE,2026-03,2026-04-08T10:00:00+01:00,100,none,settled,,false,0"
+    line = "P5,DEMO-EMP-0001,PAYE,2026-03,2026-04-08T10:00:00+01:00,100,none,settled,,false,0"
     h, rows = _payments(line, line, line.replace(",100,", ",200,"))
-    statuses = [r.status for r in validate_rows("ngsirs_payment", h, rows, None, CTX).results]
+    statuses = [r.status for r in validate_rows("payment", h, rows, None, CTX).results]
     assert statuses == ["accepted", "duplicate", "quarantined"]
 
 
@@ -64,24 +60,24 @@ def test_invalid_tin_is_quarantined() -> None:
     csv_text = (
         "source_taxpayer_id,taxpayer_type,status,taxpayer_name,tin,jurisdiction\n"
         "T1,company,active,Example Demo Ltd,12345,NG-NI\n"
-        "T2,company,active,Example Two Demo Ltd,NGS-DEMO-TIN-000002,NG-NI\n"
+        "T2,company,active,Example Two Demo Ltd,DEMO-TIN-000002,NG-NI\n"
     )
     h, rows = parse_file("t.csv", csv_text.encode())
-    res = validate_rows("ngsirs_taxpayer", h, rows, None, ValidationContext()).results
+    res = validate_rows("taxpayer", h, rows, None, ValidationContext()).results
     assert [r.status for r in res] == ["quarantined", "accepted"]
     assert "invalid_identifier" in res[0].reasons
 
 
 def test_missing_required_column_rejects_file() -> None:
     h, rows = parse_file("p.csv", b"payment_reference,amount\nP1,10\n")
-    report = validate_rows("ngsirs_payment", h, rows, None, CTX)
+    report = validate_rows("payment", h, rows, None, CTX)
     assert report.rejected_file and any("paid_at" in e for e in report.header_errors)
 
 
 def test_field_mapping_translates_source_columns() -> None:
     h, rows = parse_file(
         "t.csv",
-        b"TaxpayerNo,Type,State,Name,TIN,Juris\nT1,company,active,X Demo Ltd,NGS-DEMO-TIN-000001,NG-NI\n",
+        b"TaxpayerNo,Type,State,Name,TIN,Juris\nT1,company,active,X Demo Ltd,DEMO-TIN-000001,NG-NI\n",
     )
     mapping = {
         "TaxpayerNo": "source_taxpayer_id",
@@ -91,10 +87,7 @@ def test_field_mapping_translates_source_columns() -> None:
         "TIN": "tin",
         "Juris": "jurisdiction",
     }
-    assert (
-        validate_rows("ngsirs_taxpayer", h, rows, mapping, ValidationContext()).results[0].status
-        == "accepted"
-    )
+    assert validate_rows("taxpayer", h, rows, mapping, ValidationContext()).results[0].status == "accepted"
 
 
 def test_xlsx_parsing() -> None:
@@ -114,11 +107,40 @@ def test_only_csv_and_xlsx(name: str) -> None:
         parse_file(name, b"")
 
 
+LAGOS = ZoneInfo("Africa/Lagos")
+
+
 def test_due_dates_follow_legal_parameters_across_year_end() -> None:
     assert (
-        due_date_for("2025-12", {"due_day_of_following_month": 10}).isoformat() == "2026-01-10T22:59:59+00:00"
+        due_date_for("2025-12", {"due_day_of_following_month": 10}, LAGOS).isoformat()
+        == "2026-01-10T22:59:59+00:00"
     )
-    assert due_date_for("2026-01", {"due_day_of_following_month": 31}).date().isoformat() == "2026-02-28"
+    assert (
+        due_date_for("2026-01", {"due_day_of_following_month": 31}, LAGOS).date().isoformat() == "2026-02-28"
+    )
+
+
+def test_deadlines_fall_at_end_of_day_in_the_authoritys_time_zone() -> None:
+    params = {"due_day_of_following_month": 10}
+    assert (
+        due_date_for("2026-03", params, ZoneInfo("Africa/Nairobi")).isoformat() == "2026-04-10T20:59:59+00:00"
+    )
+    assert (
+        due_date_for("2026-03", params, ZoneInfo("Europe/London")).isoformat() == "2026-04-10T22:59:59+00:00"
+    )
+
+
+@pytest.mark.parametrize("name", available_packs())
+def test_every_jurisdiction_pack_is_valid(name: str) -> None:
+    pack = load_pack(name)
+    assert pack.areas and pack.legal_versions and pack.fixture.users
+    settings = pack.tenant_settings()
+    assert settings["branding"]["authority_name"] == pack.name and settings["area_label"]
+
+
+def test_demo_pack_is_fictional_and_default() -> None:
+    assert load_pack("demo").fictional is True
+    assert "ng-niger" in available_packs()
 
 
 def test_period_range() -> None:

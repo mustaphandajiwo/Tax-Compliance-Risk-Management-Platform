@@ -1,4 +1,4 @@
-"""NGSIRS importer: feed profiles, parsing and row validation (no database access)."""
+"""Importer: feed profiles, parsing and row validation (no database access)."""
 
 from .feeds import FEEDS, SCHEMA_VERSION, FeedProfile
 from .parsing import ParseError, parse_file

@@ -3,8 +3,8 @@ from __future__ import annotations
 from alembic import context
 from sqlalchemy import create_engine, pool
 
-from ngsirs_api.config import get_settings
-from ngsirs_api.models import Base
+from taxrisk_api.config import get_settings
+from taxrisk_api.models import Base
 
 target_metadata = Base.metadata
 

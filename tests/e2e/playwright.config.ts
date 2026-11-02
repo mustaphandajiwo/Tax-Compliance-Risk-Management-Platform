@@ -3,7 +3,7 @@ import { defineConfig, devices } from "@playwright/test";
 const WEB_URL = process.env.WEB_URL ?? "http://localhost:3000";
 
 /**
- * E2E + accessibility tests for the NGSIRS console.
+ * E2E + accessibility tests for the operations console.
  * Requires the API on :8000 (seeded SYNTHETIC data). The web app is started with `pnpm start`
  * (run `pnpm build` first) unless something is already listening on :3000.
  */
@@ -36,7 +36,7 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: "pnpm --filter @ngsirs/web start",
+    command: "pnpm --filter @taxrisk/web start",
     url: `${WEB_URL}/login`,
     reuseExistingServer: true,
     timeout: 120_000,

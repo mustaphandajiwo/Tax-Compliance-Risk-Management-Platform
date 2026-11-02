@@ -1,7 +1,7 @@
 """Shared test configuration.
 
-Integration tests create a throwaway database (``ngsirs_test``), migrate it,
-seed the NGSIRS tenant, load the synthetic fixture through the real import
+Integration tests create a throwaway database (``taxrisk_test``), migrate it,
+seed the demo authority tenant, load the synthetic fixture through the real import
 pipeline and run one evaluation. A second, test-only organisation exists only
 here, to prove tenant isolation; it never appears in the application seed.
 """
@@ -12,22 +12,22 @@ import os
 import tempfile
 from pathlib import Path
 
-_TMP = Path(tempfile.mkdtemp(prefix="ngsirs-test-"))
-ADMIN_URL = os.environ.get("NGSIRS_TEST_ADMIN_URL", "postgresql://postgres@127.0.0.1:5432/postgres")
-DB_HOST = os.environ.get("NGSIRS_TEST_DB_HOST", "127.0.0.1:5432")
-TEST_DB = "ngsirs_test"
+_TMP = Path(tempfile.mkdtemp(prefix="taxrisk-test-"))
+ADMIN_URL = os.environ.get("TAXRISK_TEST_ADMIN_URL", "postgresql://postgres@127.0.0.1:5432/postgres")
+DB_HOST = os.environ.get("TAXRISK_TEST_DB_HOST", "127.0.0.1:5432")
+TEST_DB = "taxrisk_test"
 
 os.environ.update(
     {
-        "NGSIRS_ENVIRONMENT": "test",
-        "NGSIRS_DATABASE_URL": f"postgresql+psycopg://ngsirs_app:ngsirs_app@{DB_HOST}/{TEST_DB}",
-        "NGSIRS_OWNER_DATABASE_URL": f"postgresql+psycopg://ngsirs_owner:ngsirs_owner@{DB_HOST}/{TEST_DB}",
-        "NGSIRS_STORAGE_PATH": str(_TMP / "objects"),
-        "NGSIRS_SIGNING_KEY_PATH": str(_TMP / "keys" / "evidence.pem"),
-        "NGSIRS_JWT_KEY_PATH": str(_TMP / "keys" / "jwt.pem"),
-        "NGSIRS_RATE_LIMIT_PER_MINUTE": "100000",
+        "TAXRISK_ENVIRONMENT": "test",
+        "TAXRISK_DATABASE_URL": f"postgresql+psycopg://taxrisk_app:taxrisk_app@{DB_HOST}/{TEST_DB}",
+        "TAXRISK_OWNER_DATABASE_URL": f"postgresql+psycopg://taxrisk_owner:taxrisk_owner@{DB_HOST}/{TEST_DB}",
+        "TAXRISK_STORAGE_PATH": str(_TMP / "objects"),
+        "TAXRISK_SIGNING_KEY_PATH": str(_TMP / "keys" / "evidence.pem"),
+        "TAXRISK_JWT_KEY_PATH": str(_TMP / "keys" / "jwt.pem"),
+        "TAXRISK_RATE_LIMIT_PER_MINUTE": "100000",
     }
 )
 
 REPO = Path(__file__).resolve().parents[1]
-FIXTURES = REPO / "fixtures" / "ngsirs"
+FIXTURES = REPO / "fixtures" / "demo"

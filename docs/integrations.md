@@ -6,14 +6,14 @@ the data-sharing-basis check, supersession and rollback, and audit events. No in
 
 | Route | Who uses it | Authentication |
 |---|---|---|
-| **Pull connector** | NGSIRS revenue collection platform (and any system with a REST API) | API key, bearer token or OAuth2 client credentials, held in the vault |
+| **Pull connector** | The authority's revenue collection platform (and any system with a REST API) | API key, bearer token or OAuth2 client credentials, held in the vault |
 | **Signed webhook** | Collection platform pushing settled / reversed payments as they happen | HMAC-SHA256 signature over timestamp + body |
 | **JSON push API** | e-tax portal, employer payroll / ERP systems, batch jobs | OIDC token for a machine client with the `integration_client` role |
 
 ## Revenue collection platform (pull + webhook)
 
 The demo connector `COLLECTION-PLATFORM` is configured against a simulated gateway
-(`tools/mock_collection_platform`). It needs **only a new mapping** to point at the real NGSIRS
+(`tools/mock_collection_platform`). It needs **only a new mapping** to point at the authority's real
 collection platform; no code changes.
 
 **How a pull works**
@@ -22,13 +22,13 @@ collection platform; no code changes.
 2. Records outside the pilot's legal scope are filtered out (e.g. `revenue_code != PAYE`).
 3. Multiple versions of one transaction (e.g. settled, then reversed by the bank) are de-duplicated; the
    latest version wins.
-4. Source fields are mapped to the canonical `ngsirs_payment` feed, including status codes through value
+4. Source fields are mapped to the canonical `payment` feed, including status codes through value
    maps (`SUCCESSFUL -> settled`, `REVERSED -> reversed`, `UNALLOCATED -> unallocated`).
 5. The batch is validated and committed. Invalid periods are quarantined (DAT-002); receipts that
    match no employer become PAY-005 reconciliation items, never evidence of non-payment.
 6. The cursor advances only after a successful commit, so a failed run is simply retried.
 
-**Coverage.** Incremental pulls do not claim that a period is complete. Only if NGSIRS confirms the
+**Coverage.** Incremental pulls do not claim that a period is complete. Only if the authority confirms the
 platform is the complete system of record for remittances, set `coverage.start` and
 `coverage.settle_days` on the feed. The connector then marks periods complete once they have been
 closed for that many days. Until then, missing remittances are treated as *unknown*, not missing.
@@ -46,16 +46,16 @@ The secret is read from the environment variable named in `webhook_secret_env`.
 **Operations**
 - Console: *Data Imports > System connectors* shows credential status (never the secret), last run,
   cursor, run history and a "Pull now" button for data stewards.
-- CLI: `ngsirs connector-run COLLECTION-PLATFORM`.
+- CLI: `taxrisk connector-run COLLECTION-PLATFORM`.
 - API: `GET /api/v1/connectors`, `GET /api/v1/connectors/{code}`, `POST /api/v1/connectors/{code}/run`.
 
-### What we need from NGSIRS / the platform vendor
+### What we need from the authority / the platform vendor
 
 1. API documentation for the transactions (or receipts) endpoint: URL, authentication, paging, the
    "changed since" parameter and the response fields.
 2. A sandbox URL and test credentials.
 3. The revenue codes that identify PAYE, and the codes for other heads (for later workstreams).
-4. Which field carries the employer's NGSIRS ID or TIN, and the period (if any).
+4. Which field carries the employer's authority ID or TIN, and the period (if any).
 5. Status codes for settled, pending, reversed and unallocated payments.
 6. Whether webhooks are available, and the signing scheme.
 7. Confirmation that the platform is the system of record for remittances (enables coverage claims).
@@ -70,12 +70,12 @@ issued by the identity provider through the client-credentials flow) or a data s
 
 ```json
 {
-  "source": "ngsirs_treasury",
+  "source": "treasury",
   "extracted_at": "2026-10-27T12:00:00+01:00",
   "coverage_from": null, "coverage_to": null,
   "commit": true,
   "records": [
-    {"payment_reference": "PUSH-0001", "employer_id": "NGS-DEMO-EMP-0001", "tax_type": "PAYE",
+    {"payment_reference": "PUSH-0001", "employer_id": "DEMO-EMP-0001", "tax_type": "PAYE",
      "period": "2026-09", "paid_at": "2026-10-07T10:00:00+01:00", "amount": "150000.00",
      "reversal_status": "none", "settlement_status": "settled", "allocation_status": "allocated"}
   ]
@@ -95,4 +95,4 @@ issued by the identity provider through the client-credentials flow) or a data s
 - Connectors must use HTTPS outside demo and test environments. Network egress is restricted by the
   Kubernetes `NetworkPolicy` in `infra/k8s`; add the platform's host there explicitly.
 - Every pull, webhook delivery and push is an audit event with counts, cursor and batch reference.
-- External (non-NGSIRS) sources stay disabled until a data-sharing basis is recorded.
+- External (third-party) sources stay disabled until a data-sharing basis is recorded.

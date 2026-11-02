@@ -1,13 +1,13 @@
 """Simulated revenue collection platform (SYNTHETIC) for developing and testing the connector.
 
-Behaves like a typical Nigerian state revenue collection gateway:
+Behaves like a typical revenue collection gateway:
 
     GET /v1/transactions?updated_since=<ISO>&page=<n>&page_size=<n>     header X-API-Key: <key>
     -> {"data": [transaction, ...], "page": n, "next_page": n+1 | null}
 
     transaction = {
       "transaction_ref": "CP-...", "revenue_code": "PAYE" | "BUSINESS_PREMISES" | ...,
-      "payer": {"employer_id": "NGS-DEMO-EMP-0001", "name": "..."},
+      "payer": {"employer_id": "DEMO-EMP-0001", "name": "..."},
       "period": "2026-09", "amount": "123000.00", "paid_at": ISO, "status": "SUCCESSFUL" | "PENDING" | "REVERSED",
       "allocation": "ALLOCATED" | "UNALLOCATED", "channel": "bank_branch" | "card" | "transfer", "updated_at": ISO
     }
@@ -36,7 +36,7 @@ from fastapi.responses import Response
 API_KEY = "demo-collection-platform-key"  # noqa: S105 - synthetic demo credential
 WEBHOOK_SECRET = "demo-collection-webhook-secret"  # noqa: S105 - synthetic demo credential
 WAT = timezone(timedelta(hours=1))
-FIXTURES = Path(__file__).resolve().parents[2] / "fixtures" / "ngsirs"
+FIXTURES = Path(__file__).resolve().parents[2] / "fixtures" / "demo"
 
 
 def _transactions() -> list[dict[str, Any]]:

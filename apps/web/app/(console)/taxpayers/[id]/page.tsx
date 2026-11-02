@@ -1,7 +1,7 @@
 "use client";
 
-import type { IdentifierReveal, Taxpayer360 } from "@ngsirs/contracts";
-import { RISK_LABEL, RiskIndicator, StateMessage, StatusBadge, type Tone } from "@ngsirs/design";
+import type { IdentifierReveal, Taxpayer360 } from "@taxrisk/contracts";
+import { RISK_LABEL, RiskIndicator, StateMessage, StatusBadge, type Tone } from "@taxrisk/design";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useState } from "react";
@@ -10,7 +10,7 @@ import { AsyncBlock, ErrorNotice, KeyValues, PageHeader, RequirePermission, Sect
 import { api, unwrap } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { useAsync, useMutation } from "@/lib/hooks";
-import { fmtConfidence, fmtDate, fmtDateTime, fmtNGN, humanize } from "@/lib/format";
+import { fmtConfidence, fmtDate, fmtDateTime, fmtMoney, humanize } from "@/lib/format";
 
 export default function Taxpayer360Page() {
   return (
@@ -51,7 +51,7 @@ function View({ d }: { d: Taxpayer360 }) {
           </>
         }
         title={d.employer.name}
-        description={`${d.employer.ref} · ${d.employer.lga ?? "—"} · ${humanize(d.employer.sector)} · ${humanize(d.employer.segment)}`}
+        description={`${d.employer.ref} · ${d.employer.area ?? "—"} · ${humanize(d.employer.sector)} · ${humanize(d.employer.segment)}`}
         actions={<StatusBadge status={d.employer.status} />}
       />
       {d.duplicate_warning.length > 0 && (
@@ -213,9 +213,9 @@ function View({ d }: { d: Taxpayer360 }) {
                     <td>
                       <StatusBadge tone={STATUS_TONE[p.payment_status] ?? "neutral"}>{humanize(p.payment_status)}</StatusBadge>
                     </td>
-                    <td className="num">{fmtNGN(p.declared_payable)}</td>
-                    <td className="num">{fmtNGN(p.paid)}</td>
-                    <td className="num">{fmtNGN(p.residual)}</td>
+                    <td className="num">{fmtMoney(p.declared_payable)}</td>
+                    <td className="num">{fmtMoney(p.paid)}</td>
+                    <td className="num">{fmtMoney(p.residual)}</td>
                     <td>
                       <code>{p.legal_version ?? "—"}</code>
                     </td>
@@ -234,14 +234,14 @@ function View({ d }: { d: Taxpayer360 }) {
           <SimpleTable
             caption="Returns"
             head={["Reference", "Period", "Status", "Submitted", "Accepted", "Declared"]}
-            rows={d.filings.map((f) => [f.ref, f.period, humanize(f.status), fmtDateTime(f.submitted_at), fmtDateTime(f.accepted_at), fmtNGN(f.amount_declared)])}
+            rows={d.filings.map((f) => [f.ref, f.period, humanize(f.status), fmtDateTime(f.submitted_at), fmtDateTime(f.accepted_at), fmtMoney(f.amount_declared)])}
           />
         </Section>
         <Section title="Payments">
           <SimpleTable
             caption="Payments"
             head={["Reference", "Period", "Paid at", "Amount", "Settlement", "Allocation", "Reversal"]}
-            rows={d.payments.map((p) => [p.ref, p.period ?? "—", fmtDateTime(p.paid_at), fmtNGN(p.amount), humanize(p.settlement_status), humanize(p.allocation_status), humanize(p.reversal_status)])}
+            rows={d.payments.map((p) => [p.ref, p.period ?? "—", fmtDateTime(p.paid_at), fmtMoney(p.amount), humanize(p.settlement_status), humanize(p.allocation_status), humanize(p.reversal_status)])}
           />
         </Section>
       </div>
@@ -250,7 +250,7 @@ function View({ d }: { d: Taxpayer360 }) {
         <SimpleTable
           caption="Assessments"
           head={["Reference", "Period", "Amount", "Outstanding", "Status", "Appeal / stay", "Served"]}
-          rows={d.assessments.map((a) => [a.ref, a.period ?? "—", fmtNGN(a.amount), fmtNGN(a.outstanding), humanize(a.status), humanize(a.appeal_status), fmtDate(a.served_on)])}
+          rows={d.assessments.map((a) => [a.ref, a.period ?? "—", fmtMoney(a.amount), fmtMoney(a.outstanding), humanize(a.status), humanize(a.appeal_status), fmtDate(a.served_on)])}
         />
       </Section>
 

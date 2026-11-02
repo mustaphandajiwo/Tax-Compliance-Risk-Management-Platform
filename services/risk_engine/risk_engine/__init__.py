@@ -1,4 +1,4 @@
-"""NGSIRS deterministic compliance risk engine.
+"""Deterministic compliance risk engine.
 
 Pure functions only: no I/O, no clock, no randomness. Everything the engine
 needs arrives in fact records and rule definitions, so any score can be

@@ -12,15 +12,15 @@ import type {
   ImportRowsPage,
   QuarantineItem,
   QuarantineResolutionCode,
-} from "@ngsirs/contracts";
-import { StateMessage, StatusBadge } from "@ngsirs/design";
+} from "@taxrisk/contracts";
+import { StateMessage, StatusBadge } from "@taxrisk/design";
 import { useState, type FormEvent } from "react";
 import { Tabs } from "@/components/Tabs";
 import { AsyncBlock, ErrorNotice, Field, Hash, JsonView, KeyValues, PageHeader, RequirePermission, Section } from "@/components/ui";
 import { api, idempotencyKey, unwrap } from "@/lib/api";
-import { useAuth } from "@/lib/auth";
+import { useAuth, useLabels } from "@/lib/auth";
 import { useAsync, useMutation, useReference } from "@/lib/hooks";
-import { fmtConfidence, fmtDateTime, fmtPct, humanize } from "@/lib/format";
+import { currentTimeZone, fmtConfidence, fmtDateTime, fmtPct, humanize, zoneOffset } from "@/lib/format";
 
 export default function ImportsPage() {
   return (
@@ -128,7 +128,7 @@ function Batches() {
                       <td className="nowrap">{fmtDateTime(b.extracted_at)}</td>
                       <td className="nowrap">
                         {String(b.coverage.from ?? "—")} – {String(b.coverage.to ?? "—")}
-                        {b.coverage.lga ? ` · ${String(b.coverage.lga)}` : ""}
+                        {b.coverage.area ? ` · ${String(b.coverage.area)}` : ""}
                       </td>
                       <td>
                         <StatusBadge status={b.qa_status} />
@@ -154,12 +154,14 @@ function Batches() {
   );
 }
 
-function toIsoWat(local: string): string {
-  // datetime-local has no zone; NGSIRS extracts are stamped in WAT (UTC+01:00).
-  return local.length === 16 ? `${local}:00+01:00` : `${local}+01:00`;
+function toZonedIso(local: string): string {
+  // datetime-local has no zone; extracts are stamped in the authority's own time zone.
+  const base = local.length === 16 ? `${local}:00` : local;
+  return `${base}${zoneOffset(base)}`;
 }
 
 function UploadForm({ onCreated }: { onCreated: (b: ImportBatchOut) => void }) {
+  const labels = useLabels();
   const templates = useAsync(() => unwrap<FeedTemplate[]>(api.GET("/api/v1/imports/templates")), []);
   const sources = useAsync(() => unwrap<DataSource[]>(api.GET("/api/v1/data-sources")), []);
   const ref = useReference();
@@ -169,7 +171,7 @@ function UploadForm({ onCreated }: { onCreated: (b: ImportBatchOut) => void }) {
   const [extracted, setExtracted] = useState("");
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
-  const [lga, setLga] = useState("");
+  const [area, setArea] = useState("");
   const [mapping, setMapping] = useState("");
   const [mappingError, setMappingError] = useState<string | null>(null);
 
@@ -182,10 +184,10 @@ function UploadForm({ onCreated }: { onCreated: (b: ImportBatchOut) => void }) {
           file: file as unknown as string,
           source,
           feed_type: feed,
-          extracted_at: toIsoWat(extracted),
+          extracted_at: toZonedIso(extracted),
           coverage_from: from || null,
           coverage_to: to || null,
-          coverage_lga: lga || null,
+          coverage_area: area || null,
           field_mapping: mapping.trim() || null,
         },
         bodySerializer(body) {
@@ -247,7 +249,7 @@ function UploadForm({ onCreated }: { onCreated: (b: ImportBatchOut) => void }) {
           <Field label="File (CSV)" htmlFor="u-file" required hint="Maximum 50 MB">
             <input id="u-file" type="file" accept=".csv,text/csv" onChange={(e) => setFile(e.target.files?.[0] ?? null)} required />
           </Field>
-          <Field label="Extracted at (WAT)" htmlFor="u-extracted" required hint="Sent with timezone +01:00">
+          <Field label={`Extracted at (${currentTimeZone()})`} htmlFor="u-extracted" required hint="Local time of the authority; sent with its UTC offset">
             <input id="u-extracted" type="datetime-local" value={extracted} onChange={(e) => setExtracted(e.target.value)} required />
           </Field>
           <Field label="Coverage from" htmlFor="u-from" hint="YYYY-MM">
@@ -256,10 +258,10 @@ function UploadForm({ onCreated }: { onCreated: (b: ImportBatchOut) => void }) {
           <Field label="Coverage to" htmlFor="u-to" hint="YYYY-MM">
             <input id="u-to" type="text" pattern="\d{4}-\d{2}" value={to} onChange={(e) => setTo(e.target.value)} />
           </Field>
-          <Field label="Coverage LGA" htmlFor="u-lga" hint="Leave blank for state-wide">
-            <select id="u-lga" value={lga} onChange={(e) => setLga(e.target.value)}>
+          <Field label={`Coverage ${labels.area}`} htmlFor="u-area" hint="Leave blank for the whole jurisdiction">
+            <select id="u-area" value={area} onChange={(e) => setArea(e.target.value)}>
               <option value="">State-wide</option>
-              {ref?.lgas.map((l) => (
+              {ref?.areas.map((l) => (
                 <option key={l.code} value={l.code}>
                   {l.name}
                 </option>
@@ -580,7 +582,7 @@ function IdentityQueue() {
                     <th scope="row">
                       {m.employer_name ?? "—"}
                       <div className="small muted">
-                        {m.employer_ref} · {m.employer_lga}
+                        {m.employer_ref} · {m.employer_area}
                       </div>
                     </th>
                     <td>
@@ -776,7 +778,7 @@ function Connectors() {
     <>
       <Section
         title="System connectors"
-        description="Live links to source systems such as the NGSIRS revenue collection platform. Each connector pulls new records on a schedule (cursor-based, so nothing is fetched twice) and can also receive signed webhooks. Everything it brings in goes through the same validation, quarantine and audit as a file import."
+        description="Live links to source systems such as the revenue collection platform. Each connector pulls new records on a schedule (cursor-based, so nothing is fetched twice) and can also receive signed webhooks. Everything it brings in goes through the same validation, quarantine and audit as a file import."
       >
         <AsyncBlock state={list} what="connectors" empty={(d) => d.length === 0}>
           {(d) => (

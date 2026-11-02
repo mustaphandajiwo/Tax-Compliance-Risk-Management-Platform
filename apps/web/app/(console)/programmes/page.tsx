@@ -1,11 +1,11 @@
 "use client";
 
-import type { Programme, ProgrammeEvaluation } from "@ngsirs/contracts";
-import { MetricCard, StateMessage, StatusBadge } from "@ngsirs/design";
+import type { Programme, ProgrammeEvaluation } from "@taxrisk/contracts";
+import { MetricCard, StateMessage, StatusBadge } from "@taxrisk/design";
 import { useState, type FormEvent } from "react";
 import { AsyncBlock, ErrorNotice, Field, KeyValues, PageHeader, RequirePermission, Section } from "@/components/ui";
 import { api, unwrap } from "@/lib/api";
-import { useAuth } from "@/lib/auth";
+import { useAuth, useLabels } from "@/lib/auth";
 import { useAsync, useMutation, useReference } from "@/lib/hooks";
 import { fmtDateTime, humanize } from "@/lib/format";
 
@@ -137,6 +137,7 @@ function EvaluationView({ e }: { e: ProgrammeEvaluation }) {
 }
 
 function CreateProgramme({ onCreated }: { onCreated: () => void }) {
+  const labels = useLabels();
   const ref = useReference();
   const [form, setForm] = useState({
     code: "",
@@ -152,11 +153,11 @@ function CreateProgramme({ onCreated }: { onCreated: () => void }) {
     resource_budget: "",
     comparison_share: 0.3,
   });
-  const [lgas, setLgas] = useState<string[]>([]);
+  const [areas, setAreas] = useState<string[]>([]);
   const m = useMutation(() =>
     unwrap<Programme>(
       api.POST("/api/v1/programmes", {
-        body: { ...form, resource_budget: form.resource_budget || null, population: lgas.length ? { lga_codes: lgas } : {} },
+        body: { ...form, resource_budget: form.resource_budget || null, population: areas.length ? { area_codes: areas } : {} },
       }),
     ),
   );
@@ -206,9 +207,9 @@ function CreateProgramme({ onCreated }: { onCreated: () => void }) {
             <Field label="Comparison share (0–0.5)" htmlFor="p-share">
               <input id="p-share" type="number" step="0.05" min={0} max={0.5} value={form.comparison_share} onChange={set("comparison_share")} />
             </Field>
-            <Field label="Population LGAs" htmlFor="p-lgas" hint="Ctrl/Cmd-click for several; none = state-wide">
-              <select id="p-lgas" multiple size={5} value={lgas} onChange={(e) => setLgas([...e.target.selectedOptions].map((o) => o.value))}>
-                {ref?.lgas.map((l) => (
+            <Field label={`Population ${labels.areas}`} htmlFor="p-areas" hint="Ctrl/Cmd-click for several; none = whole jurisdiction">
+              <select id="p-areas" multiple size={5} value={areas} onChange={(e) => setAreas([...e.target.selectedOptions].map((o) => o.value))}>
+                {ref?.areas.map((l) => (
                   <option key={l.code} value={l.code}>
                     {l.name}
                   </option>

@@ -12,20 +12,24 @@ export interface MetricFigures {
   caveats: string[];
 }
 
-const intFmt = new Intl.NumberFormat("en-NG", { maximumFractionDigits: 0 });
-const ngnFmt = new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", maximumFractionDigits: 0 });
+const intFmt = new Intl.NumberFormat(undefined, { maximumFractionDigits: 0 });
+
+/** Money metrics carry their ISO 4217 currency code as the unit (e.g. "NGN", "GHS", "KES"). */
+const isCurrency = (unit: string) => /^[A-Z]{3}$/.test(unit);
+const money = (n: number, currency: string) =>
+  new Intl.NumberFormat(undefined, { style: "currency", currency, maximumFractionDigits: 0 }).format(n);
 
 export function formatMetricValue(m: Pick<MetricFigures, "value" | "unit">): string {
   if (m.value === null) return "Withheld";
   if (m.unit === "rate") return `${(m.value * 100).toFixed(1)}%`;
-  if (m.unit === "NGN") return ngnFmt.format(m.value);
+  if (isCurrency(m.unit)) return money(m.value, m.unit);
   if (m.unit === "days") return `${m.value.toFixed(1)} days`;
   return intFmt.format(m.value);
 }
 
 function formatCount(n: number | null, unit: string): string {
   if (n === null) return unit === "rate" ? "None" : "Not applicable (amount, not a rate)";
-  return unit === "NGN" ? ngnFmt.format(n) : intFmt.format(n);
+  return isCurrency(unit) ? money(n, unit) : intFmt.format(n);
 }
 
 /** Why a value is null, taken from the API's own caveats. */

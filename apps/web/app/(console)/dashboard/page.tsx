@@ -1,12 +1,13 @@
 "use client";
 
-import type { DashboardSummary, Metric } from "@ngsirs/contracts";
-import { MetricCard, StateMessage, StatusBadge, withheldReason } from "@ngsirs/design";
+import type { DashboardSummary, Metric } from "@taxrisk/contracts";
+import { MetricCard, StateMessage, StatusBadge, withheldReason } from "@taxrisk/design";
 import { useState } from "react";
 import { AsyncBlock, Field, Hash, PageHeader, RequirePermission, Section } from "@/components/ui";
 import { api, unwrap } from "@/lib/api";
 import { useAsync, useReference } from "@/lib/hooks";
 import { fmtDate, fmtDateTime, fmtInt, fmtPct, humanize } from "@/lib/format";
+import { useLabels } from "@/lib/auth";
 
 const ARREARS_KEYS = new Set(["confirmed_arrears", "arrears_under_hold"]);
 
@@ -19,17 +20,18 @@ export default function DashboardPage() {
 }
 
 function Dashboard() {
+  const labels = useLabels();
   const [period, setPeriod] = useState("");
-  const [lga, setLga] = useState("");
+  const [area, setArea] = useState("");
   const ref = useReference();
   const summary = useAsync(
     () =>
       unwrap<DashboardSummary>(
         api.GET("/api/v1/dashboard/summary", {
-          params: { query: { period: period || undefined, lga: lga || undefined, tax_type: "PAYE" } },
+          params: { query: { period: period || undefined, area: area || undefined, tax_type: "PAYE" } },
         }),
       ),
-    [period, lga],
+    [period, area],
   );
   // The trend always lists every due period in the run, independent of the period filter.
   const periods = summary.data?.trend.map((t) => t.period) ?? [];
@@ -37,8 +39,8 @@ function Dashboard() {
   return (
     <>
       <PageHeader
-        eyebrow="PAYE · Niger State"
-        title="NGSIRS Compliance Overview"
+        eyebrow={`PAYE · ${labels.authorityShort || labels.authority}`}
+        title="Compliance Overview"
         description="Strategic compliance indicators with their numerators, denominators, time windows and data completeness. Rates are withheld, not estimated, when coverage is too low."
       />
       <form className="filters panel" aria-label="Dashboard filters" onSubmit={(e) => e.preventDefault()}>
@@ -52,10 +54,10 @@ function Dashboard() {
             ))}
           </select>
         </Field>
-        <Field label="LGA" htmlFor="f-lga">
-          <select id="f-lga" value={lga} onChange={(e) => setLga(e.target.value)}>
-            <option value="">All 25 LGAs</option>
-            {ref?.lgas.map((l) => (
+        <Field label={labels.area} htmlFor="f-area">
+          <select id="f-area" value={area} onChange={(e) => setArea(e.target.value)}>
+            <option value="">{`All ${ref?.areas.length ?? ""} ${labels.areas}`}</option>
+            {ref?.areas.map((l) => (
               <option key={l.code} value={l.code}>
                 {l.name} ({l.code})
               </option>
@@ -68,7 +70,7 @@ function Dashboard() {
           </select>
         </Field>
         <p className="m0 small muted" aria-live="polite">
-          {summary.loading ? "Updating…" : summary.data ? `Showing ${summary.data.filters.period ?? "—"}${summary.data.filters.lga ? ` · ${summary.data.filters.lga}` : " · all LGAs"}` : ""}
+          {summary.loading ? "Updating…" : summary.data ? `Showing ${summary.data.filters.period ?? "—"}${summary.data.filters.area ? ` · ${summary.data.filters.area}` : ` · all ${labels.areas}`}` : ""}
         </p>
       </form>
       <AsyncBlock state={summary} what="the compliance overview">
@@ -79,6 +81,7 @@ function Dashboard() {
 }
 
 function DashboardBody({ d }: { d: DashboardSummary }) {
+  const labels = useLabels();
   if (!d.run) {
     return (
       <StateMessage state="no_data" title="No operational evaluation run yet">
@@ -123,8 +126,8 @@ function DashboardBody({ d }: { d: DashboardSummary }) {
         <Section title="Trend by tax period" description="On-time filing and remittance per period (all due periods in the run).">
           <TrendTable trend={d.trend} />
         </Section>
-        <Section title="On-time filing by LGA" description={`Tax period ${d.filters.period ?? "—"}. LGAs with no obligated employers are omitted.`}>
-          <LgaTable rows={d.by_lga} />
+        <Section title={`On-time filing by ${labels.area}`} description={`Tax period ${d.filters.period ?? "—"}. ${labels.areas} with no obligated employers are omitted.`}>
+          <AreaTable rows={d.by_area} />
         </Section>
       </div>
 
@@ -254,15 +257,16 @@ function TrendTable({ trend }: { trend: DashboardSummary["trend"] }) {
   );
 }
 
-function LgaTable({ rows }: { rows: DashboardSummary["by_lga"] }) {
-  if (rows.length === 0) return <StateMessage state="no_data">No LGA has obligated employers for this period.</StateMessage>;
+function AreaTable({ rows }: { rows: DashboardSummary["by_area"] }) {
+  const labels = useLabels();
+  if (rows.length === 0) return <StateMessage state="no_data">{`No ${labels.area} has obligated employers for this period.`}</StateMessage>;
   return (
     <div className="table-wrap" tabIndex={0} role="region" aria-label="Scrollable table">
       <table className="data">
-        <caption className="ng-visually-hidden">On-time filing rate by LGA</caption>
+        <caption className="ng-visually-hidden">{`On-time filing rate by ${labels.area}`}</caption>
         <thead>
           <tr>
-            <th scope="col">LGA</th>
+            <th scope="col">{labels.area}</th>
             <th scope="col">Filing on time</th>
             <th scope="col" className="num">Num / Den</th>
             <th scope="col" className="num">Completeness</th>
@@ -270,9 +274,9 @@ function LgaTable({ rows }: { rows: DashboardSummary["by_lga"] }) {
         </thead>
         <tbody>
           {rows.map((r) => (
-            <tr key={r.lga}>
+            <tr key={r.area}>
               <th scope="row">
-                {r.name} <span className="muted small">({r.lga})</span>
+                {r.name} <span className="muted small">({r.area})</span>
               </th>
               <td>
                 <RateCell m={r.filing} />

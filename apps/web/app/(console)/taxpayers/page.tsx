@@ -1,13 +1,14 @@
 "use client";
 
-import type { TaxpayerSearchPage } from "@ngsirs/contracts";
-import { StatusBadge } from "@ngsirs/design";
+import type { TaxpayerSearchPage } from "@taxrisk/contracts";
+import { StatusBadge } from "@taxrisk/design";
 import Link from "next/link";
 import { useState, type FormEvent } from "react";
 import { AsyncBlock, Field, PageHeader, Pager, RequirePermission } from "@/components/ui";
 import { api, unwrap } from "@/lib/api";
 import { useAsync, useReference } from "@/lib/hooks";
 import { fmtConfidence, humanize } from "@/lib/format";
+import { useLabels } from "@/lib/auth";
 
 const PAGE_SIZE = 50;
 
@@ -20,16 +21,17 @@ export default function TaxpayersPage() {
 }
 
 function TaxpayerSearch() {
+  const labels = useLabels();
   const ref = useReference();
   const [q, setQ] = useState("");
-  const [lga, setLga] = useState("");
-  const [applied, setApplied] = useState({ q: "", lga: "" });
+  const [area, setArea] = useState("");
+  const [applied, setApplied] = useState({ q: "", area: "" });
   const [page, setPage] = useState(1);
   const res = useAsync(
     () =>
       unwrap<TaxpayerSearchPage>(
         api.GET("/api/v1/taxpayers", {
-          params: { query: { q: applied.q || undefined, lga: applied.lga || undefined, page, page_size: PAGE_SIZE } },
+          params: { query: { q: applied.q || undefined, area: applied.area || undefined, page, page_size: PAGE_SIZE } },
         }),
       ),
     [applied, page],
@@ -38,7 +40,7 @@ function TaxpayerSearch() {
   function submit(e: FormEvent) {
     e.preventDefault();
     setPage(1);
-    setApplied({ q, lga });
+    setApplied({ q, area });
   }
 
   return (
@@ -52,10 +54,10 @@ function TaxpayerSearch() {
         <Field label="Name, employer ref or taxpayer ref" htmlFor="t-q">
           <input id="t-q" type="search" value={q} onChange={(e) => setQ(e.target.value)} size={32} />
         </Field>
-        <Field label="LGA" htmlFor="t-lga">
-          <select id="t-lga" value={lga} onChange={(e) => setLga(e.target.value)}>
+        <Field label={labels.area} htmlFor="t-area">
+          <select id="t-area" value={area} onChange={(e) => setArea(e.target.value)}>
             <option value="">All</option>
-            {ref?.lgas.map((l) => (
+            {ref?.areas.map((l) => (
               <option key={l.code} value={l.code}>
                 {l.name}
               </option>
@@ -75,7 +77,7 @@ function TaxpayerSearch() {
                 <thead>
                   <tr>
                     <th scope="col">Employer</th>
-                    <th scope="col">LGA</th>
+                    <th scope="col">{labels.area}</th>
                     <th scope="col">Sector · segment</th>
                     <th scope="col">Linked taxpayer</th>
                     <th scope="col">Identity status</th>
@@ -96,7 +98,7 @@ function TaxpayerSearch() {
                           {t.employer_ref} · {humanize(t.status)}
                         </div>
                       </th>
-                      <td>{t.lga ?? "—"}</td>
+                      <td>{t.area ?? "—"}</td>
                       <td>
                         {humanize(t.sector)} · {humanize(t.segment)}
                       </td>

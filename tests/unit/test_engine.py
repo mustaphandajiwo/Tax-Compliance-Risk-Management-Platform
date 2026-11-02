@@ -104,7 +104,7 @@ def test_fil001_triggers_for_verified_missing_return_with_unknown_exposure() -> 
     assert o.priority_note == "exposure_unknown"
     assert o.allowed_next_action == "internal_review"
     assert "2026-06" in (o.explanation or "")
-    assert "src:employer:NGS-DEMO-EMP-0001" in o.evidence_refs
+    assert "src:employer:DEMO-EMP-0001" in o.evidence_refs
 
 
 def test_fil001_suppressed_by_approved_extension() -> None:

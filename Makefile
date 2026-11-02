@@ -4,10 +4,10 @@ install:
 	uv sync && pnpm install
 
 demo:            ## migrate, seed, load synthetic fixture, evaluate, verify golden file
-	uv run ngsirs demo
+	uv run taxrisk demo
 
 api:
-	uv run uvicorn ngsirs_api.main:app --port 8000 --reload
+	uv run uvicorn taxrisk_api.main:app --port 8000 --reload
 
 web:
 	pnpm dev
@@ -22,10 +22,11 @@ e2e:
 	pnpm test:e2e
 
 openapi:
-	uv run ngsirs export-openapi && pnpm gen:api
+	uv run taxrisk export-openapi && pnpm gen:api
 
 fixture:
-	uv run python fixtures/ngsirs/generate.py
+	uv run python fixtures/generate.py --pack demo
+	uv run python fixtures/generate.py --pack ng-niger
 
 benchmark:
 	uv run python -m scripts.benchmark_engine

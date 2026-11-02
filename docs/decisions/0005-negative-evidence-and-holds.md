@@ -3,7 +3,7 @@
 **Status:** accepted
 
 ## Decision
-- **Coverage tables** record, per feed and period (optionally per LGA), whether a complete extract was
+- **Coverage tables** record, per feed and period (optionally per administrative area), whether a complete extract was
   received. A missing return or remittance only counts when coverage is complete; otherwise the rule is
   suppressed (`*_coverage_incomplete`).
 - **Event time over ingestion time.** Acceptance and payment timestamps decide lateness; late ingestion of

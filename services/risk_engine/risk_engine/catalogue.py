@@ -87,7 +87,7 @@ CATALOGUE: list[CatalogueEntry] = [
     CatalogueEntry(
         "DAT-001",
         "data_quality",
-        "Duplicate NGSIRS taxpayer identities",
+        "Duplicate taxpayer identities",
         "identity_review",
         "pilot",
         "REG-002",
@@ -280,7 +280,7 @@ CATALOGUE: list[CatalogueEntry] = [
     CatalogueEntry(
         "SYS-002",
         "systemic",
-        "LGA concentration of registration discrepancies",
+        "Area concentration of registration discrepancies",
         "legal_review",
         "proposed_r1",
         "SYS-002",

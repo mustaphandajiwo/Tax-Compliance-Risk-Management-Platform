@@ -1,7 +1,7 @@
 "use client";
 
-import type { FindingPage } from "@ngsirs/contracts";
-import { RISK_LABEL, RiskIndicator, StatusBadge, consequenceText } from "@ngsirs/design";
+import type { FindingPage } from "@taxrisk/contracts";
+import { RISK_LABEL, RiskIndicator, StatusBadge, consequenceText } from "@taxrisk/design";
 import Link from "next/link";
 import { useState, type FormEvent } from "react";
 import { AsyncBlock, Field, PageHeader, Pager, RequirePermission } from "@/components/ui";
@@ -9,10 +9,11 @@ import { api, unwrap } from "@/lib/api";
 import { BANDS, FINDING_STATES, HOLD_FILTERS, SIGNAL_CLASSES } from "@/lib/constants";
 import { useAsync, useReference } from "@/lib/hooks";
 import { fmtConfidence, humanize } from "@/lib/format";
+import { useLabels } from "@/lib/auth";
 
 interface Filters {
   q: string;
-  lga: string;
+  area: string;
   status: string;
   rule: string;
   signal_class: string;
@@ -21,7 +22,7 @@ interface Filters {
   hold: string;
 }
 
-const EMPTY: Filters = { q: "", lga: "", status: "", rule: "", signal_class: "", band: "", period: "", hold: "" };
+const EMPTY: Filters = { q: "", area: "", status: "", rule: "", signal_class: "", band: "", period: "", hold: "" };
 const PAGE_SIZE = 50;
 
 export default function RisksPage() {
@@ -33,6 +34,7 @@ export default function RisksPage() {
 }
 
 function RiskRegister() {
+  const labels = useLabels();
   const ref = useReference();
   const [draft, setDraft] = useState<Filters>(EMPTY);
   const [filters, setFilters] = useState<Filters>(EMPTY);
@@ -46,7 +48,7 @@ function RiskRegister() {
             query: {
               tax_type: "PAYE",
               q: filters.q || undefined,
-              lga: filters.lga || undefined,
+              area: filters.area || undefined,
               status: filters.status || undefined,
               open_only: filters.status ? undefined : true,
               rule: filters.rule.trim().toUpperCase() || undefined,
@@ -92,10 +94,10 @@ function RiskRegister() {
             <option>PAYE</option>
           </select>
         </Field>
-        <Field label="LGA" htmlFor="r-lga">
-          <select id="r-lga" value={draft.lga} onChange={set("lga")}>
+        <Field label={labels.area} htmlFor="r-area">
+          <select id="r-area" value={draft.area} onChange={set("area")}>
             <option value="">All</option>
-            {ref?.lgas.map((l) => (
+            {ref?.areas.map((l) => (
               <option key={l.code} value={l.code}>
                 {l.name}
               </option>
@@ -182,7 +184,7 @@ function RiskRegister() {
                     <th scope="col">Rule ID</th>
                     <th scope="col">Finding</th>
                     <th scope="col">Subject / employer</th>
-                    <th scope="col">LGA</th>
+                    <th scope="col">{labels.area}</th>
                     <th scope="col">Period</th>
                     <th scope="col" className="num">
                       Likelihood
@@ -220,7 +222,7 @@ function RiskRegister() {
                         )}
                         {f.employer_name && <div className="small muted">{f.subject.employer_ref}</div>}
                       </td>
-                      <td>{f.lga ?? "—"}</td>
+                      <td>{f.area ?? "—"}</td>
                       <td className="nowrap">{f.tax_period ?? "—"}</td>
                       <td className="num">{f.indicators.likelihood ?? "—"}</td>
                       <td className="num">{consequenceText(f.indicators.consequence, f.priority_note)}</td>
